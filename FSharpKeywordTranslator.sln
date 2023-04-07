@@ -5,6 +5,13 @@ VisualStudioVersion = 17.6.33513.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FSharpKeywordTranslator", "FSharpKeywordTranslator\FSharpKeywordTranslator.csproj", "{8C6CE234-24B9-4537-8037-790F04D241F4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{E46BD95B-BA07-4BCB-997B-8879FE191840}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{ABDA0490-045A-4E83-9F75-8E9257C23AD6}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\deployment.yml = .github\workflows\deployment.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,6 +25,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{ABDA0490-045A-4E83-9F75-8E9257C23AD6} = {E46BD95B-BA07-4BCB-997B-8879FE191840}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E0CC76A6-E2CD-4188-A8D5-34E6020DFBF8}
