@@ -5,7 +5,9 @@
 
 <PageTitle>Keywords</PageTitle>
 
-<button @onclick="SaveLangugeConfiguration">Copy to clipboard</button>
+<div class="alert alert-warning" role="alert">
+    <button @onclick="SaveLangugeConfiguration" class="btn btn-primary">Copy to clipboard</button> All changes made on this page are not persisted after refresh. Make sure if you experiment copy to clipboard and send to author.
+</div>
 
 @if (keywordsObj is not null)
 {
