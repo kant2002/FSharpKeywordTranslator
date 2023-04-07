@@ -1,5 +1,19 @@
 ﻿<h1>Keywords</h1>
+@{
+    List<string> keywords = new();
+    foreach (var property in typeof(KeywordsObj).GetProperties())
+    {
+        keywords.Add((string)property.GetValue(Translation.Keywords));
+    }
 
+    var duplicates = keywords.GroupBy(_ => _).Where(_ => _.Count() > 1).Select(_ => _.Key).ToList();
+}
+@if (duplicates.Count > 0)
+{
+    <div class="alert alert-danger" role="alert">
+        Following keywords are duplcicates: [@string.Join(", ", duplicates)]
+    </div>
+}
 <table class="table">
     <thead>
         <tr>
