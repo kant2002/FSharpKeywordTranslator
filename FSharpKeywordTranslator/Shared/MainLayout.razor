@@ -8,21 +8,15 @@
 
     <main>
         <div class="top-row px-4">
+            <select @onchange="SwitchLanguage" class="form-control form-select">
+                @foreach (var item in WellKnownConstants.Languages)
+                {
+                    <option value="@item">@item</option>
+                }
+            </select>
             <a href="https://github.com/kant2002/fsharp/" target="_blank">About</a>
         </div>
-        <div class="row g-3 p-8">
-            <div class="col-md-2">
-                <select @bind="@Language" class="form-control form-select">
-                    @foreach (var item in WellKnownConstants.Languages)
-                    {
-                        <option value="@item">@item</option>
-                    }
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="button" @onclick=SwitchLanguage class="btn btn-primary">Switch language</button>
-            </div>
-        </div>
+
         <CascadingValue Value="languageManager.LanguageConfiguration">
             <article class="content px-4">
                 @Body
@@ -46,8 +40,9 @@
 
         languageManager.LanguageConfiguration = database[Language];
     }
-    public void SwitchLanguage()
+    public void SwitchLanguage(ChangeEventArgs e)
     {
+        Language = (string)e.Value!;
         languageManager.LanguageConfiguration = database[Language];
     }
 }
