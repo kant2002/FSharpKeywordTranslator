@@ -5,7 +5,7 @@ public class VariablesObj
     public string Name { get; set; }
     public string Age { get; set; }
     public string Sum { get; set; }
-    public string Fibonacchi { get; set; }
+    public string Fibonacci { get; set; }
     public string Increment { get; set; }
     public string Result1 { get; set; }
     public string Result2 { get; set; }
