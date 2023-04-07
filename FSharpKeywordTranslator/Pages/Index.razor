@@ -9,7 +9,10 @@
 
 <h2>Variables</h2>
 
-<CodeEditor Code="@GetCode(keywordsObj)" />
+@if (keywordsObj is not null)
+{
+    <CodeEditor Code="@GetCode(keywordsObj)" />
+}
 
 @code {
     [CascadingParameter]

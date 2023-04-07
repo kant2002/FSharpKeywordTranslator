@@ -40,8 +40,10 @@
             languages: ["fsharp"]
         });
         window.highlightElementById = (code, language, id) => {
-            id.innerHTML = code;
-            return hljs.highlightElement(id);
+            if (id) {
+                id.innerHTML = code;
+                return hljs.highlightElement(id);
+            }
         };
     </script>
 </body>
