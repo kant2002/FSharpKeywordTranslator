@@ -14,7 +14,7 @@
     "do": "зробити",
     "done": "зроблено",
     "downcast": "downcast",
-    "downto": "downto",
+    "downto": "вниздо",
     "elif": "інякщо",
     "else": "інакше",
     "end": "кінець",
@@ -70,6 +70,25 @@
   },
   "variables": {
     "name": "ім'я",
-    "age": "вік"
+    "age": "вік",
+    "sum": "сума",
+    "fibonacchi": "фібоначі",
+    "increment": "збільшити",
+    "result1": "результат1",
+    "result2": "результат2",
+    "apply1": "застосовувати1",
+    "filter1": "фільр1",
+    "three": "три",
+    "color": "колір",
+    "red": "червоний",
+    "green": "зелений",
+    "blue": "синій",
+    "printColorName": "надрукуватиНазвуКольору",
+    "personName": "ім'яЛюдини",
+    "firstOnly": "лишеІм'я",
+    "lastOnly": "лишеФамілія",
+    "firstLast": "ім'яФамілія",
+    "firstName": "ім'я",
+    "lastName": "фамілія"
   }
 }

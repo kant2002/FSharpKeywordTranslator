@@ -3,11 +3,9 @@
 
 <PageTitle>Keywords</PageTitle>
 
-<h1>Keywords</h1>
-
 @if (keywordsObj is not null)
 {
-    <KeywordsEditor Source="@englishLanguage.Keywords" Translation="keywordsObj.Keywords" />
+    <KeywordsEditor Source="@englishLanguage" Translation="keywordsObj" />
 }
 
 @code {

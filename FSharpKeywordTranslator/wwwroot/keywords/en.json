@@ -70,6 +70,25 @@
   },
   "variables": {
     "name": "name",
-    "age": "age"
+    "age": "age",
+    "sum": "sum",
+    "fibonacchi": "fibonacchi",
+    "increment": "increment",
+    "result1": "result1",
+    "result2": "result2",
+    "apply1": "apply1",
+    "filter1": "filter1",
+    "three": "three",
+    "color": "color",
+    "red": "red",
+    "green": "green",
+    "blue": "blue",
+    "printColorName": "printColorName",
+    "personName": "personName",
+    "firstOnly": "firstOnly",
+    "lastOnly": "lastOnly",
+    "firstLast": "firstLast",
+    "firstName": "firstName",
+    "lastName": "lastName"
   }
 }

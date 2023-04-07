@@ -1,4 +1,6 @@
-﻿<table class="table">
+﻿<h1>Keywords</h1>
+
+<table class="table">
     <thead>
         <tr>
             <th>Source</th>
@@ -9,18 +11,36 @@
         @foreach (var property in typeof(KeywordsObj).GetProperties())
         {
             <tr>
-                <th>@property.GetValue(Source)</th>
-                <td>@property.GetValue(Translation)</td>
+                <th>@property.GetValue(Source.Keywords)</th>
+                <td>@property.GetValue(Translation.Keywords)</td>
             </tr>
         }
-
     </tbody>
 </table>
 
+<h1>Variables</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Source</th>
+            <th>Translation</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var property in typeof(VariablesObj).GetProperties())
+        {
+            <tr>
+                <th>@property.GetValue(Source.Variables)</th>
+                <td>@property.GetValue(Translation.Variables)</td>
+            </tr>
+        }
+    </tbody>
+</table>
 @code {
     [Parameter]
-    public KeywordsObj Source { get; set; } = null!;
+    public LanguageConfiguration Source { get; set; } = null!;
 
     [Parameter]
-    public KeywordsObj Translation { get; set; } = null!;
+    public LanguageConfiguration Translation { get; set; } = null!;
 }
