@@ -72,7 +72,7 @@
     "name": "name",
     "age": "age",
     "sum": "sum",
-    "fibonacchi": "fibonacchi",
+    "fibonacci": "fibonacci",
     "increment": "increment",
     "result1": "result1",
     "result2": "result2",
