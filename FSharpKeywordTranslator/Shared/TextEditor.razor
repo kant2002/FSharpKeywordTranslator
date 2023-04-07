@@ -1,7 +1,7 @@
 ﻿@using System.Reflection;
 
 
-<input type="text" value="@Property.GetValue(Source)" @onchange="ValueChanged" />
+<input type="text" value="@Property.GetValue(Source)" @onchange="ValueChanged" class="form-control" />
 
 @code {
     [Parameter]
