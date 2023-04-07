@@ -7,43 +7,13 @@
 
 <h1>Examples of translations</h1>
 
-<div class="row g-3">
-    <div class="col-md-2">
-        <select @bind="@Language" class="form-control form-select">
-            @foreach (var item in WellKnownConstants.Languages)
-            {
-                <option value="@item">@item</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-2">
-        <button type="button" @onclick=SwitchLanguage class="btn btn-primary">Switch language</button>
-    </div>
-</div>
-
 <h2>Variables</h2>
-<pre><code class="language-fsharp" @ref="divElement"></code></pre>
+
+<CodeEditor Code="@GetCode(keywordsObj)" />
 
 @code {
-    public string Language { get; set; } = "en";
-    private ElementReference divElement;
-
-    Dictionary<string, LanguageConfiguration> database = new();
-
-    LanguageConfiguration keywordsObj = null!;
-
-    protected override async Task OnInitializedAsync()
-    {
-        foreach (var lang in WellKnownConstants.Languages)
-        {
-            var keywords = await languageManager.GetLanguageConfigurationAsync(lang);
-            database[lang] = keywords ?? new();
-        }
-
-        keywordsObj = database[Language];
-        await JS.InvokeVoidAsync("switchLanguage", keywordsObj.Keywords);
-        await JS.InvokeVoidAsync("highlightElementById", GetCode(keywordsObj), Language, divElement);
-    }
+    [CascadingParameter]
+    public LanguageConfiguration? keywordsObj { get; set; }
 
     private string GetCode(LanguageConfiguration lang)
     {
@@ -51,13 +21,6 @@
 {lang.Keywords.Let} {lang.Variables.Name} = "Andrii"
 {lang.Keywords.Let} {lang.Variables.Age} = 41
 """";
-    }
-
-    public async Task SwitchLanguage()
-    {
-        keywordsObj = database[Language];
-        await JS.InvokeVoidAsync("switchLanguage", keywordsObj.Keywords);
-        await JS.InvokeVoidAsync("highlightElementById", GetCode(keywordsObj), Language, divElement);
     }
 }
 

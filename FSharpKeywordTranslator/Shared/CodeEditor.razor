@@ -1,0 +1,31 @@
+﻿@using Microsoft.JSInterop
+@inject IJSRuntime JS
+<pre><code class="language-fsharp" @ref="divElement"></code></pre>
+
+@code {
+    private ElementReference divElement;
+
+    [Parameter]
+    public string Code { get; set; }
+
+    [CascadingParameter]
+    public LanguageConfiguration? keywordsObj { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (keywordsObj is not null)
+        {
+            await JS.InvokeVoidAsync("switchLanguage", keywordsObj.Keywords);
+            await JS.InvokeVoidAsync("highlightElementById", Code, keywordsObj.Language, divElement);
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (keywordsObj is not null)
+        {
+            await JS.InvokeVoidAsync("switchLanguage", keywordsObj.Keywords);
+            await JS.InvokeVoidAsync("highlightElementById", Code, keywordsObj.Language, divElement);
+        }
+    }
+}
