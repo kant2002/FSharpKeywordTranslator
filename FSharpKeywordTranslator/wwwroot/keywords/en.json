@@ -66,5 +66,9 @@
     "while": "while",
     "with": "with",
     "yield": "yield"
+  },
+  "variables": {
+    "name": "name",
+    "age": "age"
   }
 }

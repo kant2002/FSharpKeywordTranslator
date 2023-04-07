@@ -21,6 +21,7 @@
     </div>
 </div>
 
+<h2>Variables</h2>
 <pre><code class="language-fsharp" @ref="divElement"></code></pre>
 
 @code {
@@ -44,9 +45,12 @@
         await JS.InvokeVoidAsync("highlightElementById", GetCode(keywordsObj), Language, divElement);
     }
 
-    private string GetCode(LanguageConfiguration keywordsObj)
+    private string GetCode(LanguageConfiguration lang)
     {
-        return $"{keywordsObj.Keywords.Let} x = \"4\"";
+        return $""""
+{lang.Keywords.Let} {lang.Variables.Name} = "Andrii"
+{lang.Keywords.Let} {lang.Variables.Age} = 41
+"""";
     }
 
     public async Task SwitchLanguage()

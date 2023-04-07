@@ -12,14 +12,12 @@ regex.escape = function (value) {
 }
 
 function switchLanguage(keywordsObj) {
-    console.log(keywordsObj);
     const KEYWORDS_OBJ = keywordsObj;
     KEYWORDS.splice(0, KEYWORDS.length);
     Array.prototype.push.apply(KEYWORDS, Object.values(KEYWORDS_OBJ));
 
     hljs.unregisterLanguage('fsharp');
     hljs.registerLanguage('fsharp', customFsharp);
-    console.log(hljs.getLanguage("fsharp"));
     //hljs.getLanguage("fsharp").keywordPatternRe = /[\w\p{sc=Cyrillic}]+/ugm;
 }
 
