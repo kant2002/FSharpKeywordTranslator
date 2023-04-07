@@ -1,0 +1,16 @@
+﻿@using System.Reflection;
+
+
+<input type="text" value="@Property.GetValue(Source)" @onchange="ValueChanged" />
+
+@code {
+    [Parameter]
+    public PropertyInfo Property { get; set; } = null!;
+    [Parameter]
+    public object Source { get; set; } = null!;
+
+    public void ValueChanged(ChangeEventArgs e)
+    {
+        Property.SetValue(Source, e.Value);
+    }
+}
