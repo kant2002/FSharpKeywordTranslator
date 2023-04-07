@@ -34,7 +34,7 @@
         <a class="dismiss">🗙</a>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
-    <script>navigator.serviceWorker.register('service-worker.js');</script>
+    <!--<script>navigator.serviceWorker.register('service-worker.js');</script>-->
     <script>
         hljs.configure({
             languages: ["fsharp"]
@@ -45,6 +45,9 @@
                 return hljs.highlightElement(id);
             }
         };
+        window.writeToClipboard = (textToWrite) => {
+            window.navigator.clipboard.writeText(JSON.stringify(textToWrite));
+        }
     </script>
 </body>
 

@@ -1,7 +1,11 @@
 ﻿@page "/keywords"
+@using Microsoft.JSInterop
 @inject LanguageConfigurationManager languageManager
+@inject IJSRuntime JS
 
 <PageTitle>Keywords</PageTitle>
+
+<button @onclick="SaveLangugeConfiguration">Copy to clipboard</button>
 
 @if (keywordsObj is not null)
 {
@@ -20,5 +24,10 @@
     protected override async Task OnInitializedAsync()
     {
         englishLanguage = await languageManager.GetLanguageAsync("en");
+    }
+
+    private async Task SaveLangugeConfiguration()
+    {
+        await JS.InvokeVoidAsync("writeToClipboard", keywordsObj);
     }
 }

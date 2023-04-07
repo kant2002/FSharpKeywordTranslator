@@ -52,13 +52,13 @@ public class KeywordsObj
     public string Public { get; set; }
     public string Rec { get; set; }
     public string Return { get; set; }
-    public string Static { get; set; }
     public string Sig { get; set; }
+    public string Static { get; set; }
     public string Struct { get; set; }
     public string Then { get; set; }
     public string To { get; set; }
-    public string Try { get; set; }
     public string True { get; set; }
+    public string Try { get; set; }
     public string Type { get; set; }
     public string Upcast { get; set; }
     public string Use { get; set; }
