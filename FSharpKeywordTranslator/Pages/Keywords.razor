@@ -1,5 +1,5 @@
 ﻿@page "/keywords"
-@inject HttpClient Http
+@inject LanguageConfigurationManager languageManager
 
 <PageTitle>Keywords</PageTitle>
 
@@ -21,20 +21,20 @@
 
 @if (keywordsObj is not null)
 {
-    <KeywordsEditor Source="@database["en"]" Translation="keywordsObj" />
+    <KeywordsEditor Source="@database["en"].Keywords" Translation="keywordsObj.Keywords" />
 }
 
 @code {
     public string Language { get; set; } = "en";
-    KeywordsObj keywordsObj = null!;
+    LanguageConfiguration keywordsObj = null!;
 
-    Dictionary<string, KeywordsObj> database = new();
+    Dictionary<string, LanguageConfiguration> database = new();
 
     protected override async Task OnInitializedAsync()
     {
         foreach (var lang in WellKnownConstants.Languages)
         {
-            var keywords = await Http.GetFromJsonAsync<KeywordsObj>($"keywords/{lang}.json");
+            var keywords = await languageManager.GetLanguageConfigurationAsync(lang);
             database[lang] = keywords ?? new();
         }
 

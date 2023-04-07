@@ -9,6 +9,7 @@ public class KeywordsObj
     public string Base { get; set; }
     public string Begin { get; set; }
     public string Class { get; set; }
+    public string Const { get; set; }
     public string Default { get; set; }
     public string Delegate { get; set; }
     public string Do { get; set; }
@@ -20,6 +21,7 @@ public class KeywordsObj
     public string End { get; set; }
     public string Exception { get; set; }
     public string Extern { get; set; }
+    public string False { get; set; }
     public string Finally { get; set; }
     public string Fixed { get; set; }
     public string For { get; set; }
@@ -36,10 +38,12 @@ public class KeywordsObj
     public string Let { get; set; }
     public string Match { get; set; }
     public string Member { get; set; }
+    public string Mod { get; set; }
     public string Module { get; set; }
     public string Mutable { get; set; }
     public string Namespace { get; set; }
     public string New { get; set; }
+    public string Null { get; set; }
     public string Of { get; set; }
     public string Open { get; set; }
     public string Or { get; set; }
@@ -49,10 +53,12 @@ public class KeywordsObj
     public string Rec { get; set; }
     public string Return { get; set; }
     public string Static { get; set; }
+    public string Sig { get; set; }
     public string Struct { get; set; }
     public string Then { get; set; }
     public string To { get; set; }
     public string Try { get; set; }
+    public string True { get; set; }
     public string Type { get; set; }
     public string Upcast { get; set; }
     public string Use { get; set; }

@@ -1,6 +1,6 @@
 ﻿@page "/"
 @using Microsoft.JSInterop
-@inject HttpClient Http
+@inject LanguageConfigurationManager languageManager
 @inject IJSRuntime JS
 
 <PageTitle>Examples of translations</PageTitle>
@@ -27,32 +27,32 @@
     public string Language { get; set; } = "en";
     private ElementReference divElement;
 
-    Dictionary<string, KeywordsObj> database = new();
+    Dictionary<string, LanguageConfiguration> database = new();
 
-    KeywordsObj keywordsObj = null!;
+    LanguageConfiguration keywordsObj = null!;
 
     protected override async Task OnInitializedAsync()
     {
         foreach (var lang in WellKnownConstants.Languages)
         {
-            var keywords = await Http.GetFromJsonAsync<KeywordsObj>($"keywords/{lang}.json");
+            var keywords = await languageManager.GetLanguageConfigurationAsync(lang);
             database[lang] = keywords ?? new();
         }
 
         keywordsObj = database[Language];
-        await JS.InvokeVoidAsync("switchLanguage", keywordsObj);
+        await JS.InvokeVoidAsync("switchLanguage", keywordsObj.Keywords);
         await JS.InvokeVoidAsync("highlightElementById", GetCode(keywordsObj), Language, divElement);
     }
 
-    private string GetCode(KeywordsObj keywordsObj)
+    private string GetCode(LanguageConfiguration keywordsObj)
     {
-        return $"{keywordsObj.Let} x = \"4\"";
+        return $"{keywordsObj.Keywords.Let} x = \"4\"";
     }
 
     public async Task SwitchLanguage()
     {
         keywordsObj = database[Language];
-        await JS.InvokeVoidAsync("switchLanguage", keywordsObj);
+        await JS.InvokeVoidAsync("switchLanguage", keywordsObj.Keywords);
         await JS.InvokeVoidAsync("highlightElementById", GetCode(keywordsObj), Language, divElement);
     }
 }
