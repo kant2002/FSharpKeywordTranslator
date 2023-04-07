@@ -1,0 +1,48 @@
+﻿@page "/keywords"
+@inject HttpClient Http
+
+<PageTitle>Keywords</PageTitle>
+
+<h1>Keywords</h1>
+
+<div class="row g-3">
+    <div class="col-md-2">
+        <select @bind="@Language" class="form-control form-select">
+            @foreach (var item in WellKnownConstants.Languages)
+            {
+                <option value="@item">@item</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="button" @onclick=SwitchLanguage class="btn btn-primary">Switch language</button>
+    </div>
+</div>
+
+@if (keywordsObj is not null)
+{
+    <KeywordsEditor Source="@database["en"]" Translation="keywordsObj" />
+}
+
+@code {
+    public string Language { get; set; } = "en";
+    KeywordsObj keywordsObj = null!;
+
+    Dictionary<string, KeywordsObj> database = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        foreach (var lang in WellKnownConstants.Languages)
+        {
+            var keywords = await Http.GetFromJsonAsync<KeywordsObj>($"keywords/{lang}.json");
+            database[lang] = keywords ?? new();
+        }
+
+        keywordsObj = database[Language];
+    }
+
+    public void SwitchLanguage()
+    {
+        keywordsObj = database[Language];
+    }
+}

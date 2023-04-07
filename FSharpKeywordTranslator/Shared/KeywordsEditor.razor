@@ -1,0 +1,26 @@
+﻿<table class="table">
+    <thead>
+        <tr>
+            <th>Source</th>
+            <th>Translation</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var property in typeof(KeywordsObj).GetProperties())
+        {
+            <tr>
+                <th>@property.GetValue(Source)</th>
+                <td>@property.GetValue(Translation)</td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public KeywordsObj Source { get; set; } = null!;
+
+    [Parameter]
+    public KeywordsObj Translation { get; set; } = null!;
+}
