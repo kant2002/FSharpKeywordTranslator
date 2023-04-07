@@ -14,10 +14,17 @@ public class LanguageConfigurationManager
     }
 
     public LanguageConfiguration LanguageConfiguration { get; set; }
+    public EventHandler OnLanguageChanged;
 
     public async Task<LanguageConfiguration> GetLanguageConfigurationAsync(string language)
     {
         return await http.GetFromJsonAsync<LanguageConfiguration>($"keywords/{language}.json") ?? new();
+    }
+
+    public async Task SetLanguageAsync(string language)
+    {
+        LanguageConfiguration = await GetLanguageAsync(language);
+        OnLanguageChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public async Task LoadDatabaseAsync()

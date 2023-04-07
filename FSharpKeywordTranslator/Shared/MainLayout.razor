@@ -17,7 +17,7 @@
             <a href="https://github.com/kant2002/fsharp/" target="_blank">About</a>
         </div>
 
-        <CascadingValue Value="languageManager.LanguageConfiguration">
+        <CascadingValue Value="current">
             <article class="content px-4">
                 @Body
             </article>
@@ -28,21 +28,20 @@
 @code {
     public string Language { get; set; } = "en";
 
-    Dictionary<string, LanguageConfiguration> database = new();
+    LanguageConfiguration current;
 
     protected override async Task OnInitializedAsync()
     {
-        foreach (var lang in WellKnownConstants.Languages)
+        languageManager.OnLanguageChanged = (_, __) =>
         {
-            var keywords = await languageManager.GetLanguageAsync(lang);
-            database[lang] = keywords ?? new();
-        }
-
-        languageManager.LanguageConfiguration = database[Language];
+            current = languageManager.LanguageConfiguration;
+            this.StateHasChanged();
+        };
+        await languageManager.SetLanguageAsync(Language);
     }
-    public void SwitchLanguage(ChangeEventArgs e)
+    public async Task SwitchLanguage(ChangeEventArgs e)
     {
         Language = (string)e.Value!;
-        languageManager.LanguageConfiguration = database[Language];
+        await languageManager.SetLanguageAsync(Language);
     }
 }

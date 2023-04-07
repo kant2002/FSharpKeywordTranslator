@@ -1,4 +1,5 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject LanguageConfigurationManager languageManager
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">F# Keyword Translator</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -19,6 +20,14 @@
                 <span class="oi oi-plus" aria-hidden="true"></span> Keywords
             </NavLink>
         </div>
+        @foreach (var item in WellKnownConstants.Languages)
+        {
+            <div class="nav-item px-3 d-md-none">
+                <a class="nav-link" href="#" @onclick="() => languageManager.SetLanguageAsync(item)">
+                    <span class="oi oi-plus" aria-hidden="true"></span> @item
+                </a>
+            </div>
+        }
     </nav>
 </div>
 
