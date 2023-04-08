@@ -89,6 +89,13 @@
     "lastOnly": "nurNachname",
     "firstLast": "vornameNachname",
     "firstName": "vorname",
-    "lastName": "nachname"
+    "lastName": "nachname",
+    "list1": "liste1",
+    "constructQuery": "konstruktAbfrage"
+  },
+  "stdLib": {
+    "printf": "printf",
+    "printfn": "printfn",
+    "string": "schnur"
   }
 }

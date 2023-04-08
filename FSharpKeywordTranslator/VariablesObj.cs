@@ -23,4 +23,6 @@ public class VariablesObj
     public string FirstLast { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
+    public string List1 { get; set; }
+    public string ConstructQuery { get; set; }
 }

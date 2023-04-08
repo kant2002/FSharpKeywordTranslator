@@ -89,6 +89,13 @@
     "lastOnly": "лишеФамілія",
     "firstLast": "ім'яФамілія",
     "firstName": "ім'я",
-    "lastName": "фамілія"
+    "lastName": "фамілія",
+    "list1": "список1",
+    "constructQuery": "створитиЗапит"
+  },
+  "stdLib": {
+    "printf": "друкуватиф",
+    "printfn": "друкуватифн",
+    "string": "строка"
   }
 }

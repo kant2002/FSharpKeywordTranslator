@@ -89,6 +89,13 @@
     "lastOnly": "soloCognome",
     "firstLast": "nomeCognome",
     "firstName": "nome",
-    "lastName": "cognome"
+    "lastName": "cognome",
+    "list1": "lista1",
+    "constructQuery": "costruireQuery"
+  },
+  "stdLib": {
+    "printf": "stampaf",
+    "printfn": "stampafn",
+    "string": "corda"
   }
 }

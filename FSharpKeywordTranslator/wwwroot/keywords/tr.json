@@ -89,6 +89,13 @@
     "lastOnly": "sadeceSon",
     "firstLast": "ilkSon",
     "firstName": "ilkAdı",
-    "lastName": "soyisim"
+    "lastName": "soyisim",
+    "list1": "liste1",
+    "constructQuery": "sorguOluştur"
+  },
+  "stdLib": {
+    "printf": "yazdırb",
+    "printfn": "yazdırby",
+    "string": "sicim"
   }
 }

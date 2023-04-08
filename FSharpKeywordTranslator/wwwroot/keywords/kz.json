@@ -89,6 +89,13 @@
     "lastOnly": "текТегі",
     "firstLast": "атыТегі",
     "firstName": "аты",
-    "lastName": "тегі"
+    "lastName": "тегі",
+    "list1": "тізім1",
+    "constructQuery": "сұрауСалу"
+  },
+  "stdLib": {
+    "printf": "баспаф",
+    "printfn": "баспафж",
+    "string": "бау"
   }
 }

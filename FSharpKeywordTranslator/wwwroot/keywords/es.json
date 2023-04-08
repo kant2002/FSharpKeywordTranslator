@@ -89,6 +89,13 @@
     "lastOnly": "soloApellido",
     "firstLast": "nombreApellido",
     "firstName": "nombre",
-    "lastName": "apellido"
+    "lastName": "apellido",
+    "list1": "lista1",
+    "constructQuery": "construirConsulta"
+  },
+  "stdLib": {
+    "printf": "imprimirf",
+    "printfn": "imprimirfn",
+    "string": "cadena"
   }
 }

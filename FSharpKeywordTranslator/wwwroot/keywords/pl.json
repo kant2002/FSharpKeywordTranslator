@@ -89,6 +89,13 @@
     "lastOnly": "tylkoNazwisko",
     "firstLast": "imięNazwisko",
     "firstName": "imię",
-    "lastName": "nazwisko"
+    "lastName": "nazwisko",
+    "list1": "lista1",
+    "constructQuery": "skonstruowaćZapytanie"
+  },
+  "stdLib": {
+    "printf": "wydrukowaćf",
+    "printfn": "wydrukowaćfn",
+    "string": "struna"
   }
 }

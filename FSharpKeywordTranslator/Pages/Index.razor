@@ -44,27 +44,28 @@
     {
         var k = Convert(lang.Keywords);
         var v = Convert(lang.Variables);
+        var s = Convert(lang.StdLib);
         return $""""
 {k.If} {v.Name} = "Andrii"
-    printf "{v.Age} = %d" {v.Age}
+    {s.Printf} "{v.Age} = %d" {v.Age}
 
 // ------------
 {k.If} {v.Name} = "Andrii"
-    printf "{v.Age} = %d" {v.Age}
+    {s.Printf} "{v.Age} = %d" {v.Age}
 {k.Elif} {v.Name} = "Bohdan"
-    printf "This is Bohdan"
+    {s.Printf} "This is Bohdan"
 {k.Else}
-    printf "This is stranger"
+    {s.Printf} "This is stranger"
 
-{k.Let} list1 = [ 1; 5; 100; 450; 788 ]
-{k.For} i {k.In} list1 {k.Do}
-   printfn "%d" i
+{k.Let} {v.List1} = [ 1; 5; 100; 450; 788 ]
+{k.For} i {k.In} {v.List1} {k.Do}
+   {s.Printfn} "%d" i
 
 {k.For} i = 1 {k.To} 10 {k.Do}
-  printf "%d " i
+  {s.Printf} "%d " i
 
 {k.For} i = 10 {k.Downto} 1 {k.Do}
-  printf "%d " i
+  {s.Printf} "%d " i
 
 {k.Let} {k.Mutable} t = 1
 {k.While} t < 10 {k.Do}
@@ -91,6 +92,7 @@
     {
         var k = Convert(lang.Keywords);
         var v = Convert(lang.Variables);
+        var s = Convert(lang.StdLib);
         return $""""
 [&lt;Literal&gt;]
 {k.Let} {v.Three.ToUpperCase()} = 3
@@ -98,9 +100,9 @@
 {k.Let} {v.Filter1} x =
     {k.Match} x {k.With}
     // The following line contains literal patterns combined with an OR pattern.
-    | 1 | 2 | {v.Three.ToUpperCase()} -> printfn "Found 1, 2, or 3!"
+    | 1 | 2 | {v.Three.ToUpperCase()} -> {s.Printfn} "Found 1, 2, or 3!"
     // The following line contains a variable pattern.
-    | var1 -> printfn "%d" var1
+    | var1 -> {s.Printfn} "%d" var1
 
 {k.For} x {k.In} 1..10 {k.Do} {v.Filter1} x
 
@@ -113,9 +115,9 @@
 
 {k.Let} {v.PrintColorName} ({v.Color}:{v.Color.ToUpperCase()}) =
     {k.Match} {v.Color} {k.With}
-    | {v.Color.ToUpperCase()}.{v.Red.ToUpperCase()} -> printfn "{v.Red.ToUpperCase()}"
-    | {v.Color.ToUpperCase()}.{v.Green.ToUpperCase()} -> printfn "{v.Green.ToUpperCase()}"
-    | {v.Color.ToUpperCase()}.{v.Blue.ToUpperCase()} -> printfn "{v.Blue.ToUpperCase()}"
+    | {v.Color.ToUpperCase()}.{v.Red.ToUpperCase()} -> {s.Printfn} "{v.Red.ToUpperCase()}"
+    | {v.Color.ToUpperCase()}.{v.Green.ToUpperCase()} -> {s.Printfn} "{v.Green.ToUpperCase()}"
+    | {v.Color.ToUpperCase()}.{v.Blue.ToUpperCase()} -> {s.Printfn} "{v.Blue.ToUpperCase()}"
     | _ -> ()
 
 {v.PrintColorName} {v.Color.ToUpperCase()}.{v.Red.ToUpperCase()}
@@ -123,15 +125,15 @@
 // -------------------------
 
 {k.Type} {v.PersonName.ToUpperCase()} =
-    | {v.FirstOnly.ToUpperCase()} {k.Of} string
-    | {v.LastOnly.ToUpperCase()} {k.Of} string
-    | {v.FirstLast.ToUpperCase()} {k.Of} string * string
+    | {v.FirstOnly.ToUpperCase()} {k.Of} {s.String}
+    | {v.LastOnly.ToUpperCase()} {k.Of} {s.String}
+    | {v.FirstLast.ToUpperCase()} {k.Of} {s.String} * {s.String}
 
-{k.Let} constructQuery {v.PersonName} =
+{k.Let} {v.ConstructQuery} {v.PersonName} =
     {k.Match} {v.PersonName} {k.With}
-    | {v.FirstOnly.ToUpperCase()}({v.FirstName}) -> printf "May I call you %s?" {v.FirstName}
-    | {v.LastOnly.ToUpperCase()}({v.LastName}) -> printf "Are you Mr. or Ms. %s?" {v.LastName}
-    | {v.FirstLast.ToUpperCase()}({v.FirstName}, lastName) -> printf "Are you %s %s?" {v.FirstName} {v.LastName}
+    | {v.FirstOnly.ToUpperCase()}({v.FirstName}) -> {s.Printf} "May I call you %s?" {v.FirstName}
+    | {v.LastOnly.ToUpperCase()}({v.LastName}) -> {s.Printf} "Are you Mr. or Ms. %s?" {v.LastName}
+    | {v.FirstLast.ToUpperCase()}({v.FirstName}, {v.LastName}) -> {s.Printf} "Are you %s %s?" {v.FirstName} {v.LastName}
 
 """";
     }
@@ -141,7 +143,7 @@
         T result = new();
         foreach (var property in typeof(T).GetProperties())
         {
-            var propertyValue = (string)property.GetValue(value)!;
+            var propertyValue = (string?)property.GetValue(value) ?? "";
             property.SetValue(result, propertyValue.Split(',').ElementAtOrDefault(0));
         }
 

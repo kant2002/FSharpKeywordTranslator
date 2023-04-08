@@ -89,6 +89,13 @@
     "lastOnly": "lastOnly",
     "firstLast": "firstLast",
     "firstName": "firstName",
-    "lastName": "lastName"
+    "lastName": "lastName",
+    "list1": "list1",
+    "constructQuery": "constructQuery"
+  },
+  "stdLib": {
+    "printf": "printf",
+    "printfn": "printfn",
+    "string": "string"
   }
 }

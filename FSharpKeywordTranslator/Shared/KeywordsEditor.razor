@@ -51,6 +51,26 @@
         }
     </tbody>
 </table>
+
+<h1>StdLib objects</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Source</th>
+            <th>Translation</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var property in typeof(StdLibObj).GetProperties())
+        {
+            <tr>
+                <th>@property.GetValue(Source.StdLib)</th>
+                <td><TextEditor Property="property" Source="Translation.StdLib" /></td>
+            </tr>
+        }
+    </tbody>
+</table>
 @code {
     [Parameter]
     public LanguageConfiguration Source { get; set; } = null!;
