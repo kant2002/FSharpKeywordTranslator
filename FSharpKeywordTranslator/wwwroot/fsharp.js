@@ -14,7 +14,9 @@ regex.escape = function (value) {
 function switchLanguage(keywordsObj) {
     const KEYWORDS_OBJ = keywordsObj;
     KEYWORDS.splice(0, KEYWORDS.length);
-    Array.prototype.push.apply(KEYWORDS, Object.values(KEYWORDS_OBJ));
+    Array.prototype.push.apply(KEYWORDS, Object.values(KEYWORDS_OBJ).map(k => {
+        return k.split(',')[0];
+    }));
 
     hljs.unregisterLanguage('fsharp');
     hljs.registerLanguage('fsharp', customFsharp);
