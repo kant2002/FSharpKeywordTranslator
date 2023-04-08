@@ -32,100 +32,120 @@
 
     private string LetUsage(LanguageConfiguration lang)
     {
+        var k = Convert(lang.Keywords);
+        var v = Convert(lang.Variables);
         return $""""
-{lang.Keywords.Let} {lang.Variables.Name} = "Andrii"
-{lang.Keywords.Let} {lang.Keywords.Mutable} {lang.Variables.Age} = 41
+{k.Let} {v.Name} = "Andrii"
+{k.Let} {k.Mutable} {v.Age} = 41
 """";
     }
 
     private string IfUsage(LanguageConfiguration lang)
     {
+        var k = Convert(lang.Keywords);
+        var v = Convert(lang.Variables);
         return $""""
-{lang.Keywords.If} {lang.Variables.Name} = "Andrii"
-    printf "{lang.Variables.Age} = %d" {lang.Variables.Age}
+{k.If} {v.Name} = "Andrii"
+    printf "{v.Age} = %d" {v.Age}
 
 // ------------
-{lang.Keywords.If} {lang.Variables.Name} = "Andrii"
-    printf "{lang.Variables.Age} = %d" {lang.Variables.Age}
-{lang.Keywords.Elif} {lang.Variables.Name} = "Bohdan"
+{k.If} {v.Name} = "Andrii"
+    printf "{v.Age} = %d" {v.Age}
+{k.Elif} {v.Name} = "Bohdan"
     printf "This is Bohdan"
-{lang.Keywords.Else}
+{k.Else}
     printf "This is stranger"
 
-{lang.Keywords.Let} list1 = [ 1; 5; 100; 450; 788 ]
-{lang.Keywords.For} i {lang.Keywords.In} list1 {lang.Keywords.Do}
+{k.Let} list1 = [ 1; 5; 100; 450; 788 ]
+{k.For} i {k.In} list1 {k.Do}
    printfn "%d" i
 
-{lang.Keywords.For} i = 1 {lang.Keywords.To} 10 {lang.Keywords.Do}
+{k.For} i = 1 {k.To} 10 {k.Do}
   printf "%d " i
 
-{lang.Keywords.For} i = 10 {lang.Keywords.Downto} 1 {lang.Keywords.Do}
+{k.For} i = 10 {k.Downto} 1 {k.Do}
   printf "%d " i
 
-{lang.Keywords.Let} {lang.Keywords.Mutable} t = 1
-{lang.Keywords.While} t < 10 {lang.Keywords.Do}
+{k.Let} {k.Mutable} t = 1
+{k.While} t < 10 {k.Do}
    t <- t + 1
 """";
     }
 
     private string FunctionsUsage(LanguageConfiguration lang)
     {
+        var k = Convert(lang.Keywords);
+        var v = Convert(lang.Variables);
         return $""""
-{lang.Keywords.Let} {lang.Variables.Sum} a b = a + b
+{k.Let} {v.Sum} a b = a + b
 
-{lang.Keywords.Let} {lang.Keywords.Rec} {lang.Variables.Fibonacci} n = {lang.Keywords.If} n < 2 {lang.Keywords.Then} 1 {lang.Keywords.Else} {lang.Variables.Fibonacci} (n - 1) + {lang.Variables.Fibonacci} (n - 2)
+{k.Let} {k.Rec} {v.Fibonacci} n = {k.If} n < 2 {k.Then} 1 {k.Else} {v.Fibonacci} (n - 1) + {v.Fibonacci} (n - 2)
 
-{lang.Keywords.Let} {lang.Keywords.Inline} {lang.Variables.Increment} x = x + 1
-{lang.Keywords.Let} {lang.Variables.Result1} = {lang.Variables.Apply1} {lang.Variables.Increment} 100
-{lang.Keywords.Let} {lang.Variables.Result2} = {lang.Variables.Apply1} ({lang.Keywords.Fun} x -> x + 1) 100
+{k.Let} {k.Inline} {v.Increment} x = x + 1
+{k.Let} {v.Result1} = {v.Apply1} {v.Increment} 100
+{k.Let} {v.Result2} = {v.Apply1} ({k.Fun} x -> x + 1) 100
 """";
     }
 
     private string PatternMatchingUsage(LanguageConfiguration lang)
     {
+        var k = Convert(lang.Keywords);
+        var v = Convert(lang.Variables);
         return $""""
 [&lt;Literal&gt;]
-{lang.Keywords.Let} {lang.Variables.Three.ToUpperCase()} = 3
+{k.Let} {v.Three.ToUpperCase()} = 3
 
-{lang.Keywords.Let} {lang.Variables.Filter1} x =
-    {lang.Keywords.Match} x {lang.Keywords.With}
+{k.Let} {v.Filter1} x =
+    {k.Match} x {k.With}
     // The following line contains literal patterns combined with an OR pattern.
-    | 1 | 2 | {lang.Variables.Three.ToUpperCase()} -> printfn "Found 1, 2, or 3!"
+    | 1 | 2 | {v.Three.ToUpperCase()} -> printfn "Found 1, 2, or 3!"
     // The following line contains a variable pattern.
     | var1 -> printfn "%d" var1
 
-{lang.Keywords.For} x {lang.Keywords.In} 1..10 {lang.Keywords.Do} {lang.Variables.Filter1} x
+{k.For} x {k.In} 1..10 {k.Do} {v.Filter1} x
 
 // ------------------------
 
-{lang.Keywords.Type} {lang.Variables.Color.ToUpperCase()} =
-    | {lang.Variables.Red.ToUpperCase()} = 0
-    | {lang.Variables.Green.ToUpperCase()} = 1
-    | {lang.Variables.Blue.ToUpperCase()} = 2
+{k.Type} {v.Color.ToUpperCase()} =
+    | {v.Red.ToUpperCase()} = 0
+    | {v.Green.ToUpperCase()} = 1
+    | {v.Blue.ToUpperCase()} = 2
 
-{lang.Keywords.Let} {lang.Variables.PrintColorName} ({lang.Variables.Color}:{lang.Variables.Color.ToUpperCase()}) =
-    {lang.Keywords.Match} {lang.Variables.Color} {lang.Keywords.With}
-    | {lang.Variables.Color.ToUpperCase()}.{lang.Variables.Red.ToUpperCase()} -> printfn "{lang.Variables.Red.ToUpperCase()}"
-    | {lang.Variables.Color.ToUpperCase()}.{lang.Variables.Green.ToUpperCase()} -> printfn "{lang.Variables.Green.ToUpperCase()}"
-    | {lang.Variables.Color.ToUpperCase()}.{lang.Variables.Blue.ToUpperCase()} -> printfn "{lang.Variables.Blue.ToUpperCase()}"
+{k.Let} {v.PrintColorName} ({v.Color}:{v.Color.ToUpperCase()}) =
+    {k.Match} {v.Color} {k.With}
+    | {v.Color.ToUpperCase()}.{v.Red.ToUpperCase()} -> printfn "{v.Red.ToUpperCase()}"
+    | {v.Color.ToUpperCase()}.{v.Green.ToUpperCase()} -> printfn "{v.Green.ToUpperCase()}"
+    | {v.Color.ToUpperCase()}.{v.Blue.ToUpperCase()} -> printfn "{v.Blue.ToUpperCase()}"
     | _ -> ()
 
-{lang.Variables.PrintColorName} {lang.Variables.Color.ToUpperCase()}.{lang.Variables.Red.ToUpperCase()}
+{v.PrintColorName} {v.Color.ToUpperCase()}.{v.Red.ToUpperCase()}
 
 // -------------------------
 
-{lang.Keywords.Type} {lang.Variables.PersonName.ToUpperCase()} =
-    | {lang.Variables.FirstOnly.ToUpperCase()} {lang.Keywords.Of} string
-    | {lang.Variables.LastOnly.ToUpperCase()} {lang.Keywords.Of} string
-    | {lang.Variables.FirstLast.ToUpperCase()} {lang.Keywords.Of} string * string
+{k.Type} {v.PersonName.ToUpperCase()} =
+    | {v.FirstOnly.ToUpperCase()} {k.Of} string
+    | {v.LastOnly.ToUpperCase()} {k.Of} string
+    | {v.FirstLast.ToUpperCase()} {k.Of} string * string
 
-{lang.Keywords.Let} constructQuery {lang.Variables.PersonName} =
-    {lang.Keywords.Match} {lang.Variables.PersonName} {lang.Keywords.With}
-    | {lang.Variables.FirstOnly.ToUpperCase()}({lang.Variables.FirstName}) -> printf "May I call you %s?" {lang.Variables.FirstName}
-    | {lang.Variables.LastOnly.ToUpperCase()}({lang.Variables.LastName}) -> printf "Are you Mr. or Ms. %s?" {lang.Variables.LastName}
-    | {lang.Variables.FirstLast.ToUpperCase()}({lang.Variables.FirstName}, lastName) -> printf "Are you %s %s?" {lang.Variables.FirstName} {lang.Variables.LastName}
+{k.Let} constructQuery {v.PersonName} =
+    {k.Match} {v.PersonName} {k.With}
+    | {v.FirstOnly.ToUpperCase()}({v.FirstName}) -> printf "May I call you %s?" {v.FirstName}
+    | {v.LastOnly.ToUpperCase()}({v.LastName}) -> printf "Are you Mr. or Ms. %s?" {v.LastName}
+    | {v.FirstLast.ToUpperCase()}({v.FirstName}, lastName) -> printf "Are you %s %s?" {v.FirstName} {v.LastName}
 
 """";
+    }
+
+    private T Convert<T>(T value) where T: new()
+    {
+        T result = new();
+        foreach (var property in typeof(T).GetProperties())
+        {
+            var propertyValue = (string)property.GetValue(value)!;
+            property.SetValue(result, propertyValue.Split(',').ElementAtOrDefault(0));
+        }
+
+        return result;
     }
 }
 
