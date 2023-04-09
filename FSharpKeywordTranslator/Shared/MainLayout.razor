@@ -8,10 +8,10 @@
 
     <main>
         <div class="top-row px-4">
-            <select @onchange="SwitchLanguage" class="form-control form-select">
+            <select @onchange="SwitchLanguage" class="form-control form-select" title="Language selection">
                 @foreach (var item in WellKnownConstants.Languages)
                 {
-                    <option value="@item">@item</option>
+                    <option value="@item.Code"><span class="fi fi-@item.Country"></span> @item.Name</option>
                 }
             </select>
             <a href="https://github.com/kant2002/FSharpKeywordTranslator" target="_blank">Github</a>

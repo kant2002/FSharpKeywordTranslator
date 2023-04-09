@@ -31,8 +31,8 @@ public class LanguageConfigurationManager
     {
         foreach (var lang in WellKnownConstants.Languages)
         {
-            var keywords = await GetLanguageConfigurationAsync(lang);
-            database[lang] = keywords ?? new();
+            var keywords = await GetLanguageConfigurationAsync(lang.Code);
+            database[lang.Code] = keywords ?? new();
         }
     }
 

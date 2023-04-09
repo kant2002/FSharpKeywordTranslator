@@ -2,5 +2,18 @@
 
 public static class WellKnownConstants
 {
-    public static readonly string[] Languages = new[] { "en", "ua", "tr", "kz", "es", "de", "it", "pl", "cs", "nl", "ru" };
+    public static readonly LanguageName[] Languages = new LanguageName[]
+    { 
+        new("en","us","English"), 
+        new("ua","ua","Ukrainian"),
+        new("tr","tr","Turkish"),
+        new("kz","kz","Kazakh"),
+        new("es","es","Spanish"),
+        new("de","de","German"),
+        new("it","it","Italian"),
+        new("pl","pl","Polish"),
+        new("cs","cz","Czech"),
+        new("nl","nl","Dutch"),
+        new("ru","ru","Russian")
+    };
 }

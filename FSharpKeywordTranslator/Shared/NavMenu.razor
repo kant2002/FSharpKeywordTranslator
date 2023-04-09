@@ -23,8 +23,8 @@
         @foreach (var item in WellKnownConstants.Languages)
         {
             <div class="nav-item px-3 d-md-none">
-                <a class="nav-link" href="#" @onclick="() => languageManager.SetLanguageAsync(item)">
-                    <span class="oi oi-plus" aria-hidden="true"></span> @item
+                <a class="nav-link" href="#" @onclick="() => languageManager.SetLanguageAsync(item.Code)">
+                    <span class="fi fi-@item.Country"></span> @item.Name
                 </a>
             </div>
         }
