@@ -11,16 +11,38 @@ regex.escape = function (value) {
     return new RegExp(value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'), 'm');
 }
 
-function switchLanguage(keywordsObj) {
+function setKnownTypes(knownTypes) {
+    KNOWN_TYPES.splice(0, KNOWN_TYPES.length);
+    Array.prototype.push.apply(KNOWN_TYPES, Object.values(knownTypes).map(k => {
+        return k.split(',')[0];
+    }));
+}
+function setBuiltins(builtins) {
+    BUILTINS.splice(0, BUILTINS.length);
+    Array.prototype.push.apply(BUILTINS, Object.values(builtins).map(k => {
+        return k.split(',')[0];
+    }));
+}
+
+function setKeywords(keywordsObj) {
     const KEYWORDS_OBJ = keywordsObj;
     KEYWORDS.splice(0, KEYWORDS.length);
     Array.prototype.push.apply(KEYWORDS, Object.values(KEYWORDS_OBJ).map(k => {
         return k.split(',')[0];
     }));
+}
+
+function switchLanguage(keywordsObj) {
+    if (keywordsObj.keywords) {
+        setKeywords(keywordsObj.keywords);
+        setBuiltins(keywordsObj.stdLib)
+    }
+    else {
+        setKeywords(keywordsObj);
+    }
 
     hljs.unregisterLanguage('fsharp');
     hljs.registerLanguage('fsharp', customFsharp);
-    //hljs.getLanguage("fsharp").keywordPatternRe = /[\w\p{sc=Cyrillic}]+/ugm;
 }
 
 const KEYWORDS = [
@@ -90,6 +112,92 @@ const KEYWORDS = [
     "yield"
 ];
 
+// Since it's possible to re-bind/shadow names (e.g. let char = 'c'),
+// these builtin types should only be matched when a type name is expected.
+const KNOWN_TYPES = [
+    // basic types
+    "bool",
+    "byte",
+    "sbyte",
+    "int8",
+    "int16",
+    "int32",
+    "uint8",
+    "uint16",
+    "uint32",
+    "int",
+    "uint",
+    "int64",
+    "uint64",
+    "nativeint",
+    "unativeint",
+    "decimal",
+    "float",
+    "double",
+    "float32",
+    "single",
+    "char",
+    "string",
+    "unit",
+    "bigint",
+    // other native types or lowercase aliases
+    "option",
+    "voption",
+    "list",
+    "array",
+    "seq",
+    "byref",
+    "exn",
+    "inref",
+    "nativeptr",
+    "obj",
+    "outref",
+    "voidptr",
+    // other important FSharp types
+    "Result"
+];
+
+const BUILTINS = [
+    // Somewhat arbitrary list of builtin functions and values.
+    // Most of them are declared in Microsoft.FSharp.Core
+    // I tried to stay relevant by adding only the most idiomatic
+    // and most used symbols that are not already declared as types.
+    "not",
+    "ref",
+    "raise",
+    "reraise",
+    "dict",
+    "readOnlyDict",
+    "set",
+    "get",
+    "enum",
+    "sizeof",
+    "typeof",
+    "typedefof",
+    "nameof",
+    "nullArg",
+    "invalidArg",
+    "invalidOp",
+    "id",
+    "fst",
+    "snd",
+    "ignore",
+    "lock",
+    "using",
+    "box",
+    "unbox",
+    "tryUnbox",
+    "printf",
+    "printfn",
+    "sprintf",
+    "eprintf",
+    "eprintfn",
+    "fprintf",
+    "fprintfn",
+    "failwith",
+    "failwithf"
+];
+
 /** @type LanguageFn */
 function customFsharp(hljs) {
 
@@ -133,92 +241,6 @@ function customFsharp(hljs) {
         "__LINE__",
         "__SOURCE_DIRECTORY__",
         "__SOURCE_FILE__"
-    ];
-
-    // Since it's possible to re-bind/shadow names (e.g. let char = 'c'),
-    // these builtin types should only be matched when a type name is expected.
-    const KNOWN_TYPES = [
-        // basic types
-        "bool",
-        "byte",
-        "sbyte",
-        "int8",
-        "int16",
-        "int32",
-        "uint8",
-        "uint16",
-        "uint32",
-        "int",
-        "uint",
-        "int64",
-        "uint64",
-        "nativeint",
-        "unativeint",
-        "decimal",
-        "float",
-        "double",
-        "float32",
-        "single",
-        "char",
-        "string",
-        "unit",
-        "bigint",
-        // other native types or lowercase aliases
-        "option",
-        "voption",
-        "list",
-        "array",
-        "seq",
-        "byref",
-        "exn",
-        "inref",
-        "nativeptr",
-        "obj",
-        "outref",
-        "voidptr",
-        // other important FSharp types
-        "Result"
-    ];
-
-    const BUILTINS = [
-        // Somewhat arbitrary list of builtin functions and values.
-        // Most of them are declared in Microsoft.FSharp.Core
-        // I tried to stay relevant by adding only the most idiomatic
-        // and most used symbols that are not already declared as types.
-        "not",
-        "ref",
-        "raise",
-        "reraise",
-        "dict",
-        "readOnlyDict",
-        "set",
-        "get",
-        "enum",
-        "sizeof",
-        "typeof",
-        "typedefof",
-        "nameof",
-        "nullArg",
-        "invalidArg",
-        "invalidOp",
-        "id",
-        "fst",
-        "snd",
-        "ignore",
-        "lock",
-        "using",
-        "box",
-        "unbox",
-        "tryUnbox",
-        "printf",
-        "printfn",
-        "sprintf",
-        "eprintf",
-        "eprintfn",
-        "fprintf",
-        "fprintfn",
-        "failwith",
-        "failwithf"
     ];
 
     const ALL_KEYWORDS = {

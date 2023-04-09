@@ -15,7 +15,7 @@
     {
         if (keywordsObj is not null)
         {
-            await JS.InvokeVoidAsync("switchLanguage", keywordsObj.Keywords);
+            await JS.InvokeVoidAsync("switchLanguage", keywordsObj);
             await JS.InvokeVoidAsync("highlightElementById", Code, keywordsObj.Language, divElement);
         }
     }
@@ -24,7 +24,7 @@
     {
         if (keywordsObj is not null)
         {
-            await JS.InvokeVoidAsync("switchLanguage", keywordsObj.Keywords);
+            await JS.InvokeVoidAsync("switchLanguage", keywordsObj);
             await JS.InvokeVoidAsync("highlightElementById", Code, keywordsObj.Language, divElement);
         }
     }
