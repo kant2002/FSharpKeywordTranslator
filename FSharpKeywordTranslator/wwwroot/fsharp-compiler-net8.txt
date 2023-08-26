@@ -1,0 +1,240 @@
+diff --git a/Directory.Build.props b/Directory.Build.props
+index e77076d14..b964f8df0 100644
+--- a/Directory.Build.props
++++ b/Directory.Build.props
+@@ -14,6 +14,11 @@
+     <RepoRoot Condition="'$(RepoRoot)' == ''">$(MSBuildThisFileDirectory)</RepoRoot>
+     <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+   </PropertyGroup>
++  <PropertyGroup>
++    <CopyrightMicrosoft>© Andrii Kurdiumov. All rights reserved.</CopyrightMicrosoft>
++    <Authors>Microsoft,Andrii Kurdiumov</Authors>
++  </PropertyGroup>
++
+   <!--
+    When developers load the FSharp.Compiler.Service solution we set FSHARPCORE_USE_PACKAGE to true if it hasn't already been set to a value.
+    This option ensures that building and testing uses the specified FSharp.Core nuget package instead of the local
+diff --git a/setup/Swix/Microsoft.FSharp.Compiler.MSBuild/Microsoft.FSharp.Compiler.MSBuild.csproj b/setup/Swix/Microsoft.FSharp.Compiler.MSBuild/Microsoft.FSharp.Compiler.MSBuild.csproj
+index bb4fd680a..73982ee33 100644
+--- a/setup/Swix/Microsoft.FSharp.Compiler.MSBuild/Microsoft.FSharp.Compiler.MSBuild.csproj
++++ b/setup/Swix/Microsoft.FSharp.Compiler.MSBuild/Microsoft.FSharp.Compiler.MSBuild.csproj
+@@ -48,7 +48,7 @@
+ folder "InstallDir:Common7\IDE\CommonExtensions\Microsoft\FSharp\Tools\%(_XlfLanguages.Identity)"
+   file source="$(BinariesFolder)FSharp.Build\$(Configuration)\netstandard2.0\%(_XlfLanguages.Identity)\FSharp.Build.resources.dll"
+   file source="$(BinariesFolder)FSharp.Compiler.Interactive.Settings\$(Configuration)\netstandard2.0\%(_XlfLanguages.Identity)\FSharp.Compiler.Interactive.Settings.resources.dll"
+-  file source="$(BinariesFolder)FSharp.Compiler.Service\$(Configuration)\netstandard2.0\%(_XlfLanguages.Identity)\FSharp.Compiler.Service.resources.dll"
++  file source="$(BinariesFolder)FSharp.Compiler.Service\$(Configuration)\netstandard2.0\%(_XlfLanguages.Identity)\FSharp.Compiler.Service.{LanguageName}.resources.dll"
+   file source="$(BinariesFolder)FSharp.Core\$(Configuration)\netstandard2.0\%(_XlfLanguages.Identity)\FSharp.Core.resources.dll"
+ ]]>
+       </_Line>
+@@ -94,8 +94,8 @@ folder "InstallDir:Common7\IDE\CommonExtensions\Microsoft\FSharp\Tools"
+   file source="$(BinariesFolder)fsiArm64\$(Configuration)\$(TargetFramework)\fsiArm64.exe.config"
+   file source="$(BinariesFolder)FSharp.Compiler.Interactive.Settings\$(Configuration)\netstandard2.0\FSharp.Compiler.Interactive.Settings.dll" vs.file.ngen=yes vs.file.ngenArchitecture=All vs.file.ngenPriority=2
+   file source="$(BinariesFolder)FSharp.Compiler.Interactive.Settings\$(Configuration)\netstandard2.0\FSharp.Compiler.Interactive.Settings.xml"
+-  file source="$(BinariesFolder)fsc\$(Configuration)\$(TargetFramework)\FSharp.Compiler.Service.dll" vs.file.ngen=yes vs.file.ngenArchitecture=All vs.file.ngenPriority=2
+-  file source="$(BinariesFolder)fsc\$(Configuration)\$(TargetFramework)\FSharp.Compiler.Service.xml"
++  file source="$(BinariesFolder)fsc\$(Configuration)\$(TargetFramework)\FSharp.Compiler.Service.{LanguageName}.dll" vs.file.ngen=yes vs.file.ngenArchitecture=All vs.file.ngenPriority=2
++  file source="$(BinariesFolder)fsc\$(Configuration)\$(TargetFramework)\FSharp.Compiler.Service.{LanguageName}.xml"
+   file source="$(BinariesFolder)fsc\$(Configuration)\$(TargetFramework)\System.Buffers.dll"
+   file source="$(BinariesFolder)fsc\$(Configuration)\$(TargetFramework)\System.Collections.Immutable.dll"
+   file source="$(BinariesFolder)fsc\$(Configuration)\$(TargetFramework)\System.Diagnostics.DiagnosticSource.dll"
+diff --git a/src/Compiler/FSharp.Compiler.Service.fsproj b/src/Compiler/FSharp.Compiler.Service.fsproj
+index 537636de0..236fd335f 100644
+--- a/src/Compiler/FSharp.Compiler.Service.fsproj
++++ b/src/Compiler/FSharp.Compiler.Service.fsproj
+@@ -10,7 +10,7 @@
+     <NoWarn>$(NoWarn);75</NoWarn> <!-- InternalCommandLineOption -->
+     <NoWarn>$(NoWarn);1204</NoWarn> <!-- This construct is for use in the FSharp.Core library and should not be used directly -->
+     <NoWarn>$(NoWarn);NU5125</NoWarn>
+-    <AssemblyName>FSharp.Compiler.Service</AssemblyName>
++    <AssemblyName>FSharp.Compiler.Service.{LanguageName}</AssemblyName>
+     <AllowCrossTargeting>true</AllowCrossTargeting>
+     <DefineConstants>$(DefineConstants);COMPILER</DefineConstants>
+     <DefineConstants Condition="'$(FSHARPCORE_USE_PACKAGE)' == 'true'">$(DefineConstants);FSHARPCORE_USE_PACKAGE</DefineConstants>
+@@ -33,10 +33,10 @@
+   </PropertyGroup>
+ 
+   <PropertyGroup>
+-    <PackageId>FSharp.Compiler.Service</PackageId>
++    <PackageId>FSharp.Compiler.Service.{LanguageName}</PackageId>
+     <NuspecFile>FSharp.Compiler.Service.nuspec</NuspecFile>
+     <IsPackable>true</IsPackable>
+-    <PackageDescription>The F# Compiler Services package for F# $(FSLanguageVersion) exposes additional functionality for implementing F# language bindings, additional tools based on the compiler or refactoring tools. The package also includes F# interactive service that can be used for embedding F# scripting into your applications.  Contains code from the F# Software Foundation.</PackageDescription>
++    <PackageDescription>Пакет сервісив компілятора Ф# для F# $(FSLanguageVersion) виставляє додатковий функціонал для реалізації мовних прив'язок Ф#, додаткових інструментів на основі компілятора або інструментів рефакторінга. Пакет також включає інтерактивний сервіс Ф#, який можна використовувати для вбудовування сценаріїв Ф# у ваші програми. Містить код із F# Software Foundation.</PackageDescription>
+     <PackageReleaseNotes>/blob/main/release-notes.md#FSharp-Compiler-Service-$(FSharpCompilerServiceReleaseNotesVersion)</PackageReleaseNotes>
+     <PackageTags>F#, fsharp, interactive, compiler, editor</PackageTags>
+     <PreReleaseVersionLabel>preview</PreReleaseVersionLabel>
+diff --git a/src/Compiler/FSharp.Compiler.Service.nuspec b/src/Compiler/FSharp.Compiler.Service.nuspec
+index 2879d3363..714fbd9a5 100644
+--- a/src/Compiler/FSharp.Compiler.Service.nuspec
++++ b/src/Compiler/FSharp.Compiler.Service.nuspec
+@@ -19,8 +19,8 @@
+     <files>
+         $CommonFileElements$
+ 
+-        <file src="FSharp.Compiler.Service\$Configuration$\netstandard2.0\FSharp.Compiler.Service.dll"                              target="lib\netstandard2.0" />
+-        <file src="FSharp.Compiler.Service\$Configuration$\netstandard2.0\FSharp.Compiler.Service.xml"                              target="lib\netstandard2.0" />
++        <file src="FSharp.Compiler.Service\$Configuration$\netstandard2.0\FSharp.Compiler.Service.{LanguageName}.dll"                    target="lib\netstandard2.0" />
++        <file src="FSharp.Compiler.Service\$Configuration$\netstandard2.0\FSharp.Compiler.Service.{LanguageName}.xml"                    target="lib\netstandard2.0" />
+ 
+         <file src="FSharp.DependencyManager.Nuget\$Configuration$\netstandard2.0\FSharp.DependencyManager.Nuget.dll"                target="lib\netstandard2.0" />
+         <file src="FSharp.DependencyManager.Nuget\$Configuration$\netstandard2.0\FSharp.DependencyManager.Nuget.xml"                target="lib\netstandard2.0" />
+@@ -29,7 +29,7 @@
+ 
+ 
+         <!-- resources -->
+-        <file src="FSharp.Compiler.Service\$Configuration$\netstandard2.0\**\FSharp.Compiler.Service.resources.dll"                 target="lib\netstandard2.0" />
++        <file src="FSharp.Compiler.Service\$Configuration$\netstandard2.0\**\FSharp.Compiler.Service.{LanguageName}.resources.dll"       target="lib\netstandard2.0" />
+         <file src="FSharp.DependencyManager.Nuget\$Configuration$\netstandard2.0\**\FSharp.DependencyManager.Nuget.resources.dll"   target="lib\netstandard2.0" />
+     </files>
+ </package>
+diff --git a/src/Compiler/SyntaxTree/LexHelpers.fs b/src/Compiler/SyntaxTree/LexHelpers.fs
+index f5c837524..f05a83217 100644
+--- a/src/Compiler/SyntaxTree/LexHelpers.fs
++++ b/src/Compiler/SyntaxTree/LexHelpers.fs
+@@ -380,6 +380,70 @@ module Keywords =
+             ALWAYS, "while", WHILE
+             ALWAYS, "with", WITH
+             FSHARP, "yield", YIELD(true)
+{KEYWORDS_OVERRIDE}
++            FSHARP, "абстрактний", ABSTRACT
++            ALWAYS, "та", AND
++            ALWAYS, "як", AS
++            ALWAYS, "ствердити", ASSERT
++            ALWAYS, "база", BASE
++            ALWAYS, "початок", BEGIN
++            ALWAYS, "клас", CLASS
++            FSHARP, "конст", CONST
++            FSHARP, "замовчання", DEFAULT
++            FSHARP, "делегат", DELEGATE
++            ALWAYS, "зробити", DO
++            ALWAYS, "зроблено", DONE
++            FSHARP, "інякщо", ELIF
++            ALWAYS, "інакше", ELSE
++            ALWAYS, "кінець", END
++            ALWAYS, "виключення", EXCEPTION
++            FSHARP, "зовнішній", EXTERN
++            ALWAYS, "ложь", FALSE
++            ALWAYS, "востаннє", FINALLY
++            FSHARP, "фіксовано", FIXED
++            ALWAYS, "для", FOR
++            ALWAYS, "фун", FUN
++            ALWAYS, "функція", FUNCTION
++            FSHARP, "глобальний", GLOBAL
++            ALWAYS, "якщо", IF
++            ALWAYS, "у", IN
++            ALWAYS, "успадкує", INHERIT
++            FSHARP, "інлайн", INLINE
++            FSHARP, "інтерфейс", INTERFACE
++            FSHARP, "внутрішній", INTERNAL
++            ALWAYS, "ледачий", LAZY
++            ALWAYS, "нехай", LET(false)
++            ALWAYS, "співстав", MATCH
++            ALWAYS, "відповідає", MATCH
++            FSHARP, "член", MEMBER
++            ALWAYS, "мод", INFIX_STAR_DIV_MOD_OP "мод"
++            ALWAYS, "модуль", MODULE
++            ALWAYS, "змінливий", MUTABLE
++            FSHARP, "простір", NAMESPACE
++            ALWAYS, "новий", NEW
++            FSHARP, "нуль", NULL
++            ALWAYS, "з", OF
++            ALWAYS, "відкрити", OPEN
++            ALWAYS, "або", OR
++            FSHARP, "перевизначити", OVERRIDE
++            ALWAYS, "приватний", PRIVATE
++            FSHARP, "відкритий", PUBLIC
++            ALWAYS, "рек", REC
++            FSHARP, "повернути", YIELD(false)
++            ALWAYS, "сіг", SIG
++            FSHARP, "статичний", STATIC
++            ALWAYS, "структ", STRUCT
++            ALWAYS, "тоді", THEN
++            ALWAYS, "до", TO
++            ALWAYS, "істина", TRUE
++            ALWAYS, "спробувати", TRY
++            ALWAYS, "тип", TYPE
++            FSHARP, "вживати", LET(true)
++            ALWAYS, "знач", VAL
++            FSHARP, "пусто", VOID
++            ALWAYS, "коли", WHEN
++            ALWAYS, "доки", WHILE
++            ALWAYS, "із", WITH
++            FSHARP, "поступатися", YIELD(true)
+             ALWAYS, "_", UNDERSCORE
+             (*------- for prototyping and explaining offside rule *)
+             FSHARP, "__token_OBLOCKSEP", OBLOCKSEP
+diff --git a/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec b/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec
+index c87a70d9d..df7c00223 100644
+--- a/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec
++++ b/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec
+@@ -30,7 +30,7 @@
+         <file src="fsi\ReleaseCompressed\net7.0\fsi.dll"                                                     target="lib\net7.0" />
+         <file src="FSharp.Core\ReleaseCompressed\netstandard2.0\FSharp.Core.dll"                             target="lib\net7.0" />
+         <file src="FSharp.Core\ReleaseCompressed\netstandard2.0\FSharp.Core.xml"                             target="lib\net7.0" />
+-        <file src="FSharp.Compiler.Service\ReleaseCompressed\netstandard2.0\FSharp.Compiler.Service.dll"     target="lib\net7.0" />
++        <file src="FSharp.Compiler.Service\ReleaseCompressed\netstandard2.0\FSharp.Compiler.Service.{LanguageName}.dll"     target="lib\net7.0" />
+         <file src="FSharp.Build\ReleaseCompressed\netstandard2.0\FSharp.Build.dll"                           target="lib\net7.0" />
+         <file src="FSharp.DependencyManager.Nuget\ReleaseCompressed\netstandard2.0\FSharp.DependencyManager.Nuget.dll"
+                                                                                                            target="lib\net7.0" />
+@@ -47,7 +47,7 @@
+ 
+         <!-- resources -->
+         <file src="FSharp.Core\ReleaseCompressed\netstandard2.0\**\FSharp.Core.resources.dll"                target="lib\net7.0" />
+-        <file src="FSharp.Compiler.Service\ReleaseCompressed\netstandard2.0\**\FSharp.Compiler.Service.resources.dll"
++        <file src="FSharp.Compiler.Service\ReleaseCompressed\netstandard2.0\**\FSharp.Compiler.Service.{LanguageName}.resources.dll"
+                                                                                                            target="lib\net7.0" />
+         <file src="FSharp.Compiler.Interactive.Settings\ReleaseCompressed\netstandard2.0\**\FSharp.Compiler.Interactive.Settings.resources.dll"
+                                                                                                            target="lib\net7.0" />
+diff --git a/tests/fsharpqa/testenv/src/HostedCompilerServer/HostedCompilerServer.fsproj b/tests/fsharpqa/testenv/src/HostedCompilerServer/HostedCompilerServer.fsproj
+index f67562799..a04131e59 100644
+--- a/tests/fsharpqa/testenv/src/HostedCompilerServer/HostedCompilerServer.fsproj
++++ b/tests/fsharpqa/testenv/src/HostedCompilerServer/HostedCompilerServer.fsproj
+@@ -25,10 +25,17 @@
+   </ItemGroup>
+ 
+   <ItemGroup>
+-    <ProjectReference Include="$(FSharpSourcesRoot)\FSharp.Core\FSharp.Core.fsproj" />
+     <ProjectReference Include="$(FSharpSourcesRoot)\Compiler\FSharp.Compiler.Service.fsproj" />
+   </ItemGroup>
+ 
++  <ItemGroup Condition="'$(FSHARPCORE_USE_PACKAGE)' != 'true'">
++    <ProjectReference Include="$(FSharpSourcesRoot)\FSharp.Core\FSharp.Core.fsproj" />
++  </ItemGroup>
++
++  <ItemGroup Condition="'$(FSHARPCORE_USE_PACKAGE)' == 'true'">
++    <PackageReference Include="FSharp.Core" Version="$(FSharpCoreShippedPackageVersionValue)" />
++  </ItemGroup>
++
+   <ItemGroup>
+     <PackageReference Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildFrameworkVersion)" />
+     <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MicrosoftBuildTasksCoreVersion)" />
+diff --git a/vsintegration/Vsix/VisualFSharpFull/Source.extension.vsixmanifest b/vsintegration/Vsix/VisualFSharpFull/Source.extension.vsixmanifest
+index f80555882..5b9473f27 100644
+--- a/vsintegration/Vsix/VisualFSharpFull/Source.extension.vsixmanifest
++++ b/vsintegration/Vsix/VisualFSharpFull/Source.extension.vsixmanifest
+@@ -21,7 +21,7 @@
+       <Action Type="Ngen" Path="fscArm64.exe" />
+       <Action Type="Ngen" Path="fscAnyCpu.exe" />
+       <Action Type="Ngen" Path="fsc.exe" />
+-      <Action Type="Ngen" Path="FSharp.Compiler.Service.dll" />
++      <Action Type="Ngen" Path="FSharp.Compiler.Service.{LanguageName}.dll" />
+       <Action Type="Ngen" Path="FSharp.Compiler.Interactive.Settings.dll" />
+       <Action Type="Ngen" Path="FSharp.Core.dll" />
+       <Action Type="Ngen" Path="FSharp.DependencyManager.Nuget.dll" />
+diff --git a/vsintegration/src/FSharp.ProjectSystem.FSharp/FSharp.ProjectSystem.FSharp.fsproj b/vsintegration/src/FSharp.ProjectSystem.FSharp/FSharp.ProjectSystem.FSharp.fsproj
+index b472ed00d..128f5a4bb 100644
+--- a/vsintegration/src/FSharp.ProjectSystem.FSharp/FSharp.ProjectSystem.FSharp.fsproj
++++ b/vsintegration/src/FSharp.ProjectSystem.FSharp/FSharp.ProjectSystem.FSharp.fsproj
+@@ -67,9 +67,9 @@
+     </AssemblyAttribute>
+ 
+     <AssemblyAttribute Include="Microsoft.VisualStudio.Shell.ProvideCodeBaseAttribute">
+-      <AssemblyName>FSharp.Compiler.Service</AssemblyName>
++      <AssemblyName>FSharp.Compiler.Service.{LanguageName}</AssemblyName>
+       <Version>$(FSharpCompilerServiceVersion)</Version>
+-      <CodeBase>$PackageFolder$\FSharp.Compiler.Service.dll</CodeBase>
++      <CodeBase>$PackageFolder$\FSharp.Compiler.Service.{LanguageName}.dll</CodeBase>
+     </AssemblyAttribute>
+     <AssemblyAttribute Include="Microsoft.VisualStudio.Shell.ProvideCodeBaseAttribute">
+       <AssemblyName>FSharp.UIResources</AssemblyName>

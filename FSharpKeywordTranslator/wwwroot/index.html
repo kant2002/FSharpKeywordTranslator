@@ -60,6 +60,16 @@
         window.writeToClipboard = (textToWrite) => {
             window.navigator.clipboard.writeText(JSON.stringify(textToWrite));
         }
+        window.downloadFileFromStream = async (fileName, contentStreamReference) => {
+            const blob = new Blob([contentStreamReference], { type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const anchorElement = document.createElement('a');
+            anchorElement.href = url;
+            anchorElement.download = fileName ?? '';
+            anchorElement.click();
+            anchorElement.remove();
+            URL.revokeObjectURL(url);
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha256-cMPWkL3FzjuaFSfEYESYmjF25hCIL6mfRSPnW8OVvM4=" crossorigin="anonymous"></script>
 </body>

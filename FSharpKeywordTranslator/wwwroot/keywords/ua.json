@@ -1,5 +1,6 @@
 {
   "language": "ua",
+  "languageName": "Ukrainian",
   "keywords": {
     "abstract": "абстрактний",
     "and": "та",
@@ -35,7 +36,7 @@
     "internal": "внутрішній",
     "lazy": "ледачий",
     "let": "нехай",
-    "match": "співстав",
+    "match": "співстав,відповідає",
     "member": "член",
     "mod": "мод",
     "module": "модуль",

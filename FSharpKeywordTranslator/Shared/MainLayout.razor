@@ -1,5 +1,8 @@
-﻿@inherits LayoutComponentBase
+﻿@using System.Text;
+@inherits LayoutComponentBase
 @inject LanguageConfigurationManager languageManager
+@inject IJSRuntime JS
+@inject HttpClient HttpClient
 
 <div class="page">
     <div class="sidebar">
@@ -14,6 +17,7 @@
                     <option value="@item.Code"><span class="fi fi-@item.Country"></span> @item.Name</option>
                 }
             </select>
+            <button class="btn btn-primary" @onclick="DownloadPatch" disabled="@IsPatchDownloadDisabled">Patch</button>
             <a href="https://github.com/kant2002/FSharpKeywordTranslator" target="_blank">Github</a>
             <a href="https://github.com/kant2002/fsharp/" target="_blank">About</a>
         </div>
@@ -28,6 +32,8 @@
 
 @code {
     public string Language { get; set; } = "en";
+
+    public bool IsPatchDownloadDisabled => Language == "en";
 
     LanguageConfiguration current;
 
@@ -45,4 +51,101 @@
         Language = (string)e.Value!;
         await languageManager.SetLanguageAsync(Language);
     }
+
+    public async Task DownloadPatch(MouseEventArgs e)
+    {
+        var fileStream = await GetFileStream();
+        var fileName = "fsharp-compiler-net8.patch";
+        fileStream = fileStream.Replace("{LanguageName}", current.LanguageName ?? current.Language);
+        var keywords = new StringBuilder();
+        RegisterKeywordOverride(current.Keywords.Abstract, true, "ABSTRACT");
+        RegisterKeywordOverride(current.Keywords.And, false, "AND");
+        RegisterKeywordOverride(current.Keywords.As, false, "AS");
+        RegisterKeywordOverride(current.Keywords.Assert, false, "ASSERT");
+        RegisterKeywordOverride(current.Keywords.Base, false, "BASE");
+        RegisterKeywordOverride(current.Keywords.Begin, false, "BEGIN");
+        RegisterKeywordOverride(current.Keywords.Class, false, "CLASS");
+        RegisterKeywordOverride(current.Keywords.Const, true, "CONST");
+        RegisterKeywordOverride(current.Keywords.Default, true, "DEFAULT");
+        RegisterKeywordOverride(current.Keywords.Delegate, true, "DELEGATE");
+        RegisterKeywordOverride(current.Keywords.Do, false, "DO");
+        RegisterKeywordOverride(current.Keywords.Done, false, "DONE");
+        RegisterKeywordOverride(current.Keywords.Elif, true, "ELIF");
+        RegisterKeywordOverride(current.Keywords.Else, false, "ELSE");
+        RegisterKeywordOverride(current.Keywords.End, false, "END");
+        RegisterKeywordOverride(current.Keywords.Exception, false, "EXCEPTION");
+        RegisterKeywordOverride(current.Keywords.Extern, true, "EXTERN");
+        RegisterKeywordOverride(current.Keywords.False, false, "FALSE");
+        RegisterKeywordOverride(current.Keywords.Finally, false, "FINALLY");
+        RegisterKeywordOverride(current.Keywords.Fixed, true, "FIXED");
+        RegisterKeywordOverride(current.Keywords.For, false, "FOR");
+        RegisterKeywordOverride(current.Keywords.Fun, false, "FUN");
+        RegisterKeywordOverride(current.Keywords.Function, false, "FUNCTION");
+        RegisterKeywordOverride(current.Keywords.Global, true, "GLOBAL");
+        RegisterKeywordOverride(current.Keywords.If, false, "IF");
+        RegisterKeywordOverride(current.Keywords.In, false, "IN");
+        RegisterKeywordOverride(current.Keywords.Inherit, false, "INHERIT");
+        RegisterKeywordOverride(current.Keywords.Inline, true, "INLINE");
+        RegisterKeywordOverride(current.Keywords.Interface, true, "INTERFACE");
+        RegisterKeywordOverride(current.Keywords.Internal, true, "INTERNAL");
+        RegisterKeywordOverride(current.Keywords.Lazy, false, "LAZY");
+        RegisterKeywordOverride(current.Keywords.Let, false, "LET(false)");
+        RegisterKeywordOverride(current.Keywords.Match, false, "MATCH");
+        //RegisterKeywordOverride(current.Keywords.MATCH, false, "MATCH");
+        RegisterKeywordOverride(current.Keywords.Member, false, "MEMBER");
+        RegisterKeywordOverride(current.Keywords.Mod, false, $"INFIX_STAR_DIV_MOD_OP \"{current.Keywords.Mod}\"");
+        RegisterKeywordOverride(current.Keywords.Module, false, "MODULE");
+        RegisterKeywordOverride(current.Keywords.Mutable, false, "MUTABLE");
+        RegisterKeywordOverride(current.Keywords.Namespace, true, "NAMESPACE");
+        RegisterKeywordOverride(current.Keywords.New, false, "NEW");
+        RegisterKeywordOverride(current.Keywords.Null, true, "NULL");
+        RegisterKeywordOverride(current.Keywords.Of, false, "OF");
+        RegisterKeywordOverride(current.Keywords.Open, false, "OPEN");
+        RegisterKeywordOverride(current.Keywords.Or, false, "OR");
+        RegisterKeywordOverride(current.Keywords.Override, true, "OVERRIDE");
+        RegisterKeywordOverride(current.Keywords.Private, false, "PRIVATE");
+        RegisterKeywordOverride(current.Keywords.Public, true, "PUBLIC");
+        RegisterKeywordOverride(current.Keywords.Rec, false, "REC");
+        RegisterKeywordOverride(current.Keywords.Return, true, "YIELD(false)");
+        RegisterKeywordOverride(current.Keywords.Sig, false, "SIG");
+        RegisterKeywordOverride(current.Keywords.Static, true, "STATIC");
+        RegisterKeywordOverride(current.Keywords.Struct, false, "STRUCT");
+        RegisterKeywordOverride(current.Keywords.Then, false, "THEN");
+        RegisterKeywordOverride(current.Keywords.To, false, "TO");
+        RegisterKeywordOverride(current.Keywords.True, false, "TRUE");
+        RegisterKeywordOverride(current.Keywords.Try, false, "TRY");
+        RegisterKeywordOverride(current.Keywords.Type, false, "TYPE");
+        RegisterKeywordOverride(current.Keywords.Use, true, "LET(true)");
+        RegisterKeywordOverride(current.Keywords.Val, false, "VAL");
+        RegisterKeywordOverride(current.Keywords.Void, true, "VOID");
+        RegisterKeywordOverride(current.Keywords.When, false, "WHEN");
+        RegisterKeywordOverride(current.Keywords.While, false, "WHILE");
+        RegisterKeywordOverride(current.Keywords.With, false, "WITH");
+
+        if (keywords.Length > 1)
+        {
+            keywords = keywords.Remove(keywords.Length - 1, 1);
+        }
+
+        fileStream = fileStream.Replace("{KEYWORDS_OVERRIDE}", keywords.ToString());
+
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, fileStream);
+
+        void RegisterKeywordOverride(string keywordOverride, bool fsharp, string token)
+        {
+            if (!string.IsNullOrEmpty(keywordOverride))
+            {
+                foreach (var k in keywordOverride.Split(','))
+                {
+                    keywords.AppendLine($@"+            {(fsharp ? "FSHARP" : "ALWAYS")}, ""{k}"", {token}");
+                }
+            }
+        }
+    }
+
+    private async Task<string> GetFileStream()
+    {
+        return await HttpClient.GetStringAsync("/fsharp-compiler-net8.txt");
+    }
+
 }
