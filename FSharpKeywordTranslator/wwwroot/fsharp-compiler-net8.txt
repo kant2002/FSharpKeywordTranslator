@@ -1,8 +1,25 @@
+From 8f237dde7fe7ad6f61fee08900f7aa2e72f3af47 Mon Sep 17 00:00:00 2001
+From: Andrii Kurdiumov <kant2002@gmail.com>
+Date: Tue, 29 Aug 2023 17:29:13 +0600
+Subject: [PATCH] Save work
+
+---
+ Directory.Build.props                         |  5 ++
+ .../Microsoft.FSharp.Compiler.MSBuild.csproj  |  6 +-
+ src/Compiler/FSharp.Compiler.Service.fsproj   |  6 +-
+ src/Compiler/FSharp.Compiler.Service.nuspec   |  6 +-
+ src/Compiler/SyntaxTree/LexHelpers.fs         | 64 +++++++++++++++++++
+ .../Microsoft.FSharp.Compiler.nuspec          |  4 +-
+ .../HostedCompilerServer.fsproj               |  9 ++-
+ .../Source.extension.vsixmanifest             |  2 +-
+ .../FSharp.ProjectSystem.FSharp.fsproj        |  4 +-
+ 9 files changed, 91 insertions(+), 15 deletions(-)
+
 diff --git a/Directory.Build.props b/Directory.Build.props
-index e77076d14..b964f8df0 100644
+index baf55b19a..5190a5732 100644
 --- a/Directory.Build.props
 +++ b/Directory.Build.props
-@@ -14,6 +14,11 @@
+@@ -5,6 +5,11 @@
      <RepoRoot Condition="'$(RepoRoot)' == ''">$(MSBuildThisFileDirectory)</RepoRoot>
      <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
    </PropertyGroup>
@@ -39,7 +56,7 @@ index bb4fd680a..73982ee33 100644
    file source="$(BinariesFolder)fsc\$(Configuration)\$(TargetFramework)\System.Collections.Immutable.dll"
    file source="$(BinariesFolder)fsc\$(Configuration)\$(TargetFramework)\System.Diagnostics.DiagnosticSource.dll"
 diff --git a/src/Compiler/FSharp.Compiler.Service.fsproj b/src/Compiler/FSharp.Compiler.Service.fsproj
-index 537636de0..236fd335f 100644
+index 92276d105..1dd65d1af 100644
 --- a/src/Compiler/FSharp.Compiler.Service.fsproj
 +++ b/src/Compiler/FSharp.Compiler.Service.fsproj
 @@ -10,7 +10,7 @@
@@ -51,7 +68,7 @@ index 537636de0..236fd335f 100644
      <AllowCrossTargeting>true</AllowCrossTargeting>
      <DefineConstants>$(DefineConstants);COMPILER</DefineConstants>
      <DefineConstants Condition="'$(FSHARPCORE_USE_PACKAGE)' == 'true'">$(DefineConstants);FSHARPCORE_USE_PACKAGE</DefineConstants>
-@@ -33,10 +33,10 @@
+@@ -34,10 +34,10 @@
    </PropertyGroup>
  
    <PropertyGroup>
@@ -89,83 +106,19 @@ index 2879d3363..714fbd9a5 100644
      </files>
  </package>
 diff --git a/src/Compiler/SyntaxTree/LexHelpers.fs b/src/Compiler/SyntaxTree/LexHelpers.fs
-index f5c837524..f05a83217 100644
+index 02d4da364..938eba25e 100644
 --- a/src/Compiler/SyntaxTree/LexHelpers.fs
 +++ b/src/Compiler/SyntaxTree/LexHelpers.fs
-@@ -380,6 +380,70 @@ module Keywords =
+@@ -388,6 +388,{KEYWORDS_OVERRIDE_COUNT} @@ module Keywords =
              ALWAYS, "while", WHILE
              ALWAYS, "with", WITH
              FSHARP, "yield", YIELD(true)
 {KEYWORDS_OVERRIDE}
-+            FSHARP, "абстрактний", ABSTRACT
-+            ALWAYS, "та", AND
-+            ALWAYS, "як", AS
-+            ALWAYS, "ствердити", ASSERT
-+            ALWAYS, "база", BASE
-+            ALWAYS, "початок", BEGIN
-+            ALWAYS, "клас", CLASS
-+            FSHARP, "конст", CONST
-+            FSHARP, "замовчання", DEFAULT
-+            FSHARP, "делегат", DELEGATE
-+            ALWAYS, "зробити", DO
-+            ALWAYS, "зроблено", DONE
-+            FSHARP, "інякщо", ELIF
-+            ALWAYS, "інакше", ELSE
-+            ALWAYS, "кінець", END
-+            ALWAYS, "виключення", EXCEPTION
-+            FSHARP, "зовнішній", EXTERN
-+            ALWAYS, "ложь", FALSE
-+            ALWAYS, "востаннє", FINALLY
-+            FSHARP, "фіксовано", FIXED
-+            ALWAYS, "для", FOR
-+            ALWAYS, "фун", FUN
-+            ALWAYS, "функція", FUNCTION
-+            FSHARP, "глобальний", GLOBAL
-+            ALWAYS, "якщо", IF
-+            ALWAYS, "у", IN
-+            ALWAYS, "успадкує", INHERIT
-+            FSHARP, "інлайн", INLINE
-+            FSHARP, "інтерфейс", INTERFACE
-+            FSHARP, "внутрішній", INTERNAL
-+            ALWAYS, "ледачий", LAZY
-+            ALWAYS, "нехай", LET(false)
-+            ALWAYS, "співстав", MATCH
-+            ALWAYS, "відповідає", MATCH
-+            FSHARP, "член", MEMBER
-+            ALWAYS, "мод", INFIX_STAR_DIV_MOD_OP "мод"
-+            ALWAYS, "модуль", MODULE
-+            ALWAYS, "змінливий", MUTABLE
-+            FSHARP, "простір", NAMESPACE
-+            ALWAYS, "новий", NEW
-+            FSHARP, "нуль", NULL
-+            ALWAYS, "з", OF
-+            ALWAYS, "відкрити", OPEN
-+            ALWAYS, "або", OR
-+            FSHARP, "перевизначити", OVERRIDE
-+            ALWAYS, "приватний", PRIVATE
-+            FSHARP, "відкритий", PUBLIC
-+            ALWAYS, "рек", REC
-+            FSHARP, "повернути", YIELD(false)
-+            ALWAYS, "сіг", SIG
-+            FSHARP, "статичний", STATIC
-+            ALWAYS, "структ", STRUCT
-+            ALWAYS, "тоді", THEN
-+            ALWAYS, "до", TO
-+            ALWAYS, "істина", TRUE
-+            ALWAYS, "спробувати", TRY
-+            ALWAYS, "тип", TYPE
-+            FSHARP, "вживати", LET(true)
-+            ALWAYS, "знач", VAL
-+            FSHARP, "пусто", VOID
-+            ALWAYS, "коли", WHEN
-+            ALWAYS, "доки", WHILE
-+            ALWAYS, "із", WITH
-+            FSHARP, "поступатися", YIELD(true)
              ALWAYS, "_", UNDERSCORE
              (*------- for prototyping and explaining offside rule *)
              FSHARP, "__token_OBLOCKSEP", OBLOCKSEP
 diff --git a/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec b/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec
-index c87a70d9d..df7c00223 100644
+index fddbf477e..ff3a2abd1 100644
 --- a/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec
 +++ b/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec
 @@ -30,7 +30,7 @@
@@ -176,16 +129,16 @@ index c87a70d9d..df7c00223 100644
 +        <file src="FSharp.Compiler.Service\ReleaseCompressed\netstandard2.0\FSharp.Compiler.Service.{LanguageName}.dll"     target="lib\net7.0" />
          <file src="FSharp.Build\ReleaseCompressed\netstandard2.0\FSharp.Build.dll"                           target="lib\net7.0" />
          <file src="FSharp.DependencyManager.Nuget\ReleaseCompressed\netstandard2.0\FSharp.DependencyManager.Nuget.dll"
-                                                                                                            target="lib\net7.0" />
+                                                                                                              target="lib\net7.0" />
 @@ -47,7 +47,7 @@
  
          <!-- resources -->
          <file src="FSharp.Core\ReleaseCompressed\netstandard2.0\**\FSharp.Core.resources.dll"                target="lib\net7.0" />
 -        <file src="FSharp.Compiler.Service\ReleaseCompressed\netstandard2.0\**\FSharp.Compiler.Service.resources.dll"
 +        <file src="FSharp.Compiler.Service\ReleaseCompressed\netstandard2.0\**\FSharp.Compiler.Service.{LanguageName}.resources.dll"
-                                                                                                            target="lib\net7.0" />
+                                                                                                              target="lib\net7.0" />
          <file src="FSharp.Compiler.Interactive.Settings\ReleaseCompressed\netstandard2.0\**\FSharp.Compiler.Interactive.Settings.resources.dll"
-                                                                                                            target="lib\net7.0" />
+                                                                                                              target="lib\net7.0" />
 diff --git a/tests/fsharpqa/testenv/src/HostedCompilerServer/HostedCompilerServer.fsproj b/tests/fsharpqa/testenv/src/HostedCompilerServer/HostedCompilerServer.fsproj
 index f67562799..a04131e59 100644
 --- a/tests/fsharpqa/testenv/src/HostedCompilerServer/HostedCompilerServer.fsproj
@@ -238,3 +191,6 @@ index b472ed00d..128f5a4bb 100644
      </AssemblyAttribute>
      <AssemblyAttribute Include="Microsoft.VisualStudio.Shell.ProvideCodeBaseAttribute">
        <AssemblyName>FSharp.UIResources</AssemblyName>
+-- 
+2.37.1.windows.1
+
