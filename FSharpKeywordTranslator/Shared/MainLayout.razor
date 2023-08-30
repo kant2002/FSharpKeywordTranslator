@@ -145,7 +145,7 @@
 
     private async Task<string> GetFileStream()
     {
-        return await HttpClient.GetStringAsync("/fsharp-compiler-net8.txt");
+        return await HttpClient.GetStringAsync("fsharp-compiler-net8.txt");
     }
 
 }
