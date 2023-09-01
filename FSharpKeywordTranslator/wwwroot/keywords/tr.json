@@ -35,7 +35,7 @@
     "interface": "interface",
     "internal": "internal",
     "lazy": "tembel",
-    "let": "let",
+    "let": "vermek",
     "match": "eşleştirme",
     "member": "üye",
     "mod": "mod",
@@ -56,7 +56,7 @@
     "static": "statik",
     "struct": "yapı",
     "then": "then",
-    "to": "için",
+    "to": "ile",
     "true": "gerçek",
     "try": "deneyin",
     "type": "tip",
@@ -66,8 +66,8 @@
     "void": "eksiklik",
     "when": "zaman",
     "while": "iken",
-    "with": "ile",
-    "yield": "yield"
+    "with": "beraber",
+    "yield": "getire"
   },
   "variables": {
     "name": "isim",

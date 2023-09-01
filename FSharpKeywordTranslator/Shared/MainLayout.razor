@@ -145,6 +145,11 @@
                         continue;
                     }
 
+                    if (k == "mod" && token == $"INFIX_STAR_DIV_MOD_OP \"mod\"")
+                    {
+                        continue;
+                    }
+
                     keywords.AppendLine($@"+            {(fsharp ? "FSHARP" : "ALWAYS")}, ""{k}"", {token}");
                     i++;
                 }
