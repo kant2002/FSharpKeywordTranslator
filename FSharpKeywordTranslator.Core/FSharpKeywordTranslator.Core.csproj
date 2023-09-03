@@ -7,11 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="patches\fsharp-compiler-net8.txt" />
+    <None Remove="keywords\*.json" />
+    <None Remove="patches\*.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="patches\fsharp-compiler-net8.txt">
+    <EmbeddedResource Include="keywords\*.json">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="patches\*.txt">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>
