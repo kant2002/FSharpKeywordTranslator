@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\deployment.yml = .github\workflows\deployment.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSharpKeywordTranslator.Core", "FSharpKeywordTranslator.Core\FSharpKeywordTranslator.Core.csproj", "{9452AEAD-3517-4FAE-A988-FD16D6F2CE40}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,6 +24,10 @@ Global
 		{8C6CE234-24B9-4537-8037-790F04D241F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C6CE234-24B9-4537-8037-790F04D241F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C6CE234-24B9-4537-8037-790F04D241F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9452AEAD-3517-4FAE-A988-FD16D6F2CE40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9452AEAD-3517-4FAE-A988-FD16D6F2CE40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9452AEAD-3517-4FAE-A988-FD16D6F2CE40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9452AEAD-3517-4FAE-A988-FD16D6F2CE40}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
