@@ -6,10 +6,10 @@
 <PageTitle>Keywords</PageTitle>
 
 <div class="alert alert-warning" role="alert">
-    <button @onclick="SaveLangugeConfiguration" class="btn btn-primary">Copy to clipboard</button> All changes made on this page are not persisted after refresh. Make sure if you experiment copy to clipboard and send to author.
+    <button @onclick="SaveLanguageConfiguration" class="btn btn-primary">Copy to clipboard</button> All changes made on this page are not persisted after refresh. Make sure if you experiment copy to clipboard and send to author.
 </div>
 
-@if (keywordsObj is not null)
+@if (keywordsObj is not null && englishLanguage is not null)
 {
     <KeywordsEditor Source="@englishLanguage" Translation="keywordsObj" />
 }
@@ -28,7 +28,7 @@
         englishLanguage = await languageManager.GetLanguageAsync("en");
     }
 
-    private async Task SaveLangugeConfiguration()
+    private async Task SaveLanguageConfiguration()
     {
         await JS.InvokeVoidAsync("writeToClipboard", keywordsObj);
     }
