@@ -6,8 +6,34 @@ public class PatchGenerator
 {
     public string GenerateFSharpPatch(LanguageConfiguration current)
     {
-        var fileStream = GetFileStream();
-        fileStream = fileStream.Replace("{LanguageName}", current.LanguageName ?? current.Language);
+        var patchTemplate = GetFSharpPatchTemplate();
+        return ApplyKeywords(current, patchTemplate);
+    }
+    public string GenerateFableReplPatch(LanguageConfiguration current)
+    {
+        var patchTemplate = """
+            ---
+            diff --git a/src/Compiler/SyntaxTree/LexHelpers.fs b/src/Compiler/SyntaxTree/LexHelpers.fs
+            index 02d4da364..938eba25e 100644
+            --- a/src/Compiler/SyntaxTree/LexHelpers.fs
+            +++ b/src/Compiler/SyntaxTree/LexHelpers.fs
+            @@ -388,6 +388,{KEYWORDS_OVERRIDE_COUNT} @@ module Keywords =
+                         ALWAYS, "while", WHILE
+                         ALWAYS, "with", WITH
+                         FSHARP, "yield", YIELD(true)
+            {KEYWORDS_OVERRIDE}
+                         ALWAYS, "_", UNDERSCORE
+                         (*------- for prototyping and explaining offside rule *)
+                         FSHARP, "__token_OBLOCKSEP", OBLOCKSEP
+            -- 
+            2.37.1.windows.1
+            """.ReplaceLineEndings("\n");
+        return ApplyKeywords(current, patchTemplate);
+    }
+
+    private string ApplyKeywords(LanguageConfiguration current, string patchTemplate)
+    {
+        patchTemplate = patchTemplate.Replace("{LanguageName}", current.LanguageName ?? current.Language);
         var keywords = new StringBuilder();
         var keywordsOverrideCount = 6;
         keywordsOverrideCount += RegisterKeywordOverride(keywords, current.Keywords.Abstract, true, "ABSTRACT");
@@ -79,10 +105,10 @@ public class PatchGenerator
             keywords = keywords.Remove(keywords.Length - 1, 1);
         }
 
-        fileStream = fileStream.Replace("{KEYWORDS_OVERRIDE}", keywords.ToString());
-        fileStream = fileStream.Replace("{KEYWORDS_OVERRIDE_COUNT}", keywordsOverrideCount.ToString());
+        patchTemplate = patchTemplate.Replace("{KEYWORDS_OVERRIDE}", keywords.ToString());
+        patchTemplate = patchTemplate.Replace("{KEYWORDS_OVERRIDE_COUNT}", keywordsOverrideCount.ToString());
 
-        return fileStream;
+        return patchTemplate;
     }
 
     int RegisterKeywordOverride(StringBuilder keywords, string keywordOverride, bool fsharp, string token)
@@ -110,7 +136,7 @@ public class PatchGenerator
         return i;
     }
 
-    private string GetFileStream()
+    private string GetFSharpPatchTemplate()
     {
         using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream("FSharpKeywordTranslator.Core.patches.fsharp-compiler-net8.txt") ?? throw new InvalidDataException("The patch for F# compiler is missing from the assembly.");
         using var stringReader = new StreamReader(patchStream);
