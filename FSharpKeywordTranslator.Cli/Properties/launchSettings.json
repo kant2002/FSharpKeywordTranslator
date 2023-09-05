@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "FSharpKeywordTranslator.Cli": {
+      "commandName": "Project",
+      "commandLineArgs": "fsharp --lang uk"
+    },
+    "fsharp_ua": {
+      "commandName": "Project",
+      "commandLineArgs": "fsharp --lang ua"
+    }
+  }
+}
