@@ -14,10 +14,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FSharpKeywordTranslator.Core", "FSharpKeywordTranslator.Core\FSharpKeywordTranslator.Core.csproj", "{9452AEAD-3517-4FAE-A988-FD16D6F2CE40}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSharpKeywordTranslator.Cli", "FSharpKeywordTranslator.Cli\FSharpKeywordTranslator.Cli.csproj", "{4632D7BA-0023-4B07-9992-E955A443ED8D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FSharpKeywordTranslator.Cli", "FSharpKeywordTranslator.Cli\FSharpKeywordTranslator.Cli.csproj", "{4632D7BA-0023-4B07-9992-E955A443ED8D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E0CF96AA-BB4A-4488-AFB9-D4EF737E0BE8}"
 	ProjectSection(SolutionItems) = preProject
+		fable.ps1 = fable.ps1
 		fsharp.ps1 = fsharp.ps1
 		README.md = README.md
 	EndProjectSection
