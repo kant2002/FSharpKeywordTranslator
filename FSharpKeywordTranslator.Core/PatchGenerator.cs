@@ -12,7 +12,27 @@ public class PatchGenerator
 
     public string GenerateFableReplPatch(LanguageConfiguration current)
     {
-        var patchTemplate = GetFableReplPatchTemplate(current.Language);
+        var patchTemplate = GetFableReplPatchTemplate(current.Language)
+            ??
+            """
+            ---
+            diff --git a/src/App/Prelude.fs b/src/App/Prelude.fs
+            index ece83b0..c8ec73d 100644
+            --- a/src/App/Prelude.fs
+            +++ b/src/App/Prelude.fs
+            @@ -15,7 +15,8 @@ module Literals =
+                     // "http://localhost:8080"
+                     Browser.Dom.window.location.href
+             #else
+            -        "https://fable.io/repl/"
+            +        Browser.Dom.window.location.href
+            +        //"https://fable.io/repl/"
+             #endif
+                 printfn $"HOST {HOST}"
+             
+            -- 
+            2.37.1.windows.1
+            """.ReplaceLineEndings("\n");
         return patchTemplate;
     }
 
@@ -150,10 +170,18 @@ public class PatchGenerator
         return stringReader.ReadToEnd();
     }
 
-    private string GetFableReplPatchTemplate(string language)
+    private string? GetFableReplPatchTemplate(string language)
     {
-        using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream($"FSharpKeywordTranslator.Core.patches.repl-{language}.patch") ?? throw new InvalidDataException("The patch for F# compiler is missing from the assembly.");
-        using var stringReader = new StreamReader(patchStream);
-        return stringReader.ReadToEnd();
+        var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream($"FSharpKeywordTranslator.Core.patches.repl-{language}.patch");
+        if (patchStream is null)
+        {
+            return null;
+        }
+
+        using (patchStream)
+        {
+            using var stringReader = new StreamReader(patchStream);
+            return stringReader.ReadToEnd();
+        }
     }
 }

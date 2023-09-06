@@ -23,4 +23,8 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="patches\repl-ru.patch" />
+  </ItemGroup>
+
 </Project>

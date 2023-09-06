@@ -49,11 +49,8 @@ if (-not $DoNotBuildRepl)
     $env:LOCAL_PKG=1
     git -C "$FableReplRepo" checkout -- .
     git -C "$FableReplRepo" checkout master
-    if ($Language -eq "uk")
-    {
-        Write-Host "Applying UI patch"
-        dotnet run --project FSharpKeywordTranslator.Cli -- repl --lang $Language | git -C "$FableReplRepo" apply
-    }
+    Write-Host "Applying UI patch"
+    dotnet run --project FSharpKeywordTranslator.Cli -- repl --lang $Language | git -C "$FableReplRepo" apply
 
     try {
         pushd $FableReplRepo
