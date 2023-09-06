@@ -56,7 +56,7 @@
     public async Task DownloadPatch(MouseEventArgs e)
     {
         var patchGenerator = new PatchGenerator();
-        var fileName = "fsharp-compiler-net8.patch";
+        var fileName = $"fsharp-compiler-net8-{current.Language}.patch";
         var fileStream = patchGenerator.GenerateFSharpPatch(current);
 
         await JS.InvokeVoidAsync("downloadFileFromStream", fileName, fileStream);

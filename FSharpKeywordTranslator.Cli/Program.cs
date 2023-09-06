@@ -13,12 +13,18 @@ var fsharpCommand = new Command("fsharp", "Produce patch for F# compiler.")
 };
 rootCommand.AddCommand(fsharpCommand);
 fsharpCommand.SetHandler(ProduceFSharpLocalizationPatch, langOption);
-var fableCommand = new Command("fable", "Produce patch for Fable REPL.")
+var fableCommand = new Command("fable", "Produce patch for Fable F# fork.")
 {
     langOption
 };
 rootCommand.AddCommand(fableCommand);
-fableCommand.SetHandler(ProduceFableReplLocalizationPatch, langOption);
+fableCommand.SetHandler(ProduceSimpleFSharpLocalizationPatch, langOption);
+var replCommand = new Command("repl", "Produce patch for Fable REPL.")
+{
+    langOption
+};
+rootCommand.AddCommand(replCommand);
+replCommand.SetHandler(ProduceFableReplLocalizationPatch, langOption);
 
 return await rootCommand.InvokeAsync(args);
 
@@ -28,6 +34,15 @@ static void ProduceFSharpLocalizationPatch(string lang)
     var l = new LanguageConfigurationManager();
     var configuration = l.GetLanguageConfiguration(lang);
     var patch = patchGenerator.GenerateFSharpPatch(configuration);
+    Console.WriteLine(patch);
+}
+
+static void ProduceSimpleFSharpLocalizationPatch(string lang)
+{
+    var patchGenerator = new PatchGenerator();
+    var l = new LanguageConfigurationManager();
+    var configuration = l.GetLanguageConfiguration(lang);
+    var patch = patchGenerator.GenerateSimpleFSharpPatch(configuration);
     Console.WriteLine(patch);
 }
 

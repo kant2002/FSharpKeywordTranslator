@@ -1,0 +1,533 @@
+---
+diff --git a/src/App/ConsolePanel.fs b/src/App/ConsolePanel.fs
+index 6b160f4..51fd456 100644
+--- a/src/App/ConsolePanel.fs
++++ b/src/App/ConsolePanel.fs
+@@ -52,7 +52,7 @@ let renderShowSeparator =
+         prop.style [
+             style.justifyContent.center
+         ]
+-        prop.text "Iframe loaded"
++        prop.text "Iframe завантажено"
+     ]
+ 
+ let renderBody (isExpanded : bool) (logs : Log list) (setConsoleEnd : HTMLElement -> unit) onContainerScroll =
+@@ -134,7 +134,7 @@ let consolePanel =
+ 
+                         Html.div [
+                             prop.className "scrollable-panel-header-title"
+-                            prop.text "Console"
++                            prop.text "Консоль"
+                         ]
+ 
+                         Html.div [
+diff --git a/src/App/Loader.fs b/src/App/Loader.fs
+index 4d2b099..1358d0d 100644
+--- a/src/App/Loader.fs
++++ b/src/App/Loader.fs
+@@ -66,7 +66,7 @@ let init (result: Option<Router.Page>) =
+ let private view (model: Model) dispatch =
+     match model with
+     | Initializing ->
+-        Html.text "Initializing"
++        Html.text "Ініціалізуємо"
+ 
+     | Running model ->
+         Main.view model (MainMsg >> dispatch)
+@@ -91,19 +91,19 @@ let private view (model: Model) dispatch =
+ 
+                             Bulma.title.h3 [
+                                 text.hasTextCentered
+-                                prop.text "Fable REPL"
++                                prop.text "Ф# REPL"
+                             ]
+ 
+                             Bulma.subtitle.h5 [
+                                 text.hasTextCentered
+-                                prop.text "For best experience we recommend running the REPL on a desktop"
++                                prop.text "Для найкращого досвіду ми рекомендуємо запускати REPL із десктопа"
+                             ]
+ 
+                             Bulma.level [
+                                 Bulma.levelItem [
+                                     Bulma.button.a [
+                                         prop.onClick (fun _ -> Initialize p |> dispatch)
+-                                        prop.text "Continue"
++                                        prop.text "Продовжити"
+                                     ]
+                                 ]
+                             ]
+diff --git a/src/App/Main.fs b/src/App/Main.fs
+index fc1432f..d41c23e 100644
+--- a/src/App/Main.fs
++++ b/src/App/Main.fs
+@@ -781,12 +781,12 @@ let private problemsPanel (isExpanded : bool) (errors : Monaco.Editor.IMarkerDat
+     let title =
+         if errors.Length = 0 then
+             Html.span [
+-                prop.text "Problems"
++                prop.text "Проблеми"
+             ]
+         else
+             Html.span [
+                 prop.children [
+-                    Html.text  "Problems: "
++                    Html.text  "Проблеми: "
+                     Html.span [
+                         prop.style [
+                             style.marginLeft (length.em 0.5)
+@@ -1005,7 +1005,7 @@ let private outputTabs (activeTab : OutputTab) dispatch =
+                     )
+                     prop.children [
+                         Html.a [
+-                            prop.text "Live sample"
++                            prop.text "Інтерактивний приклад"
+                         ]
+                     ]
+                 ]
+@@ -1018,7 +1018,7 @@ let private outputTabs (activeTab : OutputTab) dispatch =
+                     )
+                     prop.children [
+                         Html.a [
+-                            prop.text "Code"
++                            prop.text "Код"
+                         ]
+                     ]
+                 ]
+diff --git a/src/App/Mouse.fs b/src/App/Mouse.fs
+index 0ac959d..8aaee26 100644
+--- a/src/App/Mouse.fs
++++ b/src/App/Mouse.fs
+@@ -63,7 +63,7 @@ module Cmd =
+                             |> Decode.map args.ConsoleErrorCor
+                         | x ->
+                             // Discard messages we don't know how to handle it
+-                            sprintf "`%A` is not a known value for an iframe message" x
++                            sprintf "`%A` не є відомим значенням для повідомлення iframe" x
+                             |> Decode.fail
+                     )
+                 Decode.fromValue "$" iframeMessageDecoder ev?data
+diff --git a/src/App/Prelude.fs b/src/App/Prelude.fs
+index ece83b0..c8ec73d 100644
+--- a/src/App/Prelude.fs
++++ b/src/App/Prelude.fs
+@@ -15,7 +15,8 @@ module Literals =
+         // "http://localhost:8080"
+         Browser.Dom.window.location.href
+ #else
+-        "https://fable.io/repl/"
++        Browser.Dom.window.location.href
++        //"https://fable.io/repl/"
+ #endif
+     printfn $"HOST {HOST}"
+ 
+diff --git a/src/App/Sidebar.fs b/src/App/Sidebar.fs
+index 6a63468..9144cd4 100644
+--- a/src/App/Sidebar.fs
++++ b/src/App/Sidebar.fs
+@@ -274,11 +274,11 @@ let view (isCompiling : bool) (model: Model) dispatch =
+     let widgets =
+         [
+             if model.IsExpanded then
+-                "General", Fa.Solid.Th, Widgets.General.viewExpanded isCompiling model.Options.GistToken model.General (GeneralMsg >> dispatch), None
+-            "Samples", Fa.Solid.Book, Widgets.Samples.view model.Samples (SamplesMsg >> dispatch), Some 500
+-            "Options", Fa.Solid.Cog, Widgets.Options.view model.Options (OptionsMsg >> dispatch), None
+-            "Statistics", Fa.Regular.Clock, Widgets.Stats.view model.Statistics, None
+-            "About", Fa.Solid.Info, Widgets.About.view model.FableVersion, None
++                "Загальний", Fa.Solid.Th, Widgets.General.viewExpanded isCompiling model.Options.GistToken model.General (GeneralMsg >> dispatch), None
++            "Приклади", Fa.Solid.Book, Widgets.Samples.view model.Samples (SamplesMsg >> dispatch), Some 500
++            "Опції", Fa.Solid.Cog, Widgets.Options.view model.Options (OptionsMsg >> dispatch), None
++            "Статистика", Fa.Regular.Clock, Widgets.Stats.view model.Statistics, None
++            "О REPL", Fa.Solid.Info, Widgets.About.view model.FableVersion, None
+         ]
+         |> List.map (renderWidgets model dispatch)
+ 
+diff --git a/src/App/Widgets/About.fs b/src/App/Widgets/About.fs
+index 50e52ef..29f126b 100644
+--- a/src/App/Widgets/About.fs
++++ b/src/App/Widgets/About.fs
+@@ -10,14 +10,14 @@ let view fableVersion =
+         Html.div ("Fable: " + fableVersion)
+         Html.br [ ]
+         Html.a [
+-            prop.href "https://github.com/fable-compiler/repl/issues/new"
++            prop.href "https://github.com/kant2002/repl/issues/new"
+             prop.children [
+                 Html.span [
+                     text.isItalic
+                     prop.style [
+                         style.textDecoration.underline
+                     ]
+-                    prop.text "Found a bug ?"
++                    prop.text "Знайшов помилку ?"
+                 ]
+             ]
+         ]
+diff --git a/src/App/Widgets/General.fs b/src/App/Widgets/General.fs
+index f3edae4..400c274 100644
+--- a/src/App/Widgets/General.fs
++++ b/src/App/Widgets/General.fs
+@@ -99,13 +99,13 @@ let viewCollapsed (isCompiling : bool) (gistToken : string option) (model: Model
+         prop.className "actions-area"
+         prop.children [
+ 
+-            actionButton "Compile and run (Alt+Enter)" StartCompile compileIcon
+-            actionButton "Refresh the live sample (without compiling)" RefreshIframe [ Fa.i [ Fa.Solid.Redo ] [ ] ]
+-            actionButton "Reset the REPL, you will lose your current work" AskReset [ Fa.i [ Fa.Solid.TrashAlt ] [ ] ]
+-            actionButton "Share using the URL" Share [ Fa.i [ Fa.Solid.Share ] [ ] ]
++            actionButton "Скомпілювати та запустити (Alt+Enter)" StartCompile compileIcon
++            actionButton "Оновити інтеракцивний приклад (без компіляції)" RefreshIframe [ Fa.i [ Fa.Solid.Redo ] [ ] ]
++            actionButton "Скиньте REPL, ви втратите поточну роботу" AskReset [ Fa.i [ Fa.Solid.TrashAlt ] [ ] ]
++            actionButton "Поділіться за допомогою URL-адреси" Share [ Fa.i [ Fa.Solid.Share ] [ ] ]
+             match gistToken with
+             | Some _ ->
+-                actionButton "Share to Gist" ShareToGist [ Fa.i [ Fa.Brand.Github ] [ ] ]
++                actionButton "Поділитися через Gist" ShareToGist [ Fa.i [ Fa.Brand.Github ] [ ] ]
+             | None -> Html.none
+ 
+         ]
+@@ -150,13 +150,13 @@ let viewExpanded (isCompiling : bool) (gistToken : string option) (model: Model)
+         match model.ResetState with
+         | Default ->
+             Html.div [
+-                renderItem "Compile and run" isCompiling StartCompile Fa.Solid.Play
+-                renderItem "Refresh the live sample" isCompiling RefreshIframe Fa.Solid.Redo
+-                renderItem "Click here to reset" false AskReset Fa.Solid.TrashAlt
+-                renderItem "Share using the URL" false Share Fa.Solid.Share
++                renderItem "Скомпілювати та запустити" isCompiling StartCompile Fa.Solid.Play
++                renderItem "Оновити інтеракцивний приклад" isCompiling RefreshIframe Fa.Solid.Redo
++                renderItem "Натисніть тут, щоб скинути" false AskReset Fa.Solid.TrashAlt
++                renderItem "Поділіться за допомогою URL-адреси" false Share Fa.Solid.Share
+                 match gistToken with
+                 | Some _ ->
+-                    renderItem "Share to Gist" false ShareToGist Fa.Brand.Github
++                    renderItem "Поділитися через Gist" false ShareToGist Fa.Brand.Github
+                 | None ->
+                     Html.none
+             ]
+@@ -165,7 +165,7 @@ let viewExpanded (isCompiling : bool) (gistToken : string option) (model: Model)
+             Bulma.field.div [
+                 Bulma.help [
+                     color.isWarning
+-                    prop.text "Please, confirm to reset"
++                    prop.text "Підтвердьте, щоб скинути"
+                 ]
+ 
+                 Bulma.field.div [
+@@ -179,7 +179,7 @@ let viewExpanded (isCompiling : bool) (gistToken : string option) (model: Model)
+                                     Bulma.icon [
+                                         Fa.i [ Fa.Solid.Check ] [ ]
+                                     ]
+-                                    Html.span "Confirm"
++                                    Html.span "Підтвердити"
+                                 ]
+                             ]
+                         ]
+@@ -192,7 +192,7 @@ let viewExpanded (isCompiling : bool) (gistToken : string option) (model: Model)
+                                     Bulma.icon [
+                                         Fa.i [ Fa.Solid.Times ] [ ]
+                                     ]
+-                                    Html.span "Cancel"
++                                    Html.span "Скасувати"
+                                 ]
+                             ]
+                         ]
+@@ -223,7 +223,7 @@ let viewModalResetConfirmation (model: Model) dispatch =
+                             prop.children [
+                                 Html.span [
+                                     prop.className "reset-confirmation-modal-content-text"
+-                                    prop.text "Please, confirm to reset"
++                                    prop.text "Підтвердьте, щоб скинути"
+                                 ]
+ 
+                                 Html.div [
+@@ -243,7 +243,7 @@ let viewModalResetConfirmation (model: Model) dispatch =
+                                                                         Fa.i [ Fa.Solid.Check ] [ ]
+                                                                     ]
+ 
+-                                                                    Html.span "Confirm"
++                                                                    Html.span "Підтвердити"
+                                                                 ]
+                                                             ]
+                                                         ]
+@@ -257,7 +257,7 @@ let viewModalResetConfirmation (model: Model) dispatch =
+                                                                         Fa.i [ Fa.Solid.Times ] [ ]
+                                                                     ]
+ 
+-                                                                    Html.span "Cancel"
++                                                                    Html.span "Скасувати"
+                                                                 ]
+                                                             ]
+                                                         ]
+diff --git a/src/App/Widgets/Options.fs b/src/App/Widgets/Options.fs
+index 4587581..36e4caf 100644
+--- a/src/App/Widgets/Options.fs
++++ b/src/App/Widgets/Options.fs
+@@ -147,7 +147,7 @@ let private fontSizeOption (label : string) (fontSize : float) =
+ 
+ let inline private fontSizeSetting (fontSize : float) dispatch =
+     Bulma.field.div [
+-        Bulma.label "Editors font size"
++        Bulma.label "Розмір шрифта редактора"
+ 
+         Bulma.control.div [
+             Bulma.select [
+@@ -157,9 +157,9 @@ let inline private fontSizeSetting (fontSize : float) dispatch =
+                     ev.Value |> float |> ChangeFontSize |> dispatch
+                 )
+                 prop.children [
+-                    fontSizeOption "Small" 12.
+-                    fontSizeOption "Medium" 14.
+-                    fontSizeOption "Large" 16.
++                    fontSizeOption "Малий" 12.
++                    fontSizeOption "Середній" 14.
++                    fontSizeOption "Великий" 16.
+                 ]
+             ]
+         ]
+@@ -173,7 +173,7 @@ let private fontFamilyOption (label : string) (fontFamily : string) =
+ 
+ let inline private fontFamilySetting (fontFamily : string) dispatch =
+     Bulma.field.div [
+-        Bulma.label "Editors font family"
++        Bulma.label "Сімейство шрифта редактора"
+ 
+         Bulma.control.div [
+             Bulma.select [
+@@ -198,7 +198,7 @@ let private languageSetting (language : string) dispatch =
+         ]
+ 
+     Bulma.field.div [
+-        Bulma.label "Language"
++        Bulma.label "Мова"
+ 
+         Bulma.control.div [
+             Bulma.select [
+@@ -240,13 +240,13 @@ let private switchOption (label : string) isActive dispatch msg =
+     ]
+ 
+ let inline private optimizeSetting (model: Model) dispatch =
+-    switchOption "Optimize (experimental)" model.Optimize dispatch ToggleOptimize
++    switchOption "Оптимизувати (експеріментально)" model.Optimize dispatch ToggleOptimize
+ 
+ let private defineDebugSetting (model: Model) dispatch =
+-    switchOption "Define DEBUG" model.DefineDebug dispatch ToggleDefineDebug
++    switchOption "Визначити DEBUG" model.DefineDebug dispatch ToggleDefineDebug
+ 
+ let private typedArraysSetting (model: Model) dispatch =
+-    switchOption "Typed Arrays" model.TypedArrays dispatch ToggleTypedArrays
++    switchOption "Типізовані масиви" model.TypedArrays dispatch ToggleTypedArrays
+ 
+ let inline private gistTokenSetting (token : string option) (tokenField : string) dispatch =
+     match token with
+@@ -255,7 +255,7 @@ let inline private gistTokenSetting (token : string option) (tokenField : string
+             Bulma.button.a [
+                 prop.onClick (fun _ -> dispatch DeleteToken)
+                 button.isFullWidth
+-                prop.text "Delete gist token"
++                prop.text "Видалити токен gist"
+             ]
+         ]
+ 
+@@ -263,11 +263,11 @@ let inline private gistTokenSetting (token : string option) (tokenField : string
+         Bulma.field.div [
+             Bulma.label [
+                 prop.children [
+-                    Html.text "Github token"
++                    Html.text "Github токен"
+                     Html.a [
+                         prop.target "_blank"
+                         prop.href "https://github.com/settings/tokens/new?description=fable-repl&scopes=gist"
+-                        prop.text "  (Create)"
++                        prop.text "  (Створити)"
+                     ]
+                 ]
+             ]
+@@ -277,13 +277,13 @@ let inline private gistTokenSetting (token : string option) (tokenField : string
+                 prop.children [
+                     Bulma.input.password [
+                         prop.onChange (fun (ev : Types.Event) -> ev.Value |> ChangeGistToken |> dispatch)
+-                        prop.placeholder "Token with gist scope"
++                        prop.placeholder "Токен із gist скоупом"
+                     ]
+ 
+                     if tokenField.Length = 40 then
+                         Bulma.button.a [
+                             prop.onClick (fun _ -> dispatch SaveToken)
+-                            prop.text "Save"
++                            prop.text "Зберегти"
+                         ]
+                 ]
+             ]
+diff --git a/src/App/Widgets/Samples.fs b/src/App/Widgets/Samples.fs
+index 6679e72..8f8f1aa 100644
+--- a/src/App/Widgets/Samples.fs
++++ b/src/App/Widgets/Samples.fs
+@@ -301,7 +301,7 @@ let view model dispatch =
+ 
+                                 prop.onClick fetchSamplesMsg
+                                 prop.children [
+-                                    Html.span "Refresh samples"
++                                    Html.span "Оновити приклади"
+                                 ]
+                             ]
+                         ]
+diff --git a/src/App/Widgets/Stats.fs b/src/App/Widgets/Stats.fs
+index 264a8ef..d91e1ff 100644
+--- a/src/App/Widgets/Stats.fs
++++ b/src/App/Widgets/Stats.fs
+@@ -26,10 +26,10 @@ let view (model : Model) =
+         Bulma.table [
+             Html.thead [
+                 Html.tr [
+-                    Html.th "Steps"
++                    Html.th "Етапи"
+                     Html.th [
+                         prop.className "has-text-right"
+-                        prop.text "ms"
++                        prop.text "мс"
+                     ]
+                 ]
+             ]
+diff --git a/src/Fable.Repl.Lib/Sutil/Bindings.fs b/src/Fable.Repl.Lib/Sutil/Bindings.fs
+index a7e0034..5427b79 100644
+--- a/src/Fable.Repl.Lib/Sutil/Bindings.fs
++++ b/src/Fable.Repl.Lib/Sutil/Bindings.fs
+@@ -99,7 +99,7 @@ let bindFragment<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) =
+         try
+             node <- build (element(next)) (bindCtx |> ContextHelpers.withReplace (node,vnode.NextDomNode))
+         with
+-        | x -> Logging.error $"Exception in bind: {x.Message} parent {ctx.Parent} node {node.ToString()} node.Parent "
++        | x -> Logging.error $"Помилка прив'язки: {x.Message} батькового {ctx.Parent} вузла {node.ToString()} node.Parent "
+     )
+ 
+     vnode.SetDispose (Helpers.unsubify disposable)
+@@ -119,7 +119,7 @@ let bindFragment2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element:
+         try
+             node <- build (element(next)) (bindCtx |> ContextHelpers.withReplace (node,vnode.NextDomNode))
+         with
+-        | x -> Logging.error $"Exception in bind: {x.Message}"
++        | x -> Logging.error $"Помилка прив'язки: {x.Message}"
+     )
+ 
+     vnode.SetDispose (Helpers.unsubify d)
+@@ -608,5 +608,3 @@ module BindApi =
+         static member selected<'T when 'T : equality>  (store : IStore<'T list>) = bindSelectMultiple store
+         static member selected<'T when 'T : equality>  (store : IStore<'T option>) = bindSelectOptional store
+         static member selected<'T when 'T : equality>  (store : IStore<'T>) = bindSelectSingle store
+-
+-
+diff --git a/src/Fable.Repl.Lib/Sutil/DOM.fs b/src/Fable.Repl.Lib/Sutil/DOM.fs
+index fb5e863..3e8c61e 100644
+--- a/src/Fable.Repl.Lib/Sutil/DOM.fs
++++ b/src/Fable.Repl.Lib/Sutil/DOM.fs
+@@ -1154,11 +1154,11 @@ let asDomNode (element:SutilNode) (ctx : BuildContext) : Node =
+     //let result = (ctx |> build element)
+     match element.collectDomNodes()  with
+     | [n] -> n
+-    | [] -> errorNode ctx.Parent $"Error: Empty node from {element} #{element.Id}"
++    | [] -> errorNode ctx.Parent $"Помилка: Порожній вузол із {element} #{element.Id}"
+     | xs ->
+         let doc = ctx.Document
+         let tmpDiv = doc.createElement("div")
+-        let en = errorNode (DomNode tmpDiv) "'fragment' not allowed as root for 'each' blocks"
++        let en = errorNode (DomNode tmpDiv) "'fragment' не дозволений як кореневий для 'each' блоків"
+         DomEdit.appendChild tmpDiv en
+         ctx.Parent.AppendChild tmpDiv
+         xs |> List.iter (fun x -> DomEdit.appendChild tmpDiv x)
+@@ -1392,7 +1392,7 @@ let computedStyleOpacity e =
+         float (Window.getComputedStyle(e).opacity)
+     with
+     | _ ->
+-        log(sprintf "parse error: '%A'" (Window.getComputedStyle(e).opacity))
++        log(sprintf "помилка аналізу: '%A'" (Window.getComputedStyle(e).opacity))
+         1.0
+ 
+ let computedStyleTransform node =
+diff --git a/src/Fable.Repl.Lib/Sutil/Logging.fs b/src/Fable.Repl.Lib/Sutil/Logging.fs
+index a8aded8..7959667 100644
+--- a/src/Fable.Repl.Lib/Sutil/Logging.fs
++++ b/src/Fable.Repl.Lib/Sutil/Logging.fs
+@@ -11,7 +11,7 @@ let mutable initialized = false
+ 
+ let init =
+     if not initialized then
+-        console.log("logging:init defaults")
++        console.log("протоколювання:ініціалізація початкових значень")
+         initialized <- true
+         enabled.["store"] <- false
+         enabled.["trans"] <- false
+@@ -22,10 +22,10 @@ let init =
+         enabled.["tick" ] <- false
+ 
+ let initWith states =
+-    console.log("logging:init with states")
++    console.log("протоколювання:ініціалізація зі станами")
+     initialized <- true
+     for (name,state) in states do
+-        console.log($"logging:{name}: {state}")
++        console.log($"протоколювання:{name}: {state}")
+         enabled.[name] <- state
+ 
+ let timestamp() =
+@@ -36,8 +36,7 @@ let log source (message : string) =
+         console.log(sprintf "%s: %s: %s" (timestamp()) source message)
+ 
+ let warning (message : string) =
+-    console.log(sprintf "warning: %s" message)
++    console.log(sprintf "попередження: %s" message)
+ 
+ let error (message : string) =
+-    console.log(sprintf "error: %s" message)
+-
++    console.log(sprintf "помилка: %s" message)
+diff --git a/src/Fable.Repl.Lib/Sutil/ObservableStore.fs b/src/Fable.Repl.Lib/Sutil/ObservableStore.fs
+index de200a6..a864e42 100644
+--- a/src/Fable.Repl.Lib/Sutil/ObservableStore.fs
++++ b/src/Fable.Repl.Lib/Sutil/ObservableStore.fs
+@@ -56,9 +56,9 @@ module ObservableStore =
+             DOM.dispatch Window.document DOM.Event.UpdateStore {| Value = v |}
+ 
+         let notifyMakeStore s =
+-            if storeToId.ContainsKey(s) then failwith "Store is already registered!"
++            if storeToId.ContainsKey(s) then failwith "Склад вже зареєстровано!"
+             let id = nextId
+-            log $"make store #{id}"
++            log $"зробити склад #{id}"
+             nextId <- nextId + 1
+             idToStore.[id] <- s
+             storeToId.[s] <- id
+@@ -72,13 +72,13 @@ module ObservableStore =
+             //        failwith "Store is unknown to registry"
+ 
+             let id = storeToId.[s]
+-            log($"dispose store #{id}")
++            log($"утилізувати склад #{id}")
+             try
+                 idToStore.Remove(id) |> ignore
+                 storeToId.Remove(s) |> ignore
+                 //disposed.[s] <- id
+             with
+-            | x -> Logging.error $"disposing store {id}: {x.Message}"
++            | x -> Logging.error $"утилізувати склад {id}: {x.Message}"
+ 
+         let getStoreById id : IStoreDebugger =
+             (idToStore.[id] :?> IStore<obj>).Debugger
+@@ -137,7 +137,7 @@ module ObservableStore =
+             let id = uid
+             uid <- uid + 1
+ 
+-            Logging.log "store" $"subscribe {id}"
++            Logging.log "store" $"підписатися {id}"
+ 
+             subscribers.Add(id, observer)
+ 
+@@ -148,7 +148,7 @@ module ObservableStore =
+             observer.OnNext(model())
+ 
+             Helpers.disposable <| fun () ->
+-                Logging.log "store" $"unsubscribe {id}"
++                Logging.log "store" $"відписатися {id}"
+                 subscribers.Remove(id) |> ignore
+ 
+         member this.Dispose() =

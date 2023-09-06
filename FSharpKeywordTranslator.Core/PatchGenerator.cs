@@ -9,7 +9,14 @@ public class PatchGenerator
         var patchTemplate = GetFSharpPatchTemplate();
         return ApplyKeywords(current, patchTemplate);
     }
+
     public string GenerateFableReplPatch(LanguageConfiguration current)
+    {
+        var patchTemplate = GetFableReplPatchTemplate(current.Language);
+        return patchTemplate;
+    }
+
+    public string GenerateSimpleFSharpPatch(LanguageConfiguration current)
     {
         var patchTemplate = """
             ---
@@ -139,6 +146,13 @@ public class PatchGenerator
     private string GetFSharpPatchTemplate()
     {
         using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream("FSharpKeywordTranslator.Core.patches.fsharp-compiler-net8.txt") ?? throw new InvalidDataException("The patch for F# compiler is missing from the assembly.");
+        using var stringReader = new StreamReader(patchStream);
+        return stringReader.ReadToEnd();
+    }
+
+    private string GetFableReplPatchTemplate(string language)
+    {
+        using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream($"FSharpKeywordTranslator.Core.patches.repl-{language}.patch") ?? throw new InvalidDataException("The patch for F# compiler is missing from the assembly.");
         using var stringReader = new StreamReader(patchStream);
         return stringReader.ReadToEnd();
     }

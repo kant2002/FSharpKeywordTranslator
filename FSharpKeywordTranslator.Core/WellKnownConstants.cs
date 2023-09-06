@@ -5,7 +5,7 @@ public static class WellKnownConstants
     public static readonly LanguageName[] Languages = new LanguageName[]
     { 
         new("en","us","English"), 
-        new("ua","ua","Ukrainian"),
+        new("uk","uk","Ukrainian"),
         new("tr","tr","Turkish"),
         new("kz","kz","Kazakh"),
         new("es","es","Spanish"),
