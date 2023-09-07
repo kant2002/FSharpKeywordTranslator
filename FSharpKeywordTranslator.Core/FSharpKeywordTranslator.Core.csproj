@@ -10,6 +10,7 @@
   <ItemGroup>
     <None Remove="keywords\*.json" />
     <None Remove="patches\*.txt" />
+    <None Remove="patches\*.patch" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,10 +22,6 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="patches\repl-ru.patch" />
   </ItemGroup>
 
 </Project>

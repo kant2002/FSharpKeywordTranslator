@@ -38,23 +38,7 @@ public class PatchGenerator
 
     public string GenerateSimpleFSharpPatch(LanguageConfiguration current)
     {
-        var patchTemplate = """
-            ---
-            diff --git a/src/Compiler/SyntaxTree/LexHelpers.fs b/src/Compiler/SyntaxTree/LexHelpers.fs
-            index 02d4da364..938eba25e 100644
-            --- a/src/Compiler/SyntaxTree/LexHelpers.fs
-            +++ b/src/Compiler/SyntaxTree/LexHelpers.fs
-            @@ -388,6 +388,{KEYWORDS_OVERRIDE_COUNT} @@ module Keywords =
-                         ALWAYS, "while", WHILE
-                         ALWAYS, "with", WITH
-                         FSHARP, "yield", YIELD(true)
-            {KEYWORDS_OVERRIDE}
-                         ALWAYS, "_", UNDERSCORE
-                         (*------- for prototyping and explaining offside rule *)
-                         FSHARP, "__token_OBLOCKSEP", OBLOCKSEP
-            -- 
-            2.37.1.windows.1
-            """.ReplaceLineEndings("\n");
+        var patchTemplate = GetFableFSharpPatchTemplate();
         return ApplyKeywords(current, patchTemplate);
     }
 
@@ -166,6 +150,13 @@ public class PatchGenerator
     private string GetFSharpPatchTemplate()
     {
         using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream("FSharpKeywordTranslator.Core.patches.fsharp-compiler-net8.txt") ?? throw new InvalidDataException("The patch for F# compiler is missing from the assembly.");
+        using var stringReader = new StreamReader(patchStream);
+        return stringReader.ReadToEnd();
+    }
+
+    private string GetFableFSharpPatchTemplate()
+    {
+        using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream("FSharpKeywordTranslator.Core.patches.fsharp-compiler-net8-simple.patch") ?? throw new InvalidDataException("The patch for Fable F# compiler is missing from the assembly.");
         using var stringReader = new StreamReader(patchStream);
         return stringReader.ReadToEnd();
     }

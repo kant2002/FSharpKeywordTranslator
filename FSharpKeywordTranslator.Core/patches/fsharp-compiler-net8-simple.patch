@@ -1,0 +1,432 @@
+From 8f237dde7fe7ad6f61fee08900f7aa2e72f3af47 Mon Sep 17 00:00:00 2001
+From: Andrii Kurdiumov <kant2002@gmail.com>
+Date: Tue, 29 Aug 2023 17:29:13 +0600
+Subject: [PATCH] Save work
+
+---
+ Directory.Build.props                         |  5 ++
+ .../Microsoft.FSharp.Compiler.MSBuild.csproj  |  6 +-
+ src/Compiler/FSharp.Compiler.Service.fsproj   |  6 +-
+ src/Compiler/FSharp.Compiler.Service.nuspec   |  6 +-
+ src/Compiler/SyntaxTree/LexHelpers.fs         | 64 +++++++++++++++++++
+ .../Microsoft.FSharp.Compiler.nuspec          |  4 +-
+ .../HostedCompilerServer.fsproj               |  9 ++-
+ .../Source.extension.vsixmanifest             |  2 +-
+ .../FSharp.ProjectSystem.FSharp.fsproj        |  4 +-
+ 9 files changed, 91 insertions(+), 15 deletions(-)
+
+diff --git a/src/Compiler/SyntaxTree/LexHelpers.fs b/src/Compiler/SyntaxTree/LexHelpers.fs
+index 02d4da364..938eba25e 100644
+--- a/src/Compiler/SyntaxTree/LexHelpers.fs
++++ b/src/Compiler/SyntaxTree/LexHelpers.fs
+@@ -388,6 +388,{KEYWORDS_OVERRIDE_COUNT} @@ module Keywords =
+             ALWAYS, "while", WHILE
+             ALWAYS, "with", WITH
+             FSHARP, "yield", YIELD(true)
+{KEYWORDS_OVERRIDE}
+             ALWAYS, "_", UNDERSCORE
+             (*------- for prototyping and explaining offside rule *)
+             FSHARP, "__token_OBLOCKSEP", OBLOCKSEP
+diff --git a/src/Compiler/Checking/CheckDeclarations.fs b/src/Compiler/Checking/CheckDeclarations.fs
+index 63f244fc2..536253ce6 100644
+--- a/src/Compiler/Checking/CheckDeclarations.fs
++++ b/src/Compiler/Checking/CheckDeclarations.fs
+@@ -419,10 +419,10 @@ module TcRecdUnionAndEnumDeclarations =
+         | ParentNone -> vis 
+         | Parent tcref -> combineAccess vis tcref.TypeReprAccessibility
+ 
+-    let MakeRecdFieldSpec _cenv env parent (isStatic, konst, tyR, attrsForProperty, attrsForField, id, nameGenerated, isMutable, vol, xmldoc, vis, m) =
++    let MakeRecdFieldSpec _cenv env parent (isStatic, konst1, tyR, attrsForProperty, attrsForField, id, nameGenerated, isMutable, vol, xmldoc, vis, m) =
+         let vis, _ = ComputeAccessAndCompPath env None m vis None parent
+         let vis = CombineReprAccess parent vis
+-        Construct.NewRecdField isStatic konst id nameGenerated tyR isMutable vol attrsForProperty attrsForField xmldoc vis false
++        Construct.NewRecdField isStatic konst1 id nameGenerated tyR isMutable vol attrsForProperty attrsForField xmldoc vis false
+ 
+     let TcFieldDecl (cenv: cenv) env parent isIncrClass tpenv (isStatic, synAttrs, id, nameGenerated, ty, isMutable, xmldoc, vis, m) =
+         let g = cenv.g
+@@ -444,8 +444,8 @@ module TcRecdUnionAndEnumDeclarations =
+         if isIncrClass && (not zeroInit || not isMutable) then errorR(Error(FSComp.SR.tcUninitializedValFieldsMustBeMutable(), m))
+         let isPrivate = match vis with | Some (SynAccess.Private _) -> true | _ -> false
+         if isStatic && (not zeroInit || not isMutable || not isPrivate) then errorR(Error(FSComp.SR.tcStaticValFieldsMustBeMutableAndPrivate(), m))
+-        let konst = if zeroInit then Some Const.Zero else None
+-        let rfspec = MakeRecdFieldSpec cenv env parent (isStatic, konst, tyR, attrsForProperty, attrsForField, id, nameGenerated, isMutable, isVolatile, xmldoc, vis, m)
++        let konst1 = if zeroInit then Some Const.Zero else None
++        let rfspec = MakeRecdFieldSpec cenv env parent (isStatic, konst1, tyR, attrsForProperty, attrsForField, id, nameGenerated, isMutable, isVolatile, xmldoc, vis, m)
+         match parent with
+         | Parent tcref when useGenuineField tcref.Deref rfspec ->
+             // Recheck the attributes for errors if the definition only generates a field
+@@ -582,14 +582,14 @@ module TcRecdUnionAndEnumDeclarations =
+         | SynExpr.Const (constant = SynConst.Bytes _ | SynConst.UInt16s _ | SynConst.UserNum _) ->
+             error(Error(FSComp.SR.tcInvalidEnumerationLiteral(), valueRange))
+         | SynExpr.Const (synConst, _) -> 
+-            let konst = TcConst cenv fieldTy valueRange env synConst
+-            MakeEnumCaseSpec cenv env parent attrs thisTy caseRange id xmldoc konst
++            let konst1 = TcConst cenv fieldTy valueRange env synConst
++            MakeEnumCaseSpec cenv env parent attrs thisTy caseRange id xmldoc konst1
+         | _ when cenv.g.langVersion.SupportsFeature LanguageFeature.ArithmeticInLiterals ->
+             let expr, actualTy, _ = TcExprOfUnknownType cenv env tpenv valueExpr
+             UnifyTypes cenv env valueRange fieldTy actualTy
+             
+             match EvalLiteralExprOrAttribArg cenv.g expr with
+-            | Expr.Const (konst, _, _) -> MakeEnumCaseSpec cenv env parent attrs thisTy caseRange id xmldoc konst
++            | Expr.Const (konst1, _, _) -> MakeEnumCaseSpec cenv env parent attrs thisTy caseRange id xmldoc konst1
+             | _ -> error(Error(FSComp.SR.tcInvalidEnumerationLiteral(), valueRange))
+         | _ ->
+             error(Error(FSComp.SR.tcInvalidEnumerationLiteral(), valueRange))
+diff --git a/src/Compiler/Checking/CheckExpressions.fs b/src/Compiler/Checking/CheckExpressions.fs
+index c1cc0f1a4..2f996db97 100644
+--- a/src/Compiler/Checking/CheckExpressions.fs
++++ b/src/Compiler/Checking/CheckExpressions.fs
+@@ -1236,7 +1236,7 @@ let private HasMethodImplNoInliningAttribute g attrs =
+             | Some (Attrib(_, _, [ AttribInt32Arg flags ], _, _, _, _)) -> (flags &&& 0x8) <> 0x0
+             | _ -> false
+ 
+-let MakeAndPublishVal (cenv: cenv) env (altActualParent, inSig, declKind, valRecInfo, vscheme, attrs, xmlDoc, konst, isGeneratedEventVal) =
++let MakeAndPublishVal (cenv: cenv) env (altActualParent, inSig, declKind, valRecInfo, vscheme, attrs, xmlDoc, konst1, isGeneratedEventVal) =
+ 
+     let g = cenv.g
+ 
+@@ -1340,7 +1340,7 @@ let MakeAndPublishVal (cenv: cenv) env (altActualParent, inSig, declKind, valRec
+             (logicalName, id.idRange, compiledName, ty, mut,
+              isCompGen, valReprInfo, vis, valRecInfo, memberInfoOpt, baseOrThis, attrs, inlineFlag,
+              xmlDoc, isTopBinding, isExtrinsic, isIncrClass, isTyFunc,
+-             (hasDeclaredTypars || inSig), isGeneratedEventVal, konst, actualParent)
++             (hasDeclaredTypars || inSig), isGeneratedEventVal, konst1, actualParent)
+ 
+     match valReprInfoForDisplay with
+     | Some info when not (ValReprInfo.IsEmpty info) ->
+@@ -9251,7 +9251,7 @@ and TcEventItemThen (cenv: cenv) overallTy env tpenv mItem mExprAndItem objDetai
+     let bindObjArgs f =
+         match objDetails with
+         | None -> f []
+-        | Some (objExpr, objExprTy) -> mkCompGenLetIn mItem "eventTarget" objExprTy objExpr (fun (_, ve) -> f [ve])
++        | Some (objExpr, objExprTy) -> mkCompGenLetIn mItem "eventTarget" objExprTy objExpr (fun (_, ve1) -> f [ve1])
+ 
+     // Bind the object target expression to make sure we only run its side effects once, and to make
+     // sure if it's a mutable reference then we dereference it - see FSharp 1.0 bug 942
+@@ -10283,9 +10283,9 @@ and TcAndBuildFixedExpr (cenv: cenv) env (overallPatTy, fixedExpr, overallExprTy
+ 
+         let elemTy = destByrefTy g overallExprTy
+         UnifyTypes cenv env mBinding (mkNativePtrTy g elemTy) overallPatTy
+-        mkCompGenLetIn mBinding "pinnedByref" ty fixedExpr (fun (v, ve) ->
++        mkCompGenLetIn mBinding "pinnedByref" ty fixedExpr (fun (v, ve1) ->
+             v.SetIsFixed()
+-            mkConvToNativeInt g ve mBinding)
++            mkConvToNativeInt g ve1 mBinding)
+ 
+     | ty when isStringTy g ty ->
+         let charPtrTy = mkNativePtrTy g g.char_ty
+@@ -10295,13 +10295,13 @@ and TcAndBuildFixedExpr (cenv: cenv) env (overallPatTy, fixedExpr, overallExprTy
+         //        let pinned s = str
+         //        (nativeptr)s + get_OffsettoStringData()
+ 
+-        mkCompGenLetIn mBinding "pinnedString" g.string_ty fixedExpr (fun (v, ve) ->
++        mkCompGenLetIn mBinding "pinnedString" g.string_ty fixedExpr (fun (v, ve1) ->
+             v.SetIsFixed()
+             let addrOffset = BuildOffsetToStringData cenv env mBinding
+-            let stringAsNativeInt = mkConvToNativeInt g ve mBinding
++            let stringAsNativeInt = mkConvToNativeInt g ve1 mBinding
+             let plusOffset = Expr.Op (TOp.ILAsm ([ AI_add ], [ g.nativeint_ty ]), [], [stringAsNativeInt; addrOffset], mBinding)
+             // check for non-null
+-            mkNullTest g mBinding ve plusOffset ve)
++            mkNullTest g mBinding ve1 plusOffset ve1)
+ 
+     | ty when isArray1DTy g ty ->
+         let elemTy = destArrayTy g overallExprTy
+@@ -10319,18 +10319,18 @@ and TcAndBuildFixedExpr (cenv: cenv) env (overallPatTy, fixedExpr, overallExprTy
+         //   else
+         //      (nativeint) 0
+         //
+-        mkCompGenLetIn mBinding "tmpArray" overallExprTy fixedExpr (fun (_, ve) ->
++        mkCompGenLetIn mBinding "tmpArray" overallExprTy fixedExpr (fun (_, ve1) ->
+             // This is &arr.[0]
+-            let elemZeroAddress = mkArrayElemAddress g (false, ILReadonly.NormalAddress, false, ILArrayShape.SingleDimensional, elemTy, [ve; mkInt32 g mBinding 0], mBinding)
++            let elemZeroAddress = mkArrayElemAddress g (false, ILReadonly.NormalAddress, false, ILArrayShape.SingleDimensional, elemTy, [ve1; mkInt32 g mBinding 0], mBinding)
+             // check for non-null and non-empty
+             let zero = mkConvToNativeInt g (mkInt32 g mBinding 0) mBinding
+             // This is arr.Length
+-            let arrayLengthExpr = mkCallArrayLength g mBinding elemTy ve
+-            mkNullTest g mBinding ve
++            let arrayLengthExpr = mkCallArrayLength g mBinding elemTy ve1
++            mkNullTest g mBinding ve1
+                 (mkNullTest g mBinding arrayLengthExpr
+-                    (mkCompGenLetIn mBinding "pinnedByref" (mkByrefTy g elemTy) elemZeroAddress (fun (v, ve) ->
++                    (mkCompGenLetIn mBinding "pinnedByref" (mkByrefTy g elemTy) elemZeroAddress (fun (v, ve1) ->
+                        v.SetIsFixed()
+-                       (mkConvToNativeInt g ve mBinding)))
++                       (mkConvToNativeInt g ve1 mBinding)))
+                     zero)
+                 zero)
+ 
+diff --git a/src/Compiler/Checking/CheckExpressions.fsi b/src/Compiler/Checking/CheckExpressions.fsi
+index b26381b6b..b2cea5090 100644
+--- a/src/Compiler/Checking/CheckExpressions.fsi
++++ b/src/Compiler/Checking/CheckExpressions.fsi
+@@ -516,7 +516,7 @@ val MakeAndPublishVal:
+     vscheme: ValScheme *
+     attrs: Attribs *
+     xmlDoc: XmlDoc *
+-    konst: Const option *
++    konst1: Const option *
+     isGeneratedEventVal: bool ->
+         Val
+ 
+diff --git a/src/Compiler/Checking/MethodCalls.fs b/src/Compiler/Checking/MethodCalls.fs
+index d7e09b86a..b9ff0f4d0 100644
+--- a/src/Compiler/Checking/MethodCalls.fs
++++ b/src/Compiler/Checking/MethodCalls.fs
+@@ -1665,8 +1665,8 @@ let AdjustCallerArgs tcVal tcFieldInit eCallerMemberName (infoReader: InfoReader
+             if calledMethInfo.IsExtensionMember && calledMethInfo.ObjArgNeedsAddress(amap, mMethExpr) then
+                 error(Error(FSComp.SR.tcCannotPartiallyApplyExtensionMethodForByref(calledMethInfo.DisplayName), mMethExpr))
+             let objArgTy = tyOfExpr g objArg
+-            let v, ve = mkCompGenLocal mMethExpr "objectArg" objArgTy
+-            (fun body -> mkCompGenLet mMethExpr v objArg body), [ve]
++            let v, ve1 = mkCompGenLocal mMethExpr "objectArg" objArgTy
++            (fun body -> mkCompGenLet mMethExpr v objArg body), [ve1]
+         | _ -> 
+             emptyPreBinder, objArgs
+ 
+diff --git a/src/Compiler/Checking/PatternMatchCompilation.fs b/src/Compiler/Checking/PatternMatchCompilation.fs
+index 2d3963b94..c1ff8b87d 100644
+--- a/src/Compiler/Checking/PatternMatchCompilation.fs
++++ b/src/Compiler/Checking/PatternMatchCompilation.fs
+@@ -1403,11 +1403,11 @@ let CompilePatternBasic
+ 
+         if isMemOfActives path actives then
+             let (subExprForActive, patAtActive) = lookupActive path actives
+-            let (SubExpr(accessf, ve)) = subExprForActive
++            let (SubExpr(accessf, ve1)) = subExprForActive
+ 
+             let mkSubFrontiers path subAccess subActive argpats pathBuilder =
+                 let mkSubActive j p =
+-                    let newSubExpr = SubExpr(subAccess j, ve)
++                    let newSubExpr = SubExpr(subAccess j, ve1)
+                     let newPath = pathBuilder path j
+                     Active(newPath, newSubExpr, p)
+                 let newActives = List.mapi mkSubActive argpats
+@@ -1530,7 +1530,7 @@ let CompilePatternBasic
+                                 | _ ->
+                                     // Otherwise call the helper
+                                    mkCallUnboxFast g mExpr (instType tpinst tgtTy1) (accessf tpinst exprIn)
+-                            let subActive = Active(path, SubExpr(subAccess, ve), pbind)
++                            let subActive = Active(path, SubExpr(subAccess, ve1), pbind)
+                             let subActives = BindProjectionPattern subActive (newActives, valMap)
+                             mkFrontiers subActives i
+                         | None ->
+diff --git a/src/Compiler/CodeGen/IlxGen.fs b/src/Compiler/CodeGen/IlxGen.fs
+index 704c43d4b..4ed2b5fd7 100644
+--- a/src/Compiler/CodeGen/IlxGen.fs
++++ b/src/Compiler/CodeGen/IlxGen.fs
+@@ -4685,8 +4685,8 @@ and eligibleForFilter (cenv: cenv) expr =
+ 
+     and checkDecisionTree dtree =
+         match dtree with
+-        | TDSwitch (ve, cases, dflt, _) ->
+-            check ve
++        | TDSwitch (ve1, cases, dflt, _) ->
++            check ve1
+             && cases |> List.forall checkDecisionTreeCase
+             && dflt |> Option.forall checkDecisionTree
+         | TDSuccess (es, _) -> es |> List.forall check
+@@ -8365,7 +8365,7 @@ and GenBindingAfterDebugPoint cenv cgbuf eenv bind isStateVar startMarkOpt =
+ 
+             let ilFieldDef =
+                 match vref.LiteralValue with
+-                | Some konst -> ilFieldDef.WithLiteralDefaultValue(Some(GenFieldInit m konst))
++                | Some konst1 -> ilFieldDef.WithLiteralDefaultValue(Some(GenFieldInit m konst1))
+                 | None -> ilFieldDef
+ 
+             let ilFieldDef =
+diff --git a/src/Compiler/Optimize/LowerSequences.fs b/src/Compiler/Optimize/LowerSequences.fs
+index 3a7d733ec..535a2d29d 100644
+--- a/src/Compiler/Optimize/LowerSequences.fs
++++ b/src/Compiler/Optimize/LowerSequences.fs
+@@ -522,8 +522,8 @@ let ConvertSequenceExprToObject g amap overallExpr =
+                                significantClose = false
+                                asyncVars = emptyFreeVars }
+                     else
+-                        let v, ve = mkCompGenLocal m "v" inpElemTy
+-                        ConvertSeqExprCode false isTailCall noDisposeContinuationLabel currentDisposeContinuationLabel (mkCallSeqCollect g m inpElemTy inpElemTy (mkLambdaNoType g m v (mkCallSeqSingleton g m inpElemTy ve)) arbitrarySeqExpr)
++                        let v, ve1 = mkCompGenLocal m "v" inpElemTy
++                        ConvertSeqExprCode false isTailCall noDisposeContinuationLabel currentDisposeContinuationLabel (mkCallSeqCollect g m inpElemTy inpElemTy (mkLambdaNoType g m v (mkCallSeqSingleton g m inpElemTy ve1)) arbitrarySeqExpr)
+                 | _  -> None
+ 
+ 
+diff --git a/src/Compiler/Optimize/Optimizer.fs b/src/Compiler/Optimize/Optimizer.fs
+index ec6359a42..861a5b1ff 100644
+--- a/src/Compiler/Optimize/Optimizer.fs
++++ b/src/Compiler/Optimize/Optimizer.fs
+@@ -1874,8 +1874,8 @@ let MakeStructuralBindingTemp (v: Val) i (arg: Expr) argTy =
+ 
+ let MakeMutableStructuralBindingForTupleElement (v: Val) i (arg: Expr) argTy =
+     let name = sprintf "%s_%d%s" v.LogicalName i suffixForTupleElementAssignmentTarget
+-    let v, ve = mkMutableCompGenLocal arg.Range name argTy
+-    ve, mkCompGenBind v arg
++    let v, ve1 = mkMutableCompGenLocal arg.Range name argTy
++    ve1, mkCompGenBind v arg
+ 
+ let ExpandStructuralBindingRaw cenv expr =
+     let g = cenv.g
+diff --git a/src/Compiler/Symbols/Exprs.fs b/src/Compiler/Symbols/Exprs.fs
+index eabc11f34..66e1ccd03 100644
+--- a/src/Compiler/Symbols/Exprs.fs
++++ b/src/Compiler/Symbols/Exprs.fs
+@@ -542,8 +542,8 @@ module FSharpExprConvert =
+         match expr with 
+         
+         // Uses of possibly-polymorphic values which were not polymorphic in the end
+-        | Expr.App (InnerExprPat(Expr.Val _ as ve), _fty, [], [], _) -> 
+-            ConvExprPrim cenv env ve
++        | Expr.App (InnerExprPat(Expr.Val _ as ve1), _fty, [], [], _) -> 
++            ConvExprPrim cenv env ve1
+ 
+         // These cases are the start of a "linear" sequence where we use tail recursion to allow use to 
+         // deal with large expressions.
+diff --git a/src/Compiler/TypedTree/TypedTree.fs b/src/Compiler/TypedTree/TypedTree.fs
+index bb6b7d22f..b3567e46f 100644
+--- a/src/Compiler/TypedTree/TypedTree.fs
++++ b/src/Compiler/TypedTree/TypedTree.fs
+@@ -5883,14 +5883,14 @@ type Construct() =
+                 | _ -> Some { Entity.NewEmptyEntityOptData() with entity_xmldoc = doc; entity_accessibility = access; entity_tycon_repr_accessibility = access; entity_exn_info = repr } } 
+ 
+     /// Create a new TAST RecdField node for an F# class, struct or record field
+-    static member NewRecdField stat konst id nameGenerated ty isMutable isVolatile pattribs fattribs docOption access secret =
++    static member NewRecdField stat konst1 id nameGenerated ty isMutable isVolatile pattribs fattribs docOption access secret =
+         { rfield_mutable = isMutable
+           rfield_pattribs = pattribs
+           rfield_fattribs = fattribs
+           rfield_type = ty
+           rfield_static = stat
+           rfield_volatile = isVolatile
+-          rfield_const = konst
++          rfield_const = konst1
+           rfield_access = access
+           rfield_secret = secret
+           rfield_xmldoc = docOption 
+@@ -6064,18 +6064,18 @@ type Construct() =
+         isTyFunc,
+         allowTypeInst,
+         isGeneratedEventVal,
+-        konst,
++        konst1,
+         actualParent) : Val =
+ 
+         let stamp = newStamp()
+         let optData = 
+-            match compiledName, arity, konst, access, doc, specialRepr, actualParent, attribs with
++            match compiledName, arity, konst1, access, doc, specialRepr, actualParent, attribs with
+             | None, None, None, TAccess [], doc, None, ParentNone, [] when doc.IsEmpty -> None
+             | _ -> 
+                 { Val.NewEmptyValOptData() with
+                     val_compiled_name = (match compiledName with Some v when v <> logicalName -> compiledName | _ -> None)
+                     val_repr_info = arity
+-                    val_const = konst
++                    val_const = konst1
+                     val_access = access
+                     val_xmldoc = doc
+                     val_member_info = specialRepr
+diff --git a/src/Compiler/TypedTree/TypedTree.fsi b/src/Compiler/TypedTree/TypedTree.fsi
+index f6a2664fe..cd61a3996 100644
+--- a/src/Compiler/TypedTree/TypedTree.fsi
++++ b/src/Compiler/TypedTree/TypedTree.fsi
+@@ -4387,7 +4387,7 @@ type Construct =
+     /// Create a new TAST RecdField node for an F# class, struct or record field
+     static member NewRecdField:
+         stat: bool ->
+-        konst: Const option ->
++        konst1: Const option ->
+         id: Syntax.Ident ->
+         nameGenerated: bool ->
+         ty: TType ->
+@@ -4463,7 +4463,7 @@ type Construct =
+         isTyFunc: bool *
+         allowTypeInst: bool *
+         isGeneratedEventVal: bool *
+-        konst: Const option *
++        konst1: Const option *
+         actualParent: ParentRef ->
+             Val
+ 
+diff --git a/src/Compiler/TypedTree/TypedTreeOps.fs b/src/Compiler/TypedTree/TypedTreeOps.fs
+index 8d555ba3e..5432a1878 100644
+--- a/src/Compiler/TypedTree/TypedTreeOps.fs
++++ b/src/Compiler/TypedTree/TypedTreeOps.fs
+@@ -7934,8 +7934,8 @@ let isThrow x = Option.isSome (destThrow x)
+ 
+ // reraise - parsed as library call - internally represented as op form.
+ let mkReraiseLibCall (g: TcGlobals) ty m =
+-    let ve, vt = typedExprForIntrinsic g m g.reraise_info
+-    Expr.App (ve, vt, [ty], [mkUnit g m], m)
++    let ve1, vt = typedExprForIntrinsic g m g.reraise_info
++    Expr.App (ve1, vt, [ty], [mkUnit g m], m)
+ 
+ let mkReraise m returnTy = Expr.Op (TOp.Reraise, [returnTy], [], m) (* could suppress unitArg *)
+ 
+@@ -8280,8 +8280,8 @@ let mkCoerceIfNeeded g tgtTy srcTy expr =
+         mkCoerceExpr(expr, tgtTy, expr.Range, srcTy)
+ 
+ let mkCompGenLetIn m nm ty e f = 
+-    let v, ve = mkCompGenLocal m nm ty
+-    mkCompGenLet m v e (f (v, ve))
++    let v, ve1 = mkCompGenLocal m nm ty
++    mkCompGenLet m v e (f (v, ve1))
+ 
+ /// Take a node representing a coercion from one function type to another, e.g.
+ ///    A -> A * A -> int 
+@@ -8414,12 +8414,12 @@ let AdjustPossibleSubsumptionExpr g (expr: Expr) (suppliedArgs: Expr list) : (Ex
+                     //  for 
+                     //     let f a = 1
+                     //     let f (a, a) = 1
+-                    let v, ve = mkCompGenLocal appm nm argExprTy
++                    let v, ve1 = mkCompGenLocal appm nm argExprTy
+                     let binderBuilder = (fun tm -> mkCompGenLet appm v argExpr tm)
+                     let expr = 
+                         match actualTys, argTys with
+-                        | [actualTy], [argTy] -> mkCoerceIfNeeded g actualTy argTy ve 
+-                        | _ -> CoerceBoundTuple ve argTys actualTys
++                        | [actualTy], [argTy] -> mkCoerceIfNeeded g actualTy argTy ve1 
++                        | _ -> CoerceBoundTuple ve1 argTys actualTys
+ 
+                     binderBuilder, expr
+                 else                
+@@ -8451,9 +8451,9 @@ let AdjustPossibleSubsumptionExpr g (expr: Expr) (suppliedArgs: Expr list) : (Ex
+                             //  for 
+                             //     let f (x, y) = 1
+                             // Assign the argument to make sure it is only run once
+-                            let v, ve = mkCompGenLocal appm nm argExprTy
++                            let v, ve1 = mkCompGenLocal appm nm argExprTy
+                             let binderBuilder = (fun tm -> mkCompGenLet appm v argExpr tm)
+-                            let expr = CoerceBoundTuple ve argTys actualTys
++                            let expr = CoerceBoundTuple ve1 argTys actualTys
+                             binderBuilder, expr
+                         
+ 
+diff --git a/src/Compiler/pars.fsy b/src/Compiler/pars.fsy
+index 6eacd0b24..719757894 100644
+--- a/src/Compiler/pars.fsy
++++ b/src/Compiler/pars.fsy
+@@ -728,18 +728,18 @@ moduleSpfn:
+ valSpfn: 
+   | opt_attributes opt_access VAL opt_attributes opt_inline opt_mutable opt_access nameop opt_explicitValTyparDecls COLON topTypeWithTypeConstraints optLiteralValueSpfn
+       { if Option.isSome $2 then errorR(Error(FSComp.SR.parsVisibilityDeclarationsShouldComePriorToIdentifier(), rhs parseState 2))
+-        let attr1, attr2, isInline, isMutable, vis2, id, doc, explicitValTyparDecls, (ty, arity), (mEquals, konst: SynExpr option) = ($1), ($4), (Option.isSome $5), ($6), ($7), ($8), grabXmlDoc(parseState, $1, 1), ($9), ($11), ($12)
++        let attr1, attr2, isInline, isMutable, vis2, id, doc, explicitValTyparDecls, (ty, arity), (mEquals, konst1: SynExpr option) = ($1), ($4), (Option.isSome $5), ($6), ($7), ($8), grabXmlDoc(parseState, $1, 1), ($9), ($11), ($12)
+         if not (isNil attr2) then errorR(Deprecated(FSComp.SR.parsAttributesMustComeBeforeVal(), rhs parseState 4))
+         let m = 
+             rhs2 parseState 1 11 
+             |> unionRangeWithXmlDoc doc
+             |> fun m ->
+-                match konst with
++                match konst1 with
+                 | None -> m
+                 | Some e -> unionRanges m e.Range
+         let mVal = rhs parseState 3
+         let trivia: SynValSigTrivia = { LeadingKeyword = SynLeadingKeyword.Val mVal; InlineKeyword = $5; WithKeyword = None; EqualsRange = mEquals }
+-        let valSpfn = SynValSig((attr1@attr2), id, explicitValTyparDecls, ty, arity, isInline, isMutable, doc, vis2, konst, m, trivia) 
++        let valSpfn = SynValSig((attr1@attr2), id, explicitValTyparDecls, ty, arity, isInline, isMutable, doc, vis2, konst1, m, trivia)
+         SynModuleSigDecl.Val(valSpfn, m)
+       }
+ 
+-- 
+2.37.1.windows.1
+
