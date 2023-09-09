@@ -15,10 +15,21 @@
             <select @onchange="SwitchLanguage" class="form-control form-select" title="Language selection">
                 @foreach (var item in WellKnownConstants.Languages)
                 {
-                    <option value="@item.Code"><span class="fi fi-@item.Country"></span> @item.Name</option>
+                    <option value="@item.Code">
+                        <span class="fi fi-@item.Country"></span>
+                        @item.Name
+                        @if (!string.IsNullOrWhiteSpace(item.ReplLink))
+                        {
+                            <text> with REPL</text>
+                        }
+                    </option>
                 }
             </select>
             <button class="btn btn-primary" @onclick="DownloadPatch" disabled="@IsPatchDownloadDisabled">Patch</button>
+            @if (!string.IsNullOrWhiteSpace(current?.ReplLink))
+            {
+                <a href="@current?.ReplLink" target="_blank">REPL</a>
+            }
             <a href="https://github.com/kant2002/FSharpKeywordTranslator" target="_blank">Github</a>
             <a href="https://github.com/kant2002/fsharp/" target="_blank">About</a>
         </div>
