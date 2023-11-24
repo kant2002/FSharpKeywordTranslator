@@ -4,6 +4,7 @@
 @inject LanguageConfigurationManager languageManager
 @inject IJSRuntime JS
 @inject HttpClient HttpClient
+@inject NavigationManager navigationManager
 
 <div class="page">
     <div class="sidebar">
@@ -15,7 +16,7 @@
             <select @onchange="SwitchLanguage" class="form-control form-select" title="Language selection">
                 @foreach (var item in WellKnownConstants.Languages)
                 {
-                    <option value="@item.Code">
+                    <option value="@item.Code" selected="@(item.Code == Language)">
                         <span class="fi fi-@item.Country"></span>
                         @item.Name
                         @if (!string.IsNullOrWhiteSpace(item.ReplLink))
@@ -51,6 +52,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
+        this.Language = System.Web.HttpUtility.ParseQueryString(uri.Query).Get("Language") ?? "en";
         languageManager.OnLanguageChanged = (_, __) =>
         {
             current = languageManager.LanguageConfiguration;
