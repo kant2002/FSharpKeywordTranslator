@@ -1,5 +1,6 @@
 ﻿namespace FSharpKeywordTranslator;
 
+#pragma warning disable CS8618
 public class VariablesObj
 {
     public string Name { get; set; }

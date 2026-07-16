@@ -7,7 +7,7 @@ public class LanguageConfigurationManager
     private Dictionary<string, LanguageConfiguration> database = new();
 
     public LanguageConfiguration LanguageConfiguration { get; set; }
-    public EventHandler OnLanguageChanged;
+    public EventHandler? OnLanguageChanged;
 
     public LanguageConfiguration GetLanguageConfiguration(string language)
     {
