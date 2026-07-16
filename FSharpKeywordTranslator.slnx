@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/.github/" />
+  <Folder Name="/.github/workflows/">
+    <File Path=".github/workflows/deployment.yml" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="fable.ps1" />
+    <File Path="fsharp.ps1" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="FSharpKeywordTranslator.Cli/FSharpKeywordTranslator.Cli.csproj" />
+  <Project Path="FSharpKeywordTranslator.Core/FSharpKeywordTranslator.Core.csproj" />
+  <Project Path="FSharpKeywordTranslator/FSharpKeywordTranslator.csproj" />
+</Solution>
