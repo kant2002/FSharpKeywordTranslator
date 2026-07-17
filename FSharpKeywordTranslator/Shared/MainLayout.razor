@@ -71,7 +71,7 @@
     {
         var patchGenerator = new PatchGenerator();
         var fileName = $"fsharp-compiler-net11-{current.Language}.patch";
-        var fileStream = patchGenerator.GenerateFSharpPatch(current);
+        var fileStream = patchGenerator.GenerateFSharpPatch("net11.0", current);
 
         await JS.InvokeVoidAsync("downloadFileFromStream", fileName, fileStream);
     }

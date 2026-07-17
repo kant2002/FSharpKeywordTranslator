@@ -4,9 +4,9 @@ namespace FSharpKeywordTranslator.Core;
 
 public class PatchGenerator
 {
-    public string GenerateFSharpPatch(LanguageConfiguration current)
+    public string GenerateFSharpPatch(string tfm, LanguageConfiguration current)
     {
-        var patchTemplate = GetFSharpPatchTemplate();
+        var patchTemplate = GetFSharpPatchTemplate(tfm);
         return ApplyKeywords(current, patchTemplate);
     }
 
@@ -147,9 +147,10 @@ public class PatchGenerator
         return i;
     }
 
-    private string GetFSharpPatchTemplate()
+    private string GetFSharpPatchTemplate(string tfm)
     {
-        using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream("FSharpKeywordTranslator.Core.patches.fsharp-compiler-net11.txt") ?? throw new InvalidDataException("The patch for F# compiler is missing from the assembly.");
+        var resourceKey = $"FSharpKeywordTranslator.Core.patches.fsharp-compiler-{tfm}.txt";
+        using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream(resourceKey) ?? throw new InvalidDataException("The patch for F# compiler is missing from the assembly.");
         using var stringReader = new StreamReader(patchStream);
         return stringReader.ReadToEnd();
     }

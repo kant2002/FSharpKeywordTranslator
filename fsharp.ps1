@@ -1,20 +1,25 @@
 param (
     [string]$FSharpRepo = $(throw "-FSharpRepo is required."),
     [string]$OutputStorage = $(throw "-OutputStorage is required."),
-    [string]$Language = $(throw "-Language is required.")
+    [string]$Language = $(throw "-Language is required."),
+    [string]$Tfm = "net11.0"
 )
 
 $ErrorActionPreference = 'Stop'
+$TfmBranches = @{
+    "net10.0" = "release/dev18.0"
+    "net11.0" = "main"
+}
 $PrepareRepo = $true
+$PackCustomFSharp = $true
 if ($PrepareRepo) {
     git -C "$FSharpRepo" checkout -- .
-    git -C "$FSharpRepo" checkout main
+    git -C "$FSharpRepo" checkout $TfmBranches[$Tfm]
     Remove-Item –path  "$FSharpRepo\artifacts\" –Recurse -Force
-    dotnet run --project FSharpKeywordTranslator.Cli --  fsharp --lang $Language | git -C "$FSharpRepo" apply
+    dotnet run --project FSharpKeywordTranslator.Cli --  fsharp --tfm $Tfm --lang $Language | git -C "$FSharpRepo" apply
 }
 try {
     pushd $FSharpRepo
-    $PackCustomFSharp = $true
     if ($PackCustomFSharp) {
         .\Build.cmd -pack -ci /p:OfficialBuild=true /p:PublishWindowsPdb=false /p:VisualStudioDropName=dummy -c Release
     }
