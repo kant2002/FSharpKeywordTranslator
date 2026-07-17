@@ -149,7 +149,7 @@ public class PatchGenerator
 
     private string GetFSharpPatchTemplate()
     {
-        using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream("FSharpKeywordTranslator.Core.patches.fsharp-compiler-net8.txt") ?? throw new InvalidDataException("The patch for F# compiler is missing from the assembly.");
+        using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream("FSharpKeywordTranslator.Core.patches.fsharp-compiler-net11.txt") ?? throw new InvalidDataException("The patch for F# compiler is missing from the assembly.");
         using var stringReader = new StreamReader(patchStream);
         return stringReader.ReadToEnd();
     }
