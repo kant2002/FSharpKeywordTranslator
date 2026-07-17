@@ -211,7 +211,7 @@ index 63f244fc2..536253ce6 100644
 
              match EvalLiteralExprOrAttribArg cenv.g expr with
 -            | Expr.Const (konst, _, _) -> MakeEnumCaseSpec g cenv env parent attrs thisTy caseRange id xmldoc konst
-+            | Expr.Const (konst, _, _) -> MakeEnumCaseSpec g cenv env parent attrs thisTy caseRange id xmldoc konst1
++            | Expr.Const (konst1, _, _) -> MakeEnumCaseSpec g cenv env parent attrs thisTy caseRange id xmldoc konst1
              | _ -> error(Error(FSComp.SR.tcInvalidEnumerationLiteral(), valueRange))
  
      let TcEnumDecls (cenv: cenv) env tpenv parent thisTy enumCases =
