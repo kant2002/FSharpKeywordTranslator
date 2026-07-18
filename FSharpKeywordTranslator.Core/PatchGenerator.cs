@@ -36,9 +36,9 @@ public class PatchGenerator
         return patchTemplate;
     }
 
-    public string GenerateSimpleFSharpPatch(LanguageConfiguration current)
+    public string GenerateSimpleFSharpPatch(string tfm, LanguageConfiguration current)
     {
-        var patchTemplate = GetFableFSharpPatchTemplate();
+        var patchTemplate = GetFableFSharpPatchTemplate(tfm);
         return ApplyKeywords(current, patchTemplate);
     }
 
@@ -155,9 +155,10 @@ public class PatchGenerator
         return stringReader.ReadToEnd();
     }
 
-    private string GetFableFSharpPatchTemplate()
+    private string GetFableFSharpPatchTemplate(string tfm)
     {
-        using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream("FSharpKeywordTranslator.Core.patches.fsharp-compiler-net8-simple.patch") ?? throw new InvalidDataException("The patch for Fable F# compiler is missing from the assembly.");
+        var resourceKey = $"FSharpKeywordTranslator.Core.patches.fsharp-compiler-{tfm}-simple.patch";
+        using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream(resourceKey) ?? throw new InvalidDataException("The patch for Fable F# compiler is missing from the assembly.");
         using var stringReader = new StreamReader(patchStream);
         return stringReader.ReadToEnd();
     }

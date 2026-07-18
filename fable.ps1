@@ -6,19 +6,28 @@ param (
     [string]$Language = $(throw "-Language is required."),
     [switch]$DoNotBuildFSharp = $false,
     [switch]$DoNotBuildFable = $false,
-    [switch]$DoNotBuildRepl = $false
+    [switch]$DoNotBuildRepl = $false,
+    [string]$Tfm = "net11.0"
 )
+
+$ErrorActionPreference = 'Stop'
+$TfmBranches = @{
+    "net10.0" = "ncave/service_slim_2025-11-21"
+    "net11.0" = "ncave/service_slim"
+}
 
 if (-not $DoNotBuildFSharp)
 {
     git -C "$FSharpRepo" checkout -- .
-    git -C "$FSharpRepo" checkout --detach ncave/service_slim
-    Remove-Item –path  "$FSharpRepo\artifacts\" –Recurse
-    dotnet run --project FSharpKeywordTranslator.Cli --  fable --lang $Language | git -C "$FSharpRepo" apply
+    git -C "$FSharpRepo" checkout --detach $TfmBranches[$Tfm]
+    if (Test-Path "$FSharpRepo\artifacts\") {
+        Remove-Item –path  "$FSharpRepo\artifacts\" –Recurse -Force
+    }
+    dotnet run --project FSharpKeywordTranslator.Cli --  fable --tfm $Tfm --lang $Language | git -C "$FSharpRepo" apply
     try {
         pushd $FSharpRepo
         bash fcs/build.sh
-        mkdir "$OutputStorage\$Language\fable"
+        mkdir "$OutputStorage\$Language\fable" -Force
         Copy-Item "$FSharpRepo\artifacts/bin/FSharp.Compiler.Service/Release/netstandard2.0/FSharp.Compiler.Service.*" -Destination "$OutputStorage\$Language\fable\" -Recurse
         Copy-Item "$FSharpRepo\artifacts/bin/FSharp.Compiler.Service/Release/netstandard2.0/FSharp.Core.*" -Destination "$OutputStorage\$Language\fable\" -Recurse
     } finally {
@@ -32,12 +41,14 @@ if (-not $DoNotBuildFable)
     git -C "$FableRepo" checkout -- .
     git -C "$FableRepo" checkout main
     Write-Host "Applying patch"
-    dotnet run --project FSharpKeywordTranslator.Cli --  fable --lang $Language | git -C "$FableRepo\src\fcs-fable" apply --directory=src/fcs-fable/ --ignore-space-change
+    #dotnet run --project FSharpKeywordTranslator.Cli --  fable --tfm $Tfm --lang $Language | git -C "$FableRepo\src\fcs-fable" apply --directory=src/fcs-fable/ --ignore-space-change
     Write-Host "Copying built F# compiler service"
     Copy-Item "$OutputStorage\$Language\fable\*" -Destination "$FableRepo\lib\fcs\" -Recurse
     try {
         pushd $FableRepo
-        dotnet fsi build.fsx standalone
+        Write-Host "Start Fable build"
+        #dotnet fsi build.fsx standalone
+        ./build.bat standalone
     } finally {
         popd
     }
