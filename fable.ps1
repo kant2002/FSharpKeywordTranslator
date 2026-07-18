@@ -23,7 +23,10 @@ if (-not $DoNotBuildFSharp)
     if (Test-Path "$FSharpRepo\artifacts\") {
         Remove-Item –path  "$FSharpRepo\artifacts\" –Recurse -Force
     }
+    Write-Host "Applying F# patch"
     dotnet run --project FSharpKeywordTranslator.Cli --  fable --tfm $Tfm --lang $Language | git -C "$FSharpRepo" apply
+    Write-Host "Applying F# build patch"
+    dotnet run --project FSharpKeywordTranslator.Cli --  fable-build --tfm $Tfm --lang $Language | git -C "$FSharpRepo" apply
     try {
         pushd $FSharpRepo
         bash fcs/build.sh
@@ -40,8 +43,8 @@ if (-not $DoNotBuildFable)
     Write-Host "Checkout out fable repository"
     git -C "$FableRepo" checkout -- .
     git -C "$FableRepo" checkout main
-    Write-Host "Applying patch"
-    #dotnet run --project FSharpKeywordTranslator.Cli --  fable --tfm $Tfm --lang $Language | git -C "$FableRepo\src\fcs-fable" apply --directory=src/fcs-fable/ --ignore-space-change
+    Write-Host "Applying Fable patch"
+    dotnet run --project FSharpKeywordTranslator.Cli --  fable --tfm $Tfm --lang $Language | git -C "$FableRepo\src\fcs-fable" apply --directory=src/fcs-fable/ --ignore-space-change
     Write-Host "Copying built F# compiler service"
     Copy-Item "$OutputStorage\$Language\fable\*" -Destination "$FableRepo\lib\fcs\" -Recurse
     try {
@@ -59,14 +62,20 @@ if (-not $DoNotBuildRepl)
 {
     $env:LOCAL_PKG=1
     git -C "$FableReplRepo" checkout -- .
-    git -C "$FableReplRepo" checkout master
+    git -C "$FableReplRepo" checkout main
     Write-Host "Applying UI patch"
-    dotnet run --project FSharpKeywordTranslator.Cli -- repl --lang $Language | git -C "$FableReplRepo" apply
+    dotnet run --project FSharpKeywordTranslator.Cli -- repl --tfm $Tfm --lang $Language | git -C "$FableReplRepo" apply
 
     try {
         pushd $FableReplRepo
+        if (Test-Path global.json) {
+            Write-Host "Removing global.json"
+            Remove-Item global.json
+        }
+        Write-Host "Restoring local tools"
         dotnet tool restore
-        dotnet fake build -t All
+        Write-Host "Building REPL"
+        dotnet fsi build.fsx -p BuildApp --local
     } finally {
         popd
     }

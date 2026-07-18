@@ -10,9 +10,9 @@ public class PatchGenerator
         return ApplyKeywords(current, patchTemplate);
     }
 
-    public string GenerateFableReplPatch(LanguageConfiguration current)
+    public string GenerateFableReplPatch(string tfm, LanguageConfiguration current)
     {
-        var patchTemplate = GetFableReplPatchTemplate(current.Language)
+        var patchTemplate = GetFableReplPatchTemplate(tfm, current.Language)
             ??
             """
             ---
@@ -40,6 +40,12 @@ public class PatchGenerator
     {
         var patchTemplate = GetFableFSharpPatchTemplate(tfm);
         return ApplyKeywords(current, patchTemplate);
+    }
+
+    public string GenerateFableFSharpBuildPatch(string tfm, LanguageConfiguration current)
+    {
+        var patchTemplate = GetFableFSharpBuildPatchTemplate(tfm);
+        return patchTemplate;
     }
 
     private string ApplyKeywords(LanguageConfiguration current, string patchTemplate)
@@ -163,9 +169,18 @@ public class PatchGenerator
         return stringReader.ReadToEnd();
     }
 
-    private string? GetFableReplPatchTemplate(string language)
+    private string GetFableFSharpBuildPatchTemplate(string tfm)
     {
-        var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream($"FSharpKeywordTranslator.Core.patches.repl-{language}.patch");
+        var resourceKey = $"FSharpKeywordTranslator.Core.patches.fsharp-compiler-{tfm}-build.patch";
+        using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream(resourceKey) ?? throw new InvalidDataException("The patch for Fable F# compiler is missing from the assembly.");
+        using var stringReader = new StreamReader(patchStream);
+        return stringReader.ReadToEnd();
+    }
+
+    private string? GetFableReplPatchTemplate(string tfm, string language)
+    {
+        var resourceKey = $"FSharpKeywordTranslator.Core.patches.repl-{tfm}-{language}.patch";
+        var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream(resourceKey);
         if (patchStream is null)
         {
             return null;
