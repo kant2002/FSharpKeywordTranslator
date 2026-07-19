@@ -40,6 +40,12 @@ var replCommand = new Command("repl", "Produce patch for Fable REPL.")
 };
 rootCommand.AddCommand(replCommand);
 replCommand.SetHandler(ProduceFableReplLocalizationPatch, tfmOption, langOption);
+var replColorizationCommand = new Command("repl-colorization", "Produce patch for Fable REPL colorization.")
+{
+    langOption
+};
+rootCommand.AddCommand(replColorizationCommand);
+replColorizationCommand.SetHandler(ProduceFableReplColorizationPatch, langOption);
 
 return await rootCommand.InvokeAsync(args);
 
@@ -80,5 +86,14 @@ static void ProduceFableReplLocalizationPatch(string tfm, string lang)
     var l = new LanguageConfigurationManager();
     var configuration = l.GetLanguageConfiguration(lang);
     var patch = patchGenerator.GenerateFableReplPatch(tfm, configuration);
+    Console.WriteLine(patch);
+}
+
+static void ProduceFableReplColorizationPatch(string lang)
+{
+    var patchGenerator = new PatchGenerator();
+    var l = new LanguageConfigurationManager();
+    var configuration = l.GetLanguageConfiguration(lang);
+    var patch = patchGenerator.GenerateFableReplColorizationPatch(configuration);
     Console.WriteLine(patch);
 }

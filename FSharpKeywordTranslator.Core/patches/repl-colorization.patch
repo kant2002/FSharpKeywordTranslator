@@ -1,0 +1,33 @@
+---
+diff --git a/node_modules/monaco-editor/esm/vs/basic-languages/fsharp/fsharp.js b/node_modules/monaco-editor/esm/vs/basic-languages/fsharp/fsharp.js
+index ece83b0..c8ec73d 100644
+--- a/node_modules/monaco-editor/esm/vs/basic-languages/fsharp/fsharp.js
++++ b/node_modules/monaco-editor/esm/vs/basic-languages/fsharp/fsharp.js
+@@ -139,6 +139,{KEYWORDS_OVERRIDE_COUNT} @@ keywords: [
+     "when",
+     "while",
+     "with",
+{COLORIZATION_KEYWORDS_OVERRIDE}     "yield"
+   ],
+   symbols: /[=><!~?:&|+\-*\^%;\.,\/]+/,
+@@ -147,7 +147,7 @@ tokenizer: {
+   tokenizer: {
+     root: [
+       [
+-        /[a-zA-Z_]\w*/,
++        /[a-zA-Zа-яА-Я_](\w|[а-яА-Я])*/,
+         {
+           cases: {
+             "@keywords": { token: "keyword.$0" },
+diff --git a/src/App/vite.config.ts b/src/App/vite.config.ts
+index ece83b0..c8ec73d 100644
+--- a/src/App/vite.config.ts
++++ b/src/App/vite.config.ts
+@@ -8,6 +8,6 @@ export default defineConfig(({ command, mode }) => {
+     return {
+         plugins: [react()],
+         clearScreen: false,
+-        base: mode === 'production' ? '/repl/' : '/',
++        base: mode === 'production' ? '/fable-repl-{LanguageCode}/' : '/',
+     }
+   })
