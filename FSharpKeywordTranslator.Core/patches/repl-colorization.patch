@@ -15,7 +15,7 @@ index ece83b0..c8ec73d 100644
      root: [
        [
 -        /[a-zA-Z_]\w*/,
-+        /[a-zA-Zа-яА-Я_](\w|[а-яА-Я])*/,
++        /[a-zA-Zа-яА-ЯіїєЄґҐ_](\w|[а-яА-ЯіїєЄґҐ])*/,
          {
            cases: {
              "@keywords": { token: "keyword.$0" },
