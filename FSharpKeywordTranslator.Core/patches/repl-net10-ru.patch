@@ -1,0 +1,170 @@
+---
+diff --git a/src/App/Prelude.fs b/src/App/Prelude.fs
+index ece83b0..c8ec73d 100644
+--- a/src/App/Prelude.fs
++++ b/src/App/Prelude.fs
+@@ -15,7 +15,8 @@ module Literals =
+         // "http://localhost:8080"
+         Browser.Dom.window.location.href
+ #else
+-        "https://fable.io/repl/"
++        Browser.Dom.window.location.href
++        //"https://fable.io/repl/"
+ #endif
+ 
+     let (*[<Literal>]*) SAMPLES_JSON_URL = HOST + "samples/samples.json"
+diff --git a/src/App/Widgets/About.fs b/src/App/Widgets/About.fs
+index 50e52ef..29f126b 100644
+--- a/src/App/Widgets/About.fs
++++ b/src/App/Widgets/About.fs
+@@ -10,7 +10,7 @@ let view fableVersion =
+         Html.div ("Fable: " + fableVersion)
+         Html.br [ ]
+         Html.a [
+-            prop.href "https://github.com/fable-compiler/repl/issues/new"
++            prop.href "https://github.com/kant2002/repl/issues/new"
+             prop.children [
+                 Html.span [
+                     text.isItalic
+diff --git a/src/Fable.Repl.Lib/Sutil/Bindings.fs b/src/Fable.Repl.Lib/Sutil/Bindings.fs
+index a7e0034..5427b79 100644
+--- a/src/Fable.Repl.Lib/Sutil/Bindings.fs
++++ b/src/Fable.Repl.Lib/Sutil/Bindings.fs
+@@ -99,7 +99,7 @@ let bindFragment<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) =
+         try
+             node <- build (element(next)) (bindCtx |> ContextHelpers.withReplace (node,vnode.NextDomNode))
+         with
+-        | x -> Logging.error $"Exception in bind: {x.Message} parent {ctx.Parent} node {node.ToString()} node.Parent "
++        | x -> Logging.error $"Ошибка привязки: {x.Message} родительского {ctx.Parent} узла {node.ToString()} node.Parent "
+     )
+ 
+     vnode.SetDispose (Helpers.unsubify disposable)
+@@ -119,7 +119,7 @@ let bindFragment2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element:
+         try
+             node <- build (element(next)) (bindCtx |> ContextHelpers.withReplace (node,vnode.NextDomNode))
+         with
+-        | x -> Logging.error $"Exception in bind: {x.Message}"
++        | x -> Logging.error $"Ошибка привязки: {x.Message}"
+     )
+ 
+     vnode.SetDispose (Helpers.unsubify d)
+@@ -608,5 +608,3 @@ module BindApi =
+         static member selected<'T when 'T : equality>  (store : IStore<'T list>) = bindSelectMultiple store
+         static member selected<'T when 'T : equality>  (store : IStore<'T option>) = bindSelectOptional store
+         static member selected<'T when 'T : equality>  (store : IStore<'T>) = bindSelectSingle store
+-
+-
+diff --git a/src/Fable.Repl.Lib/Sutil/DOM.fs b/src/Fable.Repl.Lib/Sutil/DOM.fs
+index fb5e863..3e8c61e 100644
+--- a/src/Fable.Repl.Lib/Sutil/DOM.fs
++++ b/src/Fable.Repl.Lib/Sutil/DOM.fs
+@@ -1154,11 +1154,11 @@ let asDomNode (element:SutilNode) (ctx : BuildContext) : Node =
+     //let result = (ctx |> build element)
+     match element.collectDomNodes()  with
+     | [n] -> n
+-    | [] -> errorNode ctx.Parent $"Error: Empty node from {element} #{element.Id}"
++    | [] -> errorNode ctx.Parent $"Ошибка: Пустой узел из {element} #{element.Id}"
+     | xs ->
+         let doc = ctx.Document
+         let tmpDiv = doc.createElement("div")
+-        let en = errorNode (DomNode tmpDiv) "'fragment' not allowed as root for 'each' blocks"
++        let en = errorNode (DomNode tmpDiv) "'fragment' не разрешен как корневой для блоков 'each'"
+         DomEdit.appendChild tmpDiv en
+         ctx.Parent.AppendChild tmpDiv
+         xs |> List.iter (fun x -> DomEdit.appendChild tmpDiv x)
+@@ -1392,7 +1392,7 @@ let computedStyleOpacity e =
+         float (Window.getComputedStyle(e).opacity)
+     with
+     | _ ->
+-        log(sprintf "parse error: '%A'" (Window.getComputedStyle(e).opacity))
++        log(sprintf "ошибка анализа: '%A'" (Window.getComputedStyle(e).opacity))
+         1.0
+ 
+ let computedStyleTransform node =
+diff --git a/src/Fable.Repl.Lib/Sutil/Logging.fs b/src/Fable.Repl.Lib/Sutil/Logging.fs
+index a8aded8..7959667 100644
+--- a/src/Fable.Repl.Lib/Sutil/Logging.fs
++++ b/src/Fable.Repl.Lib/Sutil/Logging.fs
+@@ -11,7 +11,7 @@ let mutable initialized = false
+ 
+ let init =
+     if not initialized then
+-        console.log("logging:init defaults")
++        console.log("протоколирование:инициализация начальных значений")
+         initialized <- true
+         enabled.["store"] <- false
+         enabled.["trans"] <- false
+@@ -22,10 +22,10 @@ let init =
+         enabled.["tick" ] <- false
+ 
+ let initWith states =
+-    console.log("logging:init with states")
++    console.log("протоколирование:инициализация с состояниями")
+     initialized <- true
+     for (name,state) in states do
+-        console.log($"logging:{name}: {state}")
++        console.log($"протоколирование:{name}: {state}")
+         enabled.[name] <- state
+ 
+ let timestamp() =
+@@ -36,8 +36,7 @@ let log source (message : string) =
+         console.log(sprintf "%s: %s: %s" (timestamp()) source message)
+ 
+ let warning (message : string) =
+-    console.log(sprintf "warning: %s" message)
++    console.log(sprintf "предупреждение: %s" message)
+ 
+ let error (message : string) =
+-    console.log(sprintf "error: %s" message)
+-
++    console.log(sprintf "ошибка: %s" message)
+diff --git a/src/Fable.Repl.Lib/Sutil/ObservableStore.fs b/src/Fable.Repl.Lib/Sutil/ObservableStore.fs
+index de200a6..a864e42 100644
+--- a/src/Fable.Repl.Lib/Sutil/ObservableStore.fs
++++ b/src/Fable.Repl.Lib/Sutil/ObservableStore.fs
+@@ -56,9 +56,9 @@ module ObservableStore =
+             DOM.dispatch Window.document DOM.Event.UpdateStore {| Value = v |}
+ 
+         let notifyMakeStore s =
+-            if storeToId.ContainsKey(s) then failwith "Store is already registered!"
++            if storeToId.ContainsKey(s) then failwith "Склад уже зарегистрирован!"
+             let id = nextId
+-            log $"make store #{id}"
++            log $"зделать склад #{id}"
+             nextId <- nextId + 1
+             idToStore.[id] <- s
+             storeToId.[s] <- id
+@@ -72,13 +72,13 @@ module ObservableStore =
+             //        failwith "Store is unknown to registry"
+ 
+             let id = storeToId.[s]
+-            log($"dispose store #{id}")
++            log($"утилизировать склад #{id}")
+             try
+                 idToStore.Remove(id) |> ignore
+                 storeToId.Remove(s) |> ignore
+                 //disposed.[s] <- id
+             with
+-            | x -> Logging.error $"disposing store {id}: {x.Message}"
++            | x -> Logging.error $"утилизировать склад {id}: {x.Message}"
+ 
+         let getStoreById id : IStoreDebugger =
+             (idToStore.[id] :?> IStore<obj>).Debugger
+@@ -137,7 +137,7 @@ module ObservableStore =
+             let id = uid
+             uid <- uid + 1
+ 
+-            Logging.log "store" $"subscribe {id}"
++            Logging.log "store" $"подписаться {id}"
+ 
+             subscribers.Add(id, observer)
+ 
+@@ -148,7 +148,7 @@ module ObservableStore =
+             observer.OnNext(model())
+ 
+             Helpers.disposable <| fun () ->
+-                Logging.log "store" $"unsubscribe {id}"
++                Logging.log "store" $"отписаться {id}"
+                 subscribers.Remove(id) |> ignore
+ 
+         member this.Dispose() =
