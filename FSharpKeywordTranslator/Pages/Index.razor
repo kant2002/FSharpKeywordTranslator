@@ -56,9 +56,9 @@
     {s.Printf} "{v.Age} = %d" {v.Age}
 
 // ------------
-{k.If} {v.Name} = "Andrii"
+{k.If} {v.Name} = "Andrii" {k.Then}
     {s.Printf} "{v.Age} = %d" {v.Age}
-{k.Elif} {v.Name} = "Bohdan"
+{k.Elif} {v.Name} = "Bohdan" {k.Then}
     {s.Printf} "This is Bohdan"
 {k.Else}
     {s.Printf} "This is stranger"
