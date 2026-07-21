@@ -25,8 +25,10 @@ if (-not $DoNotBuildFSharp)
         Remove-Item –path  "$FSharpRepo\artifacts\" –Recurse -Force
     }
     Write-Host "Applying F# patch"
+    Write-Host "dotnet run --project FSharpKeywordTranslator.Cli --  fable --tfm $Tfm --lang $Language"
     dotnet run --project FSharpKeywordTranslator.Cli --  fable --tfm $Tfm --lang $Language | git -C "$FSharpRepo" apply
     Write-Host "Applying F# build patch"
+    Write-Host "dotnet run --project FSharpKeywordTranslator.Cli --  fable-build --tfm $Tfm --lang $Language"
     dotnet run --project FSharpKeywordTranslator.Cli --  fable-build --tfm $Tfm --lang $Language | git -C "$FSharpRepo" apply
     try {
         pushd $FSharpRepo
@@ -85,7 +87,6 @@ if (-not $DoNotBuildRepl)
 if (-not $DoNotBuildColorization)
 {
     try {
-        Write-Host "Applying Repl colorization patch"
         if (Test-Path "$FableReplRepo/node_modules/monaco-editor/esm/vs/basic-languages/fsharp/_fsharp.js")
         {
             Write-Host "Restore saved _fsharp.js"
@@ -97,6 +98,7 @@ if (-not $DoNotBuildColorization)
             Copy-Item "$FableReplRepo/node_modules/monaco-editor/esm/vs/basic-languages/fsharp/fsharp.js" "$FableReplRepo/node_modules/monaco-editor/esm/vs/basic-languages/fsharp/_fsharp.js" -Force
         }
         git  -C "$FableReplRepo" checkout -- src/App/vite.config.ts
+        Write-Host "Applying Repl colorization patch"
         dotnet run --project FSharpKeywordTranslator.Cli -- repl-colorization --lang $Language | git -C "$FableReplRepo" apply
         pushd $FableReplRepo/src/App
         npx vite build

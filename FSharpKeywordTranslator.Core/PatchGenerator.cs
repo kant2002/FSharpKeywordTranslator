@@ -182,7 +182,7 @@ public class PatchGenerator
 
     private string GetFableFSharpBuildPatchTemplate(string tfm)
     {
-        var resourceKey = $"FSharpKeywordTranslator.Core.patches.fsharp-compiler-{tfm}-build.patch";
+        var resourceKey = $"FSharpKeywordTranslator.Core.patches.fable-fsharp-{tfm}.patch";
         using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream(resourceKey) ?? throw new InvalidDataException("The patch for Fable F# compiler is missing from the assembly.");
         using var stringReader = new StreamReader(patchStream);
         return stringReader.ReadToEnd();
