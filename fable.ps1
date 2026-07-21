@@ -47,6 +47,7 @@ if (-not $DoNotBuildFable)
     git -C "$FableRepo" checkout -- .
     git -C "$FableRepo" checkout main
     Write-Host "Applying Fable patch"
+    Write-Host "dotnet run --project FSharpKeywordTranslator.Cli --  fable --tfm $Tfm --lang $Language"
     dotnet run --project FSharpKeywordTranslator.Cli --  fable --tfm $Tfm --lang $Language | git -C "$FableRepo\src\fcs-fable" apply --directory=src/fcs-fable/ --ignore-space-change
     Write-Host "Copying built F# compiler service"
     Copy-Item "$OutputStorage\$Language\fable\*" -Destination "$FableRepo\lib\fcs\" -Recurse
@@ -67,6 +68,7 @@ if (-not $DoNotBuildRepl)
     git -C "$FableReplRepo" checkout -- .
     git -C "$FableReplRepo" checkout main
     Write-Host "Applying UI patch"
+    Write-Host "dotnet run --project FSharpKeywordTranslator.Cli --  repl --tfm $Tfm --lang $Language"
     dotnet run --project FSharpKeywordTranslator.Cli -- repl --tfm $Tfm --lang $Language | git -C "$FableReplRepo" apply
 
     try {

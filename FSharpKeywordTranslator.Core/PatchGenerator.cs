@@ -28,8 +28,8 @@ public class PatchGenerator
             +        Browser.Dom.window.location.href
             +        //"https://fable.io/repl/"
              #endif
-                 printfn $"HOST {HOST}"
              
+                 let (*[<Literal>]*) SAMPLES_JSON_URL = HOST + "samples/samples.json"
             -- 
             2.37.1.windows.1
             """.ReplaceLineEndings("\n");
@@ -175,7 +175,7 @@ public class PatchGenerator
     private string GetFableFSharpPatchTemplate(string tfm)
     {
         var resourceKey = $"FSharpKeywordTranslator.Core.patches.fsharp-compiler-{tfm}-simple.patch";
-        using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream(resourceKey) ?? throw new InvalidDataException("The patch for Fable F# compiler is missing from the assembly.");
+        using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream(resourceKey) ?? throw new InvalidDataException($"The patch for Fable F# compiler is missing from the assembly. Resource key {resourceKey}");
         using var stringReader = new StreamReader(patchStream);
         return stringReader.ReadToEnd();
     }
