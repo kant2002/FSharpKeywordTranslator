@@ -987,6 +987,793 @@ index bee53be38..8add0fd97 100644
  
                  let nm, sigptr = sigptr_get_serstring bytes sigptr
                  let v, sigptr = parseVal ty sigptr
+diff --git a/src/Compiler/AbstractIL/ilread.fs b/src/Compiler/AbstractIL/ilread.fs
+index fcfc42515..e6fc2d8c1 100644
+--- a/src/Compiler/AbstractIL/ilread.fs
++++ b/src/Compiler/AbstractIL/ilread.fs
+@@ -981,11 +981,11 @@ let seekReadIndexedRows (numRows, rowReader, keyFunc, keyComparer, binaryChop, r
+         let mutable low = 0
+         let mutable high = numRows + 1
+ 
+-        (let mutable fin = false
++        (let mutable fin1 = false
+ 
+-         while not fin do
++         while not fin1 do
+              if high - low <= 1 then
+-                 fin <- true
++                 fin1 <- true
+              else
+                  let mid = (low + high) / 2
+                  let midrow = rowReader mid
+@@ -993,7 +993,7 @@ let seekReadIndexedRows (numRows, rowReader, keyFunc, keyComparer, binaryChop, r
+ 
+                  if c > 0 then low <- mid
+                  elif c < 0 then high <- mid
+-                 else fin <- true)
++                 else fin1 <- true)
+ 
+         let mutable res = []
+ 
+@@ -1001,37 +1001,37 @@ let seekReadIndexedRows (numRows, rowReader, keyFunc, keyComparer, binaryChop, r
+             // now read off rows, forward and backwards
+             let mid = (low + high) / 2
+             // read forward
+-            let mutable fin = false
++            let mutable fin1 = false
+             let mutable curr = mid
+ 
+-            while not fin do
++            while not fin1 do
+                 if curr > numRows then
+-                    fin <- true
++                    fin1 <- true
+                 else
+                     let currrow = rowReader curr
+ 
+                     if keyComparer (keyFunc currrow) = 0 then
+                         res <- rowConverter currrow :: res
+                     else
+-                        fin <- true
++                        fin1 <- true
+ 
+                     curr <- curr + 1
+ 
+             res <- List.rev res
+             // read backwards
+-            let mutable fin = false
++            let mutable fin1 = false
+             let mutable curr = mid - 1
+ 
+-            while not fin do
++            while not fin1 do
+                 if curr = 0 then
+-                    fin <- true
++                    fin1 <- true
+                 else
+                     let currrow = rowReader curr
+ 
+                     if keyComparer (keyFunc currrow) = 0 then
+                         res <- rowConverter currrow :: res
+                     else
+-                        fin <- true
++                        fin1 <- true
+ 
+                     curr <- curr - 1
+         // sanity check
+@@ -1204,11 +1204,11 @@ let seekReadIndexedRowsRange numRows binaryChop (reader: ISeekReadIndexedRowRead
+         let mutable low = 0
+         let mutable high = numRows + 1
+ 
+-        let mutable fin = false
++        let mutable fin1 = false
+ 
+-        while not fin do
++        while not fin1 do
+             if high - low <= 1 then
+-                fin <- true
++                fin1 <- true
+             else
+                 let mid = (low + high) / 2
+                 reader.GetRow(mid, &row)
+@@ -1216,7 +1216,7 @@ let seekReadIndexedRowsRange numRows binaryChop (reader: ISeekReadIndexedRowRead
+ 
+                 if c > 0 then low <- mid
+                 elif c < 0 then high <- mid
+-                else fin <- true
++                else fin1 <- true
+ 
+         if high - low > 1 then
+             // now read off rows, forward and backwards
+@@ -1226,36 +1226,36 @@ let seekReadIndexedRowsRange numRows binaryChop (reader: ISeekReadIndexedRowRead
+             endRid <- mid
+ 
+             // read backwards
+-            let mutable fin = false
++            let mutable fin1 = false
+             let mutable curr = mid - 1
+ 
+-            while not fin do
++            while not fin1 do
+                 if curr = 0 then
+-                    fin <- true
++                    fin1 <- true
+                 else
+                     reader.GetRow(curr, &row)
+ 
+                     if reader.CompareKey(reader.GetKey(&row)) = 0 then
+                         startRid <- curr
+                     else
+-                        fin <- true
++                        fin1 <- true
+ 
+                 curr <- curr - 1
+ 
+             // read forward
+-            let mutable fin = false
++            let mutable fin1 = false
+             let mutable curr = mid + 1
+ 
+-            while not fin do
++            while not fin1 do
+                 if curr > numRows then
+-                    fin <- true
++                    fin1 <- true
+                 else
+                     reader.GetRow(curr, &row)
+ 
+                     if reader.CompareKey(reader.GetKey(&row)) = 0 then
+                         endRid <- curr
+                     else
+-                        fin <- true
++                        fin1 <- true
+ 
+                     curr <- curr + 1
+ 
+@@ -1271,15 +1271,15 @@ let seekReadIndexedRowsRange numRows binaryChop (reader: ISeekReadIndexedRowRead
+ 
+             rid <- rid + 1
+ 
+-        let mutable fin = false
++        let mutable fin1 = false
+ 
+-        while rid <= numRows && not fin do
++        while rid <= numRows && not fin1 do
+             reader.GetRow(rid, &row)
+ 
+             if reader.CompareKey(reader.GetKey(&row)) = 0 then
+                 endRid <- rid
+             else
+-                fin <- true
++                fin1 <- true
+ 
+             rid <- rid + 1
+ 
+@@ -4239,14 +4239,14 @@ let openMetadataReader
+                 let offset = seekReadInt32 mdv (pos + 0)
+                 let length = seekReadInt32 mdv (pos + 4)
+                 let mutable res = true
+-                let mutable fin = false
++                let mutable fin1 = false
+                 let mutable n = 0
+                 // read and compare the stream name byte by byte
+-                while not fin do
++                while not fin1 do
+                     let c = seekReadByteAsInt32 mdv (pos + 8 + n)
+ 
+                     if c = 0 then
+-                        fin <- true
++                        fin1 <- true
+                     elif n >= Array.length name || c <> name[n] then
+                         res <- false
+ 
+diff --git a/src/FSharp.Core/local.fsi b/src/FSharp.Core/local.fsi
+index 11f645c97..e386255b5 100644
+--- a/src/FSharp.Core/local.fsi
++++ b/src/FSharp.Core/local.fsi
+@@ -106,7 +106,7 @@ module internal Array =
+     val permute: indexMap: (int -> int) -> 'T array -> 'T array
+ 
+     val scanSubRight:
+-        f: ('T -> 'State -> 'State) -> array: 'T array -> start: int -> fin: int -> initState: 'State -> 'State array
++        f: ('T -> 'State -> 'State) -> array: 'T array -> start: int -> finish: int -> initState: 'State -> 'State array
+ 
+     val inline subUnchecked: int -> int -> 'T array -> 'T array
+ 
+diff --git a/src/FSharp.Core/local.fs b/src/FSharp.Core/local.fs
+index a1c9c2fa6..8260bacb5 100644
+--- a/src/FSharp.Core/local.fs
++++ b/src/FSharp.Core/local.fs
+@@ -1068,12 +1068,12 @@ module internal Array =
+                 acc <- s'
+             res, acc
+ 
+-    let scanSubRight f (array: _ array) start fin initState =
++    let scanSubRight f (array: _ array) start finish initState =
+         let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(f)
+         let mutable state = initState
+-        let res = zeroCreateUnchecked (fin-start+2)
+-        res.[fin - start + 1] <- state
+-        for i = fin downto start do
++        let res = zeroCreateUnchecked (finish-start+2)
++        res.[finish - start + 1] <- state
++        for i = finish downto start do
+             state <- f.Invoke(array.[i], state)
+             res.[i - start] <- state
+         res
+@@ -1240,4 +1240,4 @@ module internal Random =
+         let mutable setSize = 21
+         if count > 5 then
+             setSize <- setSize + (4.0 ** ceil (Math.Log(count * 3 |> float, 4)) |> int)
+-        setSize
+\ No newline at end of file
++        setSize
+diff --git a/src/FSharp.Core/seq.fs b/src/FSharp.Core/seq.fs
+index ce1bfe6d4..9d31e26d1 100644
+--- a/src/FSharp.Core/seq.fs
++++ b/src/FSharp.Core/seq.fs
+@@ -1036,10 +1036,10 @@ module Seq =
+             else
+                 [||]
+ 
+-    let foldArraySubRight (f: OptimizedClosures.FSharpFunc<'T, _, _>) (arr: 'T array) start fin acc =
++    let foldArraySubRight (f: OptimizedClosures.FSharpFunc<'T, _, _>) (arr: 'T array) start finish acc =
+         let mutable state = acc
+ 
+-        for i = fin downto start do
++        for i = finish downto start do
+             state <- f.Invoke(arr.[i], state)
+ 
+         state
+diff --git a/src/FSharp.Core/list.fs b/src/FSharp.Core/list.fs
+index 7fc02845d..f209ea2f0 100644
+--- a/src/FSharp.Core/list.fs
++++ b/src/FSharp.Core/list.fs
+@@ -328,10 +328,10 @@ module List =
+ 
+         loop state list1 list2
+ 
+-    let foldArraySubRight (f: OptimizedClosures.FSharpFunc<'T, _, _>) (arr: 'T array) start fin acc =
++    let foldArraySubRight (f: OptimizedClosures.FSharpFunc<'T, _, _>) (arr: 'T array) start finish acc =
+         let mutable state = acc
+ 
+-        for i = fin downto start do
++        for i = finish downto start do
+             state <- f.Invoke(arr.[i], state)
+ 
+         state
+@@ -368,13 +368,13 @@ module List =
+         (f: OptimizedClosures.FSharpFunc<'T, 'State, 'State>)
+         (arr: _ array)
+         start
+-        fin
++        finish
+         initState
+         =
+         let mutable state = initState
+         let mutable res = [ state ]
+ 
+-        for i = fin downto start do
++        for i = finish downto start do
+             state <- f.Invoke(arr.[i], state)
+             res <- state :: res
+ 
+diff --git a/src/FSharp.Core/array.fs b/src/FSharp.Core/array.fs
+index 358836ddf..4446cbf48 100644
+--- a/src/FSharp.Core/array.fs
++++ b/src/FSharp.Core/array.fs
+@@ -1401,23 +1401,23 @@ module Array =
+ 
+         state
+ 
+-    let foldSubRight f (array: _ array) start fin acc =
++    let foldSubRight f (array: _ array) start finish acc =
+         checkNonNull "array" array
+         let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(f)
+         let mutable res = acc
+ 
+-        for i = fin downto start do
++        for i = finish downto start do
+             res <- f.Invoke(array.[i], res)
+ 
+         res
+ 
+-    let scanSubLeft f initState (array: _ array) start fin =
++    let scanSubLeft f initState (array: _ array) start finish =
+         checkNonNull "array" array
+         let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(f)
+         let mutable state = initState
+-        let res = create (2 + fin - start) initState
++        let res = create (2 + finish - start) initState
+ 
+-        for i = start to fin do
++        for i = start to finish do
+             state <- f.Invoke(state, array.[i])
+             res.[i - start + 1] <- state
+ 
+diff --git a/src/FSharp.Core/printf.fs b/src/FSharp.Core/printf.fs
+index b2b42f233..34b73cf57 100644
+--- a/src/FSharp.Core/printf.fs
++++ b/src/FSharp.Core/printf.fs
+@@ -162,8 +162,8 @@ module internal PrintfImpl =
+ 
+         let parseFlags (s: string) (i: byref<int>) = 
+             let mutable flags = FormatFlags.None
+-            let mutable fin = false
+-            while not fin do
++            let mutable finish = false
++            while not finish do
+                 match s.[i] with
+                 | '0' -> 
+                     flags <- flags ||| FormatFlags.PadWithZeros
+@@ -178,7 +178,7 @@ module internal PrintfImpl =
+                     flags <- flags ||| FormatFlags.LeftJustify
+                     i <- i + 1
+                 | _ ->
+-                    fin <- true
++                    finish <- true
+             flags
+ 
+         let parseWidth (s: string) (i: byref<int>) = 
+@@ -232,10 +232,10 @@ module internal PrintfImpl =
+     
+         let findNextFormatSpecifier (s: string) (i: byref<int>) = 
+             let buf = StringBuilder()
+-            let mutable fin = false
+-            while not fin do 
++            let mutable finish = false
++            while not finish do 
+                 if i >= s.Length then 
+-                    fin <- true
++                    finish <- true
+                 else
+                     let c = s.[i]
+                     if c = '%' then
+@@ -252,7 +252,7 @@ module internal PrintfImpl =
+                                 buf.Append('%') |> ignore
+                                 i <- i2
+                             else 
+-                                fin <- true
++                                finish <- true
+                         else
+                             raise (ArgumentException("Missing format specifier"))
+                     else 
+diff --git a/src/FSharp.Core/resumable.fs b/src/FSharp.Core/resumable.fs
+index 9e24b64bf..0e1371a1d 100644
+--- a/src/FSharp.Core/resumable.fs
++++ b/src/FSharp.Core/resumable.fs
+@@ -275,10 +275,10 @@ module ResumableCode =
+     let rec TryFinallyCompensateDynamic
+         (sm: byref<ResumableStateMachine<'Data>>, mf: ResumptionFunc<'Data>, savedExn: exn option)
+         : bool =
+-        let mutable fin = false
+-        fin <- mf.Invoke(&sm)
++        let mutable finish = false
++        finish <- mf.Invoke(&sm)
+ 
+-        if fin then
++        if finish then
+             // reraise at the end of the finally block
+             match savedExn with
+             | None -> true
+@@ -300,16 +300,16 @@ module ResumableCode =
+             body: ResumableCode<'Data, 'T>,
+             compensation: ResumableCode<'Data, unit>
+         ) : bool =
+-        let mutable fin = false
++        let mutable finish = false
+         let mutable savedExn = None
+ 
+         try
+-            fin <- body.Invoke(&sm)
++            finish <- body.Invoke(&sm)
+         with exn ->
+             savedExn <- Some exn
+-            fin <- true
++            finish <- true
+ 
+-        if fin then
++        if finish then
+             TryFinallyCompensateDynamic(&sm, ResumptionFunc<'Data>(fun sm -> compensation.Invoke(&sm)), savedExn)
+         else
+             let rf = GetResumptionFunc &sm
+diff --git a/vsintegration/tests/MockTypeProviders/DummyProviderForLanguageServiceTesting/ProvidedTypes.fs b/vsintegration/tests/MockTypeProviders/DummyProviderForLanguageServiceTesting/ProvidedTypes.fs
+index c051f4da6..7ae00a69d 100644
+--- a/vsintegration/tests/MockTypeProviders/DummyProviderForLanguageServiceTesting/ProvidedTypes.fs
++++ b/vsintegration/tests/MockTypeProviders/DummyProviderForLanguageServiceTesting/ProvidedTypes.fs
+@@ -1670,8 +1670,8 @@ namespace ProviderImplementation.ProvidedTypes
+             | :? ProvidedTypeDefinition as ptd when ptd.IsErased -> ProvidedTypeDefinition.EraseType typ.BaseType
+             | t when t.IsArray ->
+                 let rank = t.GetArrayRank()
+-                let et = ProvidedTypeDefinition.EraseType (t.GetElementType())
+-                if rank = 0 then et.MakeArrayType() else et.MakeArrayType(rank)
++                let et1 = ProvidedTypeDefinition.EraseType (t.GetElementType())
++                if rank = 0 then et1.MakeArrayType() else et1.MakeArrayType(rank)
+             | :? ProvidedTypeSymbol as sym when sym.IsFSharpUnitAnnotated ->
+                 typ.UnderlyingSystemType
+             | t when t.IsGenericType && not t.IsGenericTypeDefinition ->
+@@ -4320,10 +4320,10 @@ namespace ProviderImplementation.ProvidedTypes.AssemblyReader
+                 let mutable low = 0
+                 let mutable high = numRows + 1
+                 begin
+-                  let mutable fin = false
+-                  while not fin do
++                  let mutable fin1 = false
++                  while not fin1 do
+                       if high - low <= 1  then
+-                          fin <- true
++                          fin1 <- true
+                       else
+                           let mid = (low + high) / 2
+                           let midrow = rowReader mid
+@@ -4333,7 +4333,7 @@ namespace ProviderImplementation.ProvidedTypes.AssemblyReader
+                           elif c < 0 then
+                               high <- mid
+                           else
+-                              fin <- true
++                              fin1 <- true
+                 end;
+                 let mutable res = []
+                 if high - low > 1 then
+@@ -4341,34 +4341,34 @@ namespace ProviderImplementation.ProvidedTypes.AssemblyReader
+                     let mid = (low + high) / 2
+                     // read forward
+                     begin
+-                        let mutable fin = false
++                        let mutable fin1 = false
+                         let mutable curr = mid
+-                        while not fin do
++                        while not fin1 do
+                           if curr > numRows then
+-                              fin <- true;
++                              fin1 <- true;
+                           else
+                               let currrow = rowReader curr
+                               if keyComparer (keyFunc currrow) = 0 then
+                                   res <- rowConverter currrow :: res;
+                               else
+-                                  fin <- true;
++                                  fin1 <- true;
+                               curr <- curr + 1;
+                         done;
+                     end;
+                     res <- List.rev res;
+                     // read backwards
+                     begin
+-                        let mutable fin = false
++                        let mutable fin1 = false
+                         let mutable curr = mid - 1
+-                        while not fin do
++                        while not fin1 do
+                           if curr = 0 then
+-                            fin <- true
++                            fin1 <- true
+                           else
+                             let currrow = rowReader curr
+                             if keyComparer (keyFunc currrow) = 0 then
+                                 res <- rowConverter currrow :: res;
+                             else
+-                                fin <- true;
++                                fin1 <- true;
+                             curr <- curr - 1;
+                     end;
+                 res |> List.toArray
+@@ -4548,13 +4548,13 @@ namespace ProviderImplementation.ProvidedTypes.AssemblyReader
+                   let offset = seekReadInt32 is (pos + 0)
+                   let length = seekReadInt32 is (pos + 4)
+                   let res = ref true
+-                  let fin = ref false
++                  let fin1 = ref false
+                   let n = ref 0
+                   // read and compare the stream name byte by byte
+-                  while (not !fin) do
++                  while (not !fin1) do
+                       let c= seekReadByteAsInt32 is (pos + 8 + (!n))
+                       if c = 0 then
+-                          fin := true
++                          fin1 := true
+                       elif !n >= Array.length name || c <> name.[!n] then
+                           res := false;
+                       incr n
+@@ -6097,7 +6097,7 @@ namespace ProviderImplementation.ProvidedTypes.AssemblyReader
+             match x with
+             | ILType.Boxed tspec when tspec.Namespace = USome "System" && tspec.Name = "Object" ->  [| 0x51uy |] 
+             | ILType.Boxed tspec when tspec.Namespace = USome "System" && tspec.Name = "Type" ->  [| 0x50uy |]
+-            | ElementType et ->  [| et |]
++            | ElementType et1 ->  [| et1 |]
+             | ILType.Value tspec ->  Array.append [| 0x55uy |] (encodeCustomAttrString tspec.TypeRef.QualifiedName)
+             | ILType.Array (shape, elemType) when shape = ILArrayShape.SingleDimensional -> 
+                   Array.append [| et_SZARRAY |] (encodeCustomAttrElemType elemType)
+@@ -6199,8 +6199,8 @@ namespace ProviderImplementation.ProvidedTypes.AssemblyReader
+             | x when x = et_STRING -> ilg.typ_String, sigptr
+             | x when x = et_OBJECT -> ilg.typ_Object, sigptr
+             | x when x = et_SZARRAY ->
+-                 let et,sigptr = sigptr_get_u8 bytes sigptr
+-                 let elemTy,sigptr = decodeCustomAttrElemType ilg bytes sigptr et
++                 let et1et1,sigptr = sigptr_get_u8 bytes sigptr
++                 let elemTy,sigptr = decodeCustomAttrElemType ilg bytes sigptr et1
+                  mkILArr1DTy elemTy, sigptr
+             | x when x = 0x50uy -> ilg.typ_Type, sigptr
+             | _ ->  failwithf "decodeCustomAttrElemType ilg: sigptr = %d, unrecognized custom element type: %A, bytes = %A" sigptr x bytes
+@@ -6432,11 +6432,11 @@ namespace ProviderImplementation.ProvidedTypes.AssemblyReader
+                     with e ->
+                         failwithf "decodeILCustomAttribData: error parsing type in custom attribute blob: %s" e.Message
+                 | ILType.Boxed tspec when tspec.Namespace = USome "System" && tspec.Name = "Object" ->
+-                    let et,sigptr = sigptr_get_u8 bytes sigptr
+-                    if et = 0xFFuy then
++                    let et1,sigptr = sigptr_get_u8 bytes sigptr
++                    if et1 = 0xFFuy then
+                         (argty, null), sigptr
+                     else
+-                        let ty,sigptr = decodeCustomAttrElemType ilg bytes sigptr et
++                        let ty,sigptr = decodeCustomAttrElemType ilg bytes sigptr et1
+                         parseVal ty sigptr
+                 | ILType.Array(shape,elemTy) when shape = ILArrayShape.SingleDimensional ->
+                     let n,sigptr = sigptr_get_i32 bytes sigptr
+@@ -6470,10 +6470,10 @@ namespace ProviderImplementation.ProvidedTypes.AssemblyReader
+                 if n = 0 then List.rev acc else
+                 let isPropByte,sigptr = sigptr_get_u8 bytes sigptr
+                 let isProp = (int isPropByte = 0x54)
+-                let et,sigptr = sigptr_get_u8 bytes sigptr
++                let et1,sigptr = sigptr_get_u8 bytes sigptr
+                 // We have a named value
+                 let ty,sigptr =
+-                    if ((* 0x50 = (int et) || *) 0x55 = (int et)) then
++                    if ((* 0x50 = (int et1) || *) 0x55 = (int et1)) then
+                         let qualified_tname,sigptr = sigptr_get_serstring bytes sigptr
+                         let unqualified_tname, rest =
+                             let pieces = qualified_tname.Split(',')
+@@ -6491,7 +6491,7 @@ namespace ProviderImplementation.ProvidedTypes.AssemblyReader
+                         let tspec = mkILNonGenericTySpec tref
+                         ILType.Value(tspec),sigptr
+                     else
+-                        decodeCustomAttrElemType ilg bytes sigptr et
++                        decodeCustomAttrElemType ilg bytes sigptr et1
+                 let nm,sigptr = sigptr_get_serstring bytes sigptr
+                 let (_,v),sigptr = parseVal ty sigptr
+                 parseNamed ((nm,ty,isProp,v) :: acc) (n-1) sigptr
+@@ -9725,13 +9725,13 @@ namespace ProviderImplementation.ProvidedTypes
+           
+ 
+         // REVIEW: write into an accumulating buffer
+-        let rec EmitTypeSpec cenv env (bb: ByteBuffer) (et, tspec:ILTypeSpec) = 
++        let rec EmitTypeSpec cenv env (bb: ByteBuffer) (et1, tspec:ILTypeSpec) = 
+             if isEmpty tspec.GenericArgs then 
+-                bb.EmitByte et
++                bb.EmitByte et1
+                 emitTypeInfoAsTypeDefOrRefEncoded cenv bb (tspec.Scope, tspec.Namespace, tspec.Name)
+             else  
+                 bb.EmitByte et_WITH
+-                bb.EmitByte et
++                bb.EmitByte et1
+                 emitTypeInfoAsTypeDefOrRefEncoded cenv bb (tspec.Scope, tspec.Namespace, tspec.Name)
+                 bb.EmitZ32 tspec.GenericArgs.Length
+                 EmitTypes cenv env bb tspec.GenericArgs
+@@ -9762,7 +9762,7 @@ namespace ProviderImplementation.ProvidedTypes
+ 
+         and EmitType cenv env bb ty =
+             match ty with 
+-            | ElementType et ->   bb.EmitByte et
++            | ElementType et1 ->   bb.EmitByte et1
+             | ILType.Boxed tspec ->  EmitTypeSpec cenv env bb (et_CLASS, tspec)
+             | ILType.Value tspec ->  EmitTypeSpec cenv env bb (et_VALUETYPE, tspec)
+             | ILType.Array (shape, ty) ->  
+diff --git a/tests/service/data/TestTP/ProvidedTypes.fs b/tests/service/data/TestTP/ProvidedTypes.fs
+index 218c9738f..cbbc62cdd 100644
+--- a/tests/service/data/TestTP/ProvidedTypes.fs
++++ b/tests/service/data/TestTP/ProvidedTypes.fs
+@@ -1884,8 +1884,8 @@ and ProvidedTypeDefinition(isTgt: bool, container:TypeContainer, className: stri
+         | :? ProvidedTypeDefinition as ptd when ptd.IsErased -> ProvidedTypeDefinition.EraseType typ.BaseType
+         | t when t.IsArray ->
+             let rank = t.GetArrayRank()
+-            let et = ProvidedTypeDefinition.EraseType (t.GetElementType())
+-            if rank = 0 then et.MakeArrayType() else et.MakeArrayType(rank)
++            let et1 = ProvidedTypeDefinition.EraseType (t.GetElementType())
++            if rank = 0 then et1.MakeArrayType() else et1.MakeArrayType(rank)
+         | :? ProvidedTypeSymbol as sym when sym.IsFSharpUnitAnnotated ->
+             typ.UnderlyingSystemType
+         | t when t.IsGenericType && not t.IsGenericTypeDefinition ->
+@@ -4583,10 +4583,10 @@ module internal AssemblyReader =
+                 let mutable low = 0
+                 let mutable high = numRows + 1
+                 begin
+-                  let mutable fin = false
+-                  while not fin do
++                  let mutable fin1 = false
++                  while not fin1 do
+                       if high - low <= 1  then
+-                          fin <- true
++                          fin1 <- true
+                       else
+                           let mid = (low + high) / 2
+                           let midrow = rowReader mid
+@@ -4596,7 +4596,7 @@ module internal AssemblyReader =
+                           elif c < 0 then
+                               high <- mid
+                           else
+-                              fin <- true
++                              fin1 <- true
+                 end;
+                 let mutable res = []
+                 if high - low > 1 then
+@@ -4604,34 +4604,34 @@ module internal AssemblyReader =
+                     let mid = (low + high) / 2
+                     // read forward
+                     begin
+-                        let mutable fin = false
++                        let mutable fin1 = false
+                         let mutable curr = mid
+-                        while not fin do
++                        while not fin1 do
+                           if curr > numRows then
+-                              fin <- true;
++                              fin1 <- true;
+                           else
+                               let currrow = rowReader curr
+                               if keyComparer (keyFunc currrow) = 0 then
+                                   res <- rowConverter currrow :: res;
+                               else
+-                                  fin <- true;
++                                  fin1 <- true;
+                               curr <- curr + 1;
+                         done;
+                     end;
+                     res <- List.rev res;
+                     // read backwards
+                     begin
+-                        let mutable fin = false
++                        let mutable fin1 = false
+                         let mutable curr = mid - 1
+-                        while not fin do
++                        while not fin1 do
+                           if curr = 0 then
+-                            fin <- true
++                            fin1 <- true
+                           else
+                             let currrow = rowReader curr
+                             if keyComparer (keyFunc currrow) = 0 then
+                                 res <- rowConverter currrow :: res;
+                             else
+-                                fin <- true;
++                                fin1 <- true;
+                             curr <- curr - 1;
+                     end;
+                 res |> List.toArray
+@@ -4822,13 +4822,13 @@ module internal AssemblyReader =
+                   let offset = seekReadInt32 is (pos + 0)
+                   let length = seekReadInt32 is (pos + 4)
+                   let res = ref true
+-                  let fin = ref false
++                  let fin1 = ref false
+                   let n = ref 0
+                   // read and compare the stream name byte by byte
+-                  while (not !fin) do
++                  while (not !fin1) do
+                       let c= seekReadByteAsInt32 is (pos + 8 + (!n))
+                       if c = 0 then
+-                          fin := true
++                          fin1 := true
+                       elif !n >= Array.length name || c <> name[!n] then
+                           res := false;
+                       incr n
+@@ -6374,7 +6374,7 @@ module internal AssemblyReader =
+             match x with
+             | ILType.Boxed tspec when tspec.Namespace = USome "System" && tspec.Name = "Object" ->  [| 0x51uy |] 
+             | ILType.Boxed tspec when tspec.Namespace = USome "System" && tspec.Name = "Type" ->  [| 0x50uy |]
+-            | ElementType et ->  [| et |]
++            | ElementType et1 ->  [| et1 |]
+             | ILType.Value tspec ->  Array.append [| 0x55uy |] (encodeCustomAttrString tspec.TypeRef.QualifiedName)
+             | ILType.Array (shape, elemType) when shape = ILArrayShape.SingleDimensional -> 
+                   Array.append [| et_SZARRAY |] (encodeCustomAttrElemType elemType)
+@@ -6476,8 +6476,8 @@ module internal AssemblyReader =
+             | x when x = et_STRING -> ilg.typ_String, sigptr
+             | x when x = et_OBJECT -> ilg.typ_Object, sigptr
+             | x when x = et_SZARRAY ->
+-                 let et, sigptr = sigptr_get_u8 bytes sigptr
+-                 let elemTy, sigptr = decodeCustomAttrElemType ilg bytes sigptr et
++                 let et1, sigptr = sigptr_get_u8 bytes sigptr
++                 let elemTy, sigptr = decodeCustomAttrElemType ilg bytes sigptr et1
+                  mkILArr1DTy elemTy, sigptr
+             | x when x = 0x50uy -> ilg.typ_Type, sigptr
+             | _ ->  failwithf "decodeCustomAttrElemType ilg: sigptr = %d, unrecognized custom element type: %A, bytes = %A" sigptr x bytes
+@@ -6709,11 +6709,11 @@ module internal AssemblyReader =
+                     with e ->
+                         failwithf "decodeILCustomAttribData: error parsing type in custom attribute blob: %s" e.Message
+                 | ILType.Boxed tspec when tspec.Namespace = USome "System" && tspec.Name = "Object" ->
+-                    let et, sigptr = sigptr_get_u8 bytes sigptr
+-                    if et = 0xFFuy then
++                    let et1, sigptr = sigptr_get_u8 bytes sigptr
++                    if et1 = 0xFFuy then
+                         (argty, null), sigptr
+                     else
+-                        let ty, sigptr = decodeCustomAttrElemType ilg bytes sigptr et
++                        let ty, sigptr = decodeCustomAttrElemType ilg bytes sigptr et1
+                         parseVal ty sigptr
+                 | ILType.Array(shape, elemTy) when shape = ILArrayShape.SingleDimensional ->
+                     let n, sigptr = sigptr_get_i32 bytes sigptr
+@@ -6747,10 +6747,10 @@ module internal AssemblyReader =
+                 if n = 0 then List.rev acc else
+                 let isPropByte, sigptr = sigptr_get_u8 bytes sigptr
+                 let isProp = (int isPropByte = 0x54)
+-                let et, sigptr = sigptr_get_u8 bytes sigptr
++                let et1, sigptr = sigptr_get_u8 bytes sigptr
+                 // We have a named value
+                 let ty, sigptr =
+-                    if ((* 0x50 = (int et) || *) 0x55 = (int et)) then
++                    if ((* 0x50 = (int et1) || *) 0x55 = (int et1)) then
+                         let qualified_tname, sigptr = sigptr_get_serstring bytes sigptr
+                         let unqualified_tname, rest =
+                             let pieces = qualified_tname.Split(',')
+@@ -6768,7 +6768,7 @@ module internal AssemblyReader =
+                         let tspec = mkILNonGenericTySpec tref
+                         ILType.Value(tspec), sigptr
+                     else
+-                        decodeCustomAttrElemType ilg bytes sigptr et
++                        decodeCustomAttrElemType ilg bytes sigptr et1
+                 let nm, sigptr = sigptr_get_serstring bytes sigptr
+                 let (_, v), sigptr = parseVal ty sigptr
+                 parseNamed ((nm, ty, isProp, v) :: acc) (n-1) sigptr
+@@ -10202,13 +10202,13 @@ namespace ProviderImplementation.ProvidedTypes
+           
+ 
+         // REVIEW: write into an accumulating buffer
+-        let rec EmitTypeSpec cenv env (bb: ByteBuffer) (et, tspec:ILTypeSpec) = 
++        let rec EmitTypeSpec cenv env (bb: ByteBuffer) (et1, tspec:ILTypeSpec) = 
+             if isEmpty tspec.GenericArgs then 
+-                bb.EmitByte et
++                bb.EmitByte et1
+                 emitTypeInfoAsTypeDefOrRefEncoded cenv bb (tspec.Scope, tspec.Namespace, tspec.Name)
+             else  
+                 bb.EmitByte et_WITH
+-                bb.EmitByte et
++                bb.EmitByte et1
+                 emitTypeInfoAsTypeDefOrRefEncoded cenv bb (tspec.Scope, tspec.Namespace, tspec.Name)
+                 bb.EmitZ32 tspec.GenericArgs.Length
+                 EmitTypes cenv env bb tspec.GenericArgs
+@@ -10239,7 +10239,7 @@ namespace ProviderImplementation.ProvidedTypes
+ 
+         and EmitType cenv env bb ty =
+             match ty with 
+-            | ElementType et ->   bb.EmitByte et
++            | ElementType et1 ->   bb.EmitByte et1
+             | ILType.Boxed tspec ->  EmitTypeSpec cenv env bb (et_CLASS, tspec)
+             | ILType.Value tspec ->  EmitTypeSpec cenv env bb (et_VALUETYPE, tspec)
+             | ILType.Array (shape, ty) ->  
+diff --git a/src/Compiler/AbstractIL/ilwrite.fs b/src/Compiler/AbstractIL/ilwrite.fs
+index 1d5111daa..277e16d62 100644
+--- a/src/Compiler/AbstractIL/ilwrite.fs
++++ b/src/Compiler/AbstractIL/ilwrite.fs
+@@ -842,13 +842,13 @@ let callconvToByte ntypars (Callconv (hasthis, bcc)) =
+ 
+ 
+ // REVIEW: write into an accumulating buffer
+-let rec EmitTypeSpec cenv env (bb: ByteBuffer) (et, tspec: ILTypeSpec) =
++let rec EmitTypeSpec cenv env (bb: ByteBuffer) (et1, tspec: ILTypeSpec) =
+     if isNil tspec.GenericArgs then
+-        bb.EmitByte et
++        bb.EmitByte et1
+         emitTypeInfoAsTypeDefOrRefEncoded cenv bb (tspec.Scope, tspec.Enclosing, tspec.Name)
+     else
+         bb.EmitByte et_WITH
+-        bb.EmitByte et
++        bb.EmitByte et1
+         emitTypeInfoAsTypeDefOrRefEncoded cenv bb (tspec.Scope, tspec.Enclosing, tspec.Name)
+         bb.EmitZ32 tspec.GenericArgs.Length
+         EmitTypes cenv env bb tspec.GenericArgs
+diff --git a/src/Compiler/SyntaxTree/LexHelpers.fs b/src/Compiler/SyntaxTree/LexHelpers.fs
+index a4c222720..840d804c3 100644
+--- a/src/Compiler/SyntaxTree/LexHelpers.fs
++++ b/src/Compiler/SyntaxTree/LexHelpers.fs
+@@ -152,8 +152,8 @@ type LexerStringFinisherContext =
+ type LexerStringFinisher =
+     | LexerStringFinisher of (ByteBuffer -> LexerStringKind -> LexerStringFinisherContext -> LexerContinuation -> token)
+ 
+-    member fin.Finish (buf: ByteBuffer) kind context cont =
+-        let (LexerStringFinisher f) = fin
++    member finish.Finish (buf: ByteBuffer) kind context cont =
++        let (LexerStringFinisher f) = finish
+         f buf kind context cont
+ 
 -- 
 2.37.1.windows.1
 
