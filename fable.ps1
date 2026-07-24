@@ -34,8 +34,8 @@ if (-not $DoNotBuildFSharp)
         pushd $FSharpRepo
         bash fcs/build.sh
         mkdir "$OutputStorage\$Language\fable" -Force
-        Copy-Item "$FSharpRepo\artifacts/bin/FSharp.Compiler.Service/Release/netstandard2.0/FSharp.Compiler.Service.*" -Destination "$OutputStorage\$Language\fable\" -Recurse
-        Copy-Item "$FSharpRepo\artifacts/bin/FSharp.Compiler.Service/Release/netstandard2.0/FSharp.Core.*" -Destination "$OutputStorage\$Language\fable\" -Recurse
+        Copy-Item "$FSharpRepo\artifacts/bin/FSharp.Compiler.Service/Release/netstandard2.0/FSharp.Compiler.Service.*" -Destination "$OutputStorage\$Language\fable\" -Recurse -Force
+        Copy-Item "$FSharpRepo\artifacts/bin/FSharp.Compiler.Service/Release/netstandard2.0/FSharp.Core.*" -Destination "$OutputStorage\$Language\fable\" -Recurse -Force
     } finally {
         popd
     }
@@ -47,8 +47,8 @@ if (-not $DoNotBuildFable)
     git -C "$FableRepo" checkout -- .
     git -C "$FableRepo" checkout main
     Write-Host "Applying Fable patch"
-    Write-Host "dotnet run --project FSharpKeywordTranslator.Cli --  fable --tfm $Tfm --lang $Language"
-    dotnet run --project FSharpKeywordTranslator.Cli --  fable --tfm $Tfm --lang $Language | git -C "$FableRepo\src\fcs-fable" apply --directory=src/fcs-fable/ --ignore-space-change
+    Write-Host "dotnet run --project FSharpKeywordTranslator.Cli --  fable2 --tfm $Tfm --lang $Language"
+    dotnet run --project FSharpKeywordTranslator.Cli --  fable2 --tfm $Tfm --lang $Language | git -C "$FableRepo\src\fcs-fable" apply --directory=src/fcs-fable/ --ignore-space-change
     Write-Host "Copying built F# compiler service"
     Copy-Item "$OutputStorage\$Language\fable\*" -Destination "$FableRepo\lib\fcs\" -Recurse
     try {

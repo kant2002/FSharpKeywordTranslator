@@ -26,6 +26,13 @@ var fableCommand = new Command("fable", "Produce patch for Fable F# fork.")
 };
 rootCommand.AddCommand(fableCommand);
 fableCommand.SetHandler(ProduceSimpleFSharpLocalizationPatch, tfmOption, langOption);
+var fableCommand2 = new Command("fable2", "Produce patch for Fable F# fork.")
+{
+    tfmOption,
+    langOption
+};
+rootCommand.AddCommand(fableCommand2);
+fableCommand2.SetHandler(ProduceFableFcsFSharpLocalizationPatch, tfmOption, langOption);
 var fableBuildCommand = new Command("fable-build", "Produce patch for Fable F# fork build files.")
 {
     tfmOption,
@@ -66,6 +73,16 @@ static void ProduceSimpleFSharpLocalizationPatch(string tfm, string lang)
     var l = new LanguageConfigurationManager();
     var configuration = l.GetLanguageConfiguration(lang);
     var patch = patchGenerator.GenerateSimpleFSharpPatch(tfm, configuration);
+    Console.WriteLine(patch);
+}
+
+static void ProduceFableFcsFSharpLocalizationPatch(string tfm, string lang)
+{
+    tfm = tfm.Replace(".0", "");
+    var patchGenerator = new PatchGenerator();
+    var l = new LanguageConfigurationManager();
+    var configuration = l.GetLanguageConfiguration(lang);
+    var patch = patchGenerator.GenerateFableFcsFSharpPatch(tfm, configuration);
     Console.WriteLine(patch);
 }
 

@@ -1,0 +1,1447 @@
+D:\d\github\fsharpkeywordtranslator\FSharpKeywordTranslator.Core\LanguageConfiguration.cs(5,19): warning CS8618: Le propriété « Language » non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le propriété comme pouvant accepter la valeur Null. [D:\d\github\fsharpkeywordtranslator\FSharpKeywordTranslator.Core\FSharpKeywordTranslator.Core.csproj]
+D:\d\github\fsharpkeywordtranslator\FSharpKeywordTranslator.Core\LanguageConfiguration.cs(6,19): warning CS8618: Le propriété « LanguageName » non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le propriété comme pouvant accepter la valeur Null. [D:\d\github\fsharpkeywordtranslator\FSharpKeywordTranslator.Core\FSharpKeywordTranslator.Core.csproj]
+D:\d\github\fsharpkeywordtranslator\FSharpKeywordTranslator.Core\PatchGenerator.cs(60,39): warning CS8604: Existence possible d'un argument de référence null pour le paramètre 'patchTemplate' dans 'string PatchGenerator.ApplyKeywords(LanguageConfiguration current, string patchTemplate)'. [D:\d\github\fsharpkeywordtranslator\FSharpKeywordTranslator.Core\FSharpKeywordTranslator.Core.csproj]
+D:\d\github\fsharpkeywordtranslator\FSharpKeywordTranslator.Core\LanguageConfigurationManager.cs(9,34): warning CS8618: Le propriété « LanguageConfiguration » non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le propriété comme pouvant accepter la valeur Null. [D:\d\github\fsharpkeywordtranslator\FSharpKeywordTranslator.Core\FSharpKeywordTranslator.Core.csproj]
+From 8f237dde7fe7ad6f61fee08900f7aa2e72f3af47 Mon Sep 17 00:00:00 2001
+From: Andrii Kurdiumov <kant2002@gmail.com>
+Date: Tue, 29 Aug 2023 17:29:13 +0600
+Subject: [PATCH] Save work
+
+---
+ Directory.Build.props                         |  5 ++
+ .../Microsoft.FSharp.Compiler.MSBuild.csproj  |  6 +-
+ src/Compiler/FSharp.Compiler.Service.fsproj   |  6 +-
+ src/Compiler/FSharp.Compiler.Service.nuspec   |  6 +-
+ src/Compiler/SyntaxTree/LexHelpers.fs         | 64 +++++++++++++++++++
+ .../Microsoft.FSharp.Compiler.nuspec          |  4 +-
+ .../HostedCompilerServer.fsproj               |  9 ++-
+ .../Source.extension.vsixmanifest             |  2 +-
+ .../FSharp.ProjectSystem.FSharp.fsproj        |  4 +-
+ 9 files changed, 91 insertions(+), 15 deletions(-)
+
+diff --git a/src/Compiler/SyntaxTree/LexHelpers.fs b/src/Compiler/SyntaxTree/LexHelpers.fs
+index 02d4da364..938eba25e 100644
+--- a/src/Compiler/SyntaxTree/LexHelpers.fs
++++ b/src/Compiler/SyntaxTree/LexHelpers.fs
+@@ -388,6 +388,59 @@ module Keywords =
+             ALWAYS, "while", WHILE
+             ALWAYS, "with", WITH
+             FSHARP, "yield", YIELD(true)
++            FSHARP, "abstraite", ABSTRACT
++            ALWAYS, "et", AND
++            ALWAYS, "comme", AS
++            ALWAYS, "affirmer", ASSERT
++            ALWAYS, "commencer", BEGIN
++            ALWAYS, "classe", CLASS
++            FSHARP, "défaut", DEFAULT
++            FSHARP, "déléguer", DELEGATE
++            ALWAYS, "faire", DO
++            ALWAYS, "faite", DONE
++            FSHARP, "autsi", ELIF
++            ALWAYS, "autre", ELSE
++            ALWAYS, "fin", END
++            FSHARP, "externe", EXTERN
++            ALWAYS, "faux", FALSE
++            ALWAYS, "enfin", FINALLY
++            FSHARP, "fixée", FIXED
++            ALWAYS, "pour", FOR
++            ALWAYS, "fon", FUN
++            ALWAYS, "fonction", FUNCTION
++            FSHARP, "mondiale", GLOBAL
++            ALWAYS, "si", IF
++            ALWAYS, "dans", IN
++            ALWAYS, "hérites", INHERIT
++            FSHARP, "enligne", INLINE
++            FSHARP, "interne", INTERNAL
++            ALWAYS, "paresseuse", LAZY
++            ALWAYS, "laisser", LET(false)
++            ALWAYS, "correspondre", MATCH
++            FSHARP, "membre", MEMBER
++            FSHARP, "espacedenoms", NAMESPACE
++            ALWAYS, "nouvelle", NEW
++            FSHARP, "nulle", NULL
++            ALWAYS, "de", OF
++            ALWAYS, "ouvrir", OPEN
++            ALWAYS, "ou", OR
++            FSHARP, "passeroutre", OVERRIDE
++            ALWAYS, "privée", PRIVATE
++            FSHARP, "publique", PUBLIC
++            ALWAYS, "réc", REC
++            FSHARP, "retour", YIELD(false)
++            FSHARP, "statique", STATIC
++            ALWAYS, "alors", THEN
++            ALWAYS, "à", TO
++            ALWAYS, "vraie", TRUE
++            ALWAYS, "essayer", TRY
++            ALWAYS, "taper", TYPE
++            FSHARP, "utiliser", LET(true)
++            FSHARP, "vide", VOID
++            ALWAYS, "quand", WHEN
++            ALWAYS, "alorsque", WHILE
++            ALWAYS, "avec", WITH
++            FSHARP, "rendement", YIELD(true)
+             ALWAYS, "_", UNDERSCORE
+             (*------- for prototyping and explaining offside rule *)
+             FSHARP, "__token_OBLOCKSEP", OBLOCKSEP
+diff --git a/src/Compiler/Checking/CheckDeclarations.fs b/src/Compiler/Checking/CheckDeclarations.fs
+index 63f244fc2..536253ce6 100644
+--- a/src/Compiler/Checking/CheckDeclarations.fs
++++ b/src/Compiler/Checking/CheckDeclarations.fs
+@@ -426,10 +426,10 @@ module TcRecdUnionAndEnumDeclarations =
+         | ParentNone -> vis 
+         | Parent tcref -> combineAccess vis tcref.TypeReprAccessibility
+ 
+-    let MakeRecdFieldSpec g env parent (isStatic, konst, tyR, attrsForProperty, attrsForField, id, nameGenerated, isMutable, vol, xmldoc, vis, m) =
++    let MakeRecdFieldSpec g env parent (isStatic, konst1, tyR, attrsForProperty, attrsForField, id, nameGenerated, isMutable, vol, xmldoc, vis, m) =
+         let vis, _ = ComputeAccessAndCompPath g env None m vis None parent
+         let vis = CombineReprAccess parent vis
+-        Construct.NewRecdField isStatic konst id nameGenerated tyR isMutable vol attrsForProperty attrsForField xmldoc vis false
++        Construct.NewRecdField isStatic konst1 id nameGenerated tyR isMutable vol attrsForProperty attrsForField xmldoc vis false
+ 
+     let TcFieldDecl (cenv: cenv) env parent isIncrClass tpenv (isStatic, synAttrs, id: Ident, nameGenerated, ty, isMutable, xmldoc, vis) =
+         let g = cenv.g
+@@ -455,8 +455,8 @@ module TcRecdUnionAndEnumDeclarations =
+         if isIncrClass && (not zeroInit || not isMutable) then errorR(Error(FSComp.SR.tcUninitializedValFieldsMustBeMutable(), m))
+         let isPrivate = match vis with | Some (SynAccess.Private _) -> true | _ -> false
+         if isStatic && (not zeroInit || not isMutable || not isPrivate) then errorR(Error(FSComp.SR.tcStaticValFieldsMustBeMutableAndPrivate(), m))
+-        let konst = if zeroInit then Some Const.Zero else None
+-        let rfspec = MakeRecdFieldSpec g env parent (isStatic, konst, tyR, attrsForProperty, attrsForField, id, nameGenerated, isMutable, isVolatile, xmldoc, vis, m)
++        let konst1 = if zeroInit then Some Const.Zero else None
++        let rfspec = MakeRecdFieldSpec g env parent (isStatic, konst1, tyR, attrsForProperty, attrsForField, id, nameGenerated, isMutable, isVolatile, xmldoc, vis, m)
+         match parent with
+         | Parent tcref when useGenuineField tcref.Deref rfspec ->
+             // Recheck the attributes for errors if the definition only generates a field
+@@ -635,14 +635,14 @@ module TcRecdUnionAndEnumDeclarations =
+         | SynExpr.Const (constant = SynConst.Bytes _ | SynConst.UInt16s _ | SynConst.UserNum _) ->
+             error(Error(FSComp.SR.tcInvalidEnumerationLiteral(), valueRange))
+         | SynExpr.Const (synConst, _) -> 
+-            let konst = TcConst cenv fieldTy valueRange env synConst
+-            MakeEnumCaseSpec g cenv env parent attrs thisTy caseRange id xmldoc konst
++            let konst1 = TcConst cenv fieldTy valueRange env synConst
++            MakeEnumCaseSpec g cenv env parent attrs thisTy caseRange id xmldoc konst1
+         | _ ->
+             let expr, actualTy, _ = TcExprOfUnknownType cenv env tpenv valueExpr
+             UnifyTypes cenv env valueRange fieldTy actualTy
+
+             match EvalLiteralExprOrAttribArg cenv.g expr with
+-            | Expr.Const (konst, _, _) -> MakeEnumCaseSpec g cenv env parent attrs thisTy caseRange id xmldoc konst
++            | Expr.Const (konst1, _, _) -> MakeEnumCaseSpec g cenv env parent attrs thisTy caseRange id xmldoc konst1
+             | _ -> error(Error(FSComp.SR.tcInvalidEnumerationLiteral(), valueRange))
+ 
+     let TcEnumDecls (cenv: cenv) env tpenv parent thisTy enumCases =
+diff --git a/src/Compiler/Checking/Expressions/CheckExpressions.fs b/src/Compiler/Checking/Expressions/CheckExpressions.fs
+index c1cc0f1a4..2f996db97 100644
+--- a/src/Compiler/Checking/Expressions/CheckExpressions.fs
++++ b/src/Compiler/Checking/Expressions/CheckExpressions.fs
+@@ -1381,7 +1381,7 @@ let private HasMethodImplNoInliningAttribute g attrs =
+             | Some (Attrib(_, _, [ AttribInt32Arg flags ], _, _, _, _)) -> (flags &&& 0x8) <> 0x0
+             | _ -> false
+ 
+-let MakeAndPublishVal (cenv: cenv) env (altActualParent, inSig, declKind, valRecInfo, vscheme, attrs, xmlDoc, konst, isGeneratedEventVal) =
++let MakeAndPublishVal (cenv: cenv) env (altActualParent, inSig, declKind, valRecInfo, vscheme, attrs, xmlDoc, konst1, isGeneratedEventVal) =
+
+     let g = cenv.g
+ 
+@@ -1490,7 +1490,7 @@ let MakeAndPublishVal (cenv: cenv) env (altActualParent, inSig, declKind, valRec
+             (logicalName, id.idRange, compiledName, ty, mut,
+              isCompGen, valReprInfo, vis, valRecInfo, memberInfoOpt, baseOrThis, attrs, inlineFlag,
+              xmlDoc, isTopBinding, isExtrinsic, isIncrClass, isTyFunc,
+-             (hasDeclaredTypars || inSig), isGeneratedEventVal, konst, actualParent)
++             (hasDeclaredTypars || inSig), isGeneratedEventVal, konst1, actualParent)
+
+     match valReprInfoForDisplay with
+     | Some info when not (ValReprInfo.IsEmpty info) ->
+@@ -9737,11 +9737,11 @@ and TcEventItemThen (cenv: cenv) overallTy env tpenv mItem mExprAndItem objDetai
+         bindObjArgs (fun objVars ->
+              //     EventHelper ((fun d -> e.add_X(d)), (fun d -> e.remove_X(d)), (fun f -> new 'Delegate(f)))
+             mkCallCreateEvent g mItem delTy argsTy
+-               (let dv, de = mkCompGenLocal mItem "eventDelegate" delTy
+-                let callExpr, _ = BuildPossiblyConditionalMethodCall cenv env PossiblyMutates mItem false einfo.AddMethod NormalValUse [] objVars [de] None
++               (let dv, de1 = mkCompGenLocal mItem "eventDelegate" delTy
++                let callExpr, _ = BuildPossiblyConditionalMethodCall cenv env PossiblyMutates mItem false einfo.AddMethod NormalValUse [] objVars [de1] None
+                 mkLambda mItem dv (callExpr, g.unit_ty))
+-               (let dv, de = mkCompGenLocal mItem "eventDelegate" delTy
+-                let callExpr, _ = BuildPossiblyConditionalMethodCall cenv env PossiblyMutates mItem false einfo.RemoveMethod NormalValUse [] objVars [de] None
++               (let dv, de1 = mkCompGenLocal mItem "eventDelegate" delTy
++                let callExpr, _ = BuildPossiblyConditionalMethodCall cenv env PossiblyMutates mItem false einfo.RemoveMethod NormalValUse [] objVars [de1] None
+                 mkLambda mItem dv (callExpr, g.unit_ty))
+                (let fvty = mkFunTy g g.obj_ty_withNulls (mkFunTy g argsTy g.unit_ty)
+                 let fv, fe = mkCompGenLocal mItem "callback" fvty
+@@ -10001,7 +10001,7 @@ and TcEventItemThen (cenv: cenv) overallTy env tpenv mItem mItemIdent mExprAndIt
+     let bindObjArgs f =
+         match objDetails with
+         | None -> f []
+-        | Some (objExpr, objExprTy) -> mkCompGenLetIn mItem "eventTarget" objExprTy objExpr (fun (_, ve) -> f [ve])
++        | Some (objExpr, objExprTy) -> mkCompGenLetIn mItem "eventTarget" objExprTy objExpr (fun (_, ve1) -> f [ve1])
+
+     // Bind the object target expression to make sure we only run its side effects once, and to make
+     // sure if it's a mutable reference then we dereference it - see FSharp 1.0 bug 942
+@@ -11159,9 +11159,9 @@ and TcAndBuildFixedExpr (cenv: cenv) env (overallPatTy, fixedExpr, overallExprTy
+             //     (nativeint) x
+
+             let pinnedBinding =
+-                mkCompGenLetIn mBinding "pinnedByref" actualRetTy pinnableReference (fun (v, ve) ->
++                mkCompGenLetIn mBinding "pinnedByref" actualRetTy pinnableReference (fun (v, ve1) ->
+                     v.SetIsFixed()
+-                    mkConvToNativeInt g ve mBinding)
++                    mkConvToNativeInt g ve1 mBinding)
+
+             if isStructTy g overallExprTy then
+                 Some pinnedBinding
+@@ -11193,9 +11193,9 @@ and TcAndBuildFixedExpr (cenv: cenv) env (overallPatTy, fixedExpr, overallExprTy
+
+         let elemTy = destByrefTy g overallExprTy
+         UnifyTypes cenv env mBinding (mkNativePtrTy g elemTy) overallPatTy
+-        mkCompGenLetIn mBinding "pinnedByref" ty fixedExpr (fun (v, ve) ->
++        mkCompGenLetIn mBinding "pinnedByref" ty fixedExpr (fun (v, ve1) ->
+             v.SetIsFixed()
+-            mkConvToNativeInt g ve mBinding)
++            mkConvToNativeInt g ve1 mBinding)
+
+     | ty when isStringTy g ty ->
+         let getPinnableRefCall =
+@@ -11214,13 +11214,13 @@ and TcAndBuildFixedExpr (cenv: cenv) env (overallPatTy, fixedExpr, overallExprTy
+             //        let pinned s = str
+             //        (nativeptr)s + get_OffsettoStringData()
+
+-            mkCompGenLetIn mBinding "pinnedString" g.string_ty fixedExpr (fun (v, ve) ->
++            mkCompGenLetIn mBinding "pinnedString" g.string_ty fixedExpr (fun (v, ve1) ->
+                 v.SetIsFixed()
+                 let addrOffset = BuildOffsetToStringData cenv env mBinding
+-                let stringAsNativeInt = mkConvToNativeInt g ve mBinding
++                let stringAsNativeInt = mkConvToNativeInt g ve1 mBinding
+                 let plusOffset = Expr.Op (TOp.ILAsm ([ AI_add ], [ g.nativeint_ty ]), [], [stringAsNativeInt; addrOffset], mBinding)
+                 // check for non-null
+-                mkNullTest g mBinding ve plusOffset ve)
++                mkNullTest g mBinding ve1 plusOffset ve1)
+
+     | ty when isArray1DTy g ty ->
+         let elemTy = destArrayTy g overallExprTy
+@@ -11238,18 +11238,18 @@ and TcAndBuildFixedExpr (cenv: cenv) env (overallPatTy, fixedExpr, overallExprTy
+         //   else
+         //      (nativeint) 0
+         //
+-        mkCompGenLetIn mBinding "tmpArray" overallExprTy fixedExpr (fun (_, ve) ->
++        mkCompGenLetIn mBinding "tmpArray" overallExprTy fixedExpr (fun (_, ve1) ->
+             // This is &arr.[0]
+-            let elemZeroAddress = mkArrayElemAddress g (false, ILReadonly.NormalAddress, false, ILArrayShape.SingleDimensional, elemTy, [ve; mkInt32 g mBinding 0], mBinding)
++            let elemZeroAddress = mkArrayElemAddress g (false, ILReadonly.NormalAddress, false, ILArrayShape.SingleDimensional, elemTy, [ve1; mkInt32 g mBinding 0], mBinding)
+             // check for non-null and non-empty
+             let zero = mkConvToNativeInt g (mkInt32 g mBinding 0) mBinding
+             // This is arr.Length
+-            let arrayLengthExpr = mkCallArrayLength g mBinding elemTy ve
+-            mkNullTest g mBinding ve
++            let arrayLengthExpr = mkCallArrayLength g mBinding elemTy ve1
++            mkNullTest g mBinding ve1
+                 (mkNullTest g mBinding arrayLengthExpr
+-                    (mkCompGenLetIn mBinding "pinnedByref" (mkByrefTy g elemTy) elemZeroAddress (fun (v, ve) ->
++                    (mkCompGenLetIn mBinding "pinnedByref" (mkByrefTy g elemTy) elemZeroAddress (fun (v, ve1) ->
+                        v.SetIsFixed()
+-                       (mkConvToNativeInt g ve mBinding)))
++                       (mkConvToNativeInt g ve1 mBinding)))
+                     zero)
+                 zero)
+ 
+diff --git a/src/Compiler/Checking/Expressions/CheckExpressions.fsi b/src/Compiler/Checking/Expressions/CheckExpressions.fsi
+index b26381b6b..b2cea5090 100644
+--- a/src/Compiler/Checking/Expressions/CheckExpressions.fsi
++++ b/src/Compiler/Checking/Expressions/CheckExpressions.fsi
+@@ -516,7 +516,7 @@ val MakeAndPublishVal:
+     vscheme: ValScheme *
+     attrs: Attribs *
+     xmlDoc: XmlDoc *
+-    konst: Const option *
++    konst1: Const option *
+     isGeneratedEventVal: bool ->
+         Val
+ 
+diff --git a/src/Compiler/Checking/MethodCalls.fs b/src/Compiler/Checking/MethodCalls.fs
+index d7e09b86a..b9ff0f4d0 100644
+--- a/src/Compiler/Checking/MethodCalls.fs
++++ b/src/Compiler/Checking/MethodCalls.fs
+@@ -1665,8 +1665,8 @@ let AdjustCallerArgs tcVal tcFieldInit eCallerMemberName (infoReader: InfoReader
+             if calledMethInfo.IsExtensionMember && calledMethInfo.ObjArgNeedsAddress(amap, mMethExpr) then
+                 error(Error(FSComp.SR.tcCannotPartiallyApplyExtensionMethodForByref(calledMethInfo.DisplayName), mMethExpr))
+             let objArgTy = tyOfExpr g objArg
+-            let v, ve = mkCompGenLocal mMethExpr "objectArg" objArgTy
+-            (fun body -> mkCompGenLet mMethExpr v objArg body), [ve]
++            let v, ve1 = mkCompGenLocal mMethExpr "objectArg" objArgTy
++            (fun body -> mkCompGenLet mMethExpr v objArg body), [ve1]
+         | _ -> 
+             emptyPreBinder, objArgs
+ 
+diff --git a/src/Compiler/Checking/PatternMatchCompilation.fs b/src/Compiler/Checking/PatternMatchCompilation.fs
+index 2d3963b94..c1ff8b87d 100644
+--- a/src/Compiler/Checking/PatternMatchCompilation.fs
++++ b/src/Compiler/Checking/PatternMatchCompilation.fs
+@@ -1403,11 +1403,11 @@ let CompilePatternBasic
+ 
+         if isMemOfActives path actives then
+             let subExprForActive, patAtActive = lookupActive path actives
+-            let (SubExpr(accessf, ve)) = subExprForActive
++            let (SubExpr(accessf, ve1)) = subExprForActive
+ 
+             let mkSubFrontiers path subAccess subActive argpats pathBuilder =
+                 let mkSubActive j p =
+-                    let newSubExpr = SubExpr(subAccess j, ve)
++                    let newSubExpr = SubExpr(subAccess j, ve1)
+                     let newPath = pathBuilder path j
+                     Active(newPath, newSubExpr, p)
+                 let newActives = List.mapi mkSubActive argpats
+@@ -1530,7 +1530,7 @@ let CompilePatternBasic
+                                 | _ ->
+                                     // Otherwise call the helper
+                                    mkCallUnboxFast g mExpr (instType tpinst tgtTy1) (accessf tpinst exprIn)
+-                            let subActive = Active(path, SubExpr(subAccess, ve), pbind)
++                            let subActive = Active(path, SubExpr(subAccess, ve1), pbind)
+                             let subActives = BindProjectionPattern subActive (newActives, valMap)
+                             mkFrontiers subActives i
+                         | None ->
+diff --git a/src/Compiler/CodeGen/IlxGen.fs b/src/Compiler/CodeGen/IlxGen.fs
+index 704c43d4b..4ed2b5fd7 100644
+--- a/src/Compiler/CodeGen/IlxGen.fs
++++ b/src/Compiler/CodeGen/IlxGen.fs
+@@ -4685,8 +4685,8 @@ and eligibleForFilter (cenv: cenv) expr =
+ 
+     and checkDecisionTree dtree =
+         match dtree with
+-        | TDSwitch(ve, cases, dflt, _) ->
+-            check ve
++        | TDSwitch(ve1, cases, dflt, _) ->
++            check ve1
+             && cases |> List.forall checkDecisionTreeCase
+             && dflt |> Option.forall checkDecisionTree
+         | TDSuccess(es, _) -> es |> List.forall check
+@@ -8365,7 +8365,7 @@ and GenBindingAfterDebugPoint cenv cgbuf eenv bind isStateVar startMarkOpt =
+ 
+             let ilFieldDef =
+                 match vref.LiteralValue with
+-                | Some konst when not isDecimalConstant -> ilFieldDef.WithLiteralDefaultValue(Some(GenFieldInit m konst))
++                | Some konst1 when not isDecimalConstant -> ilFieldDef.WithLiteralDefaultValue(Some(GenFieldInit m konst1))
+                 | _ -> ilFieldDef
+ 
+             let ilFieldDef =
+diff --git a/src/Compiler/Optimize/LowerSequences.fs b/src/Compiler/Optimize/LowerSequences.fs
+index 3a7d733ec..535a2d29d 100644
+--- a/src/Compiler/Optimize/LowerSequences.fs
++++ b/src/Compiler/Optimize/LowerSequences.fs
+@@ -522,8 +522,8 @@ let ConvertSequenceExprToObject g amap overallExpr =
+                                significantClose = false
+                                asyncVars = emptyFreeVars }
+                     else
+-                        let v, ve = mkCompGenLocal m "v" inpElemTy
+-                        ConvertSeqExprCode false isTailCall noDisposeContinuationLabel currentDisposeContinuationLabel (mkCallSeqCollect g m inpElemTy inpElemTy (mkLambdaNoType g m v (mkCallSeqSingleton g m inpElemTy ve)) arbitrarySeqExpr)
++                        let v, ve1 = mkCompGenLocal m "v" inpElemTy
++                        ConvertSeqExprCode false isTailCall noDisposeContinuationLabel currentDisposeContinuationLabel (mkCallSeqCollect g m inpElemTy inpElemTy (mkLambdaNoType g m v (mkCallSeqSingleton g m inpElemTy ve1)) arbitrarySeqExpr)
+                 | _  -> None
+ 
+ 
+diff --git a/src/Compiler/Optimize/Optimizer.fs b/src/Compiler/Optimize/Optimizer.fs
+index ec6359a42..861a5b1ff 100644
+--- a/src/Compiler/Optimize/Optimizer.fs
++++ b/src/Compiler/Optimize/Optimizer.fs
+@@ -1874,8 +1874,8 @@ let MakeStructuralBindingTemp (v: Val) i (arg: Expr) argTy =
+ 
+ let MakeMutableStructuralBindingForTupleElement (v: Val) i (arg: Expr) argTy =
+     let name = sprintf "%s_%d%s" v.LogicalName i suffixForTupleElementAssignmentTarget
+-    let v, ve = mkMutableCompGenLocal arg.Range name argTy
+-    ve, mkCompGenBind v arg
++    let v, ve1 = mkMutableCompGenLocal arg.Range name argTy
++    ve1, mkCompGenBind v arg
+ 
+ let ExpandStructuralBindingRaw cenv expr =
+     let g = cenv.g
+diff --git a/src/Compiler/Symbols/Exprs.fs b/src/Compiler/Symbols/Exprs.fs
+index eabc11f34..66e1ccd03 100644
+--- a/src/Compiler/Symbols/Exprs.fs
++++ b/src/Compiler/Symbols/Exprs.fs
+@@ -542,8 +542,8 @@ module FSharpExprConvert =
+         match expr with 
+         
+         // Uses of possibly-polymorphic values which were not polymorphic in the end
+-        | Expr.App (InnerExprPat(Expr.Val _ as ve), _fty, [], [], _) -> 
+-            ConvExprPrim cenv env ve
++        | Expr.App (InnerExprPat(Expr.Val _ as ve1), _fty, [], [], _) -> 
++            ConvExprPrim cenv env ve1
+ 
+         // These cases are the start of a "linear" sequence where we use tail recursion to allow use to 
+         // deal with large expressions.
+diff --git a/src/Compiler/TypedTree/TypedTree.fs b/src/Compiler/TypedTree/TypedTree.fs
+index bb6b7d22f..b3567e46f 100644
+--- a/src/Compiler/TypedTree/TypedTree.fs
++++ b/src/Compiler/TypedTree/TypedTree.fs
+@@ -5996,14 +5996,14 @@ type Construct() =
+                 | _ -> Some { Entity.NewEmptyEntityOptData() with entity_xmldoc = doc; entity_accessibility = access; entity_tycon_repr_accessibility = access; entity_exn_info = repr } } 
+ 
+     /// Create a new TAST RecdField node for an F# class, struct or record field
+-    static member NewRecdField stat konst id nameGenerated ty isMutable isVolatile pattribs fattribs docOption access secret =
++    static member NewRecdField stat konst1 id nameGenerated ty isMutable isVolatile pattribs fattribs docOption access secret =
+         { rfield_mutable = isMutable
+           rfield_pattribs = pattribs
+           rfield_fattribs = fattribs
+           rfield_type = ty
+           rfield_static = stat
+           rfield_volatile = isVolatile
+-          rfield_const = konst
++          rfield_const = konst1
+           rfield_access = access
+           rfield_secret = secret
+           rfield_xmldoc = docOption
+@@ -6064,18 +6064,18 @@ type Construct() =
+         isTyFunc,
+         allowTypeInst,
+         isGeneratedEventVal,
+-        konst,
++        konst1,
+         actualParent) : Val =
+ 
+         let stamp = newStamp()
+         let optData = 
+-            match compiledName, arity, konst, access, doc, specialRepr, actualParent, attribs with
++            match compiledName, arity, konst1, access, doc, specialRepr, actualParent, attribs with
+             | None, None, None, TAccess [], doc, None, ParentNone, [] when doc.IsEmpty -> None
+             | _ -> 
+                 { Val.NewEmptyValOptData() with
+                     val_compiled_name = (match compiledName with Some v when v <> logicalName -> compiledName | _ -> None)
+                     val_repr_info = arity
+-                    val_const = konst
++                    val_const = konst1
+                     val_access = access
+                     val_xmldoc = doc
+                     val_member_info = specialRepr
+diff --git a/src/Compiler/TypedTree/TypedTree.fsi b/src/Compiler/TypedTree/TypedTree.fsi
+index f6a2664fe..cd61a3996 100644
+--- a/src/Compiler/TypedTree/TypedTree.fsi
++++ b/src/Compiler/TypedTree/TypedTree.fsi
+@@ -4387,7 +4387,7 @@ type Construct =
+     /// Create a new TAST RecdField node for an F# class, struct or record field
+     static member NewRecdField:
+         stat: bool ->
+-        konst: Const option ->
++        konst1: Const option ->
+         id: Ident ->
+         nameGenerated: bool ->
+         ty: TType ->
+@@ -4463,7 +4463,7 @@ type Construct =
+         isTyFunc: bool *
+         allowTypeInst: bool *
+         isGeneratedEventVal: bool *
+-        konst: Const option *
++        konst1: Const option *
+         actualParent: ParentRef ->
+             Val
+ 
+diff --git a/src/Compiler/TypedTree/TypedTreeOps.fs b/src/Compiler/TypedTree/TypedTreeOps.fs
+index 8d555ba3e..5432a1878 100644
+--- a/src/Compiler/TypedTree/TypedTreeOps.fs
++++ b/src/Compiler/TypedTree/TypedTreeOps.fs
+@@ -7934,8 +7934,8 @@ let isThrow x = Option.isSome (destThrow x)
+ 
+ // reraise - parsed as library call - internally represented as op form.
+ let mkReraiseLibCall (g: TcGlobals) ty m =
+-    let ve, vt = typedExprForIntrinsic g m g.reraise_info
+-    Expr.App (ve, vt, [ty], [mkUnit g m], m)
++    let ve1, vt = typedExprForIntrinsic g m g.reraise_info
++    Expr.App (ve1, vt, [ty], [mkUnit g m], m)
+ 
+ let mkReraise m returnTy = Expr.Op (TOp.Reraise, [returnTy], [], m) (* could suppress unitArg *)
+ 
+@@ -8280,12 +8280,12 @@ let mkCoerceIfNeeded g tgtTy srcTy expr =
+         mkCoerceExpr(expr, tgtTy, expr.Range, srcTy)
+ 
+ let mkCompGenLetIn m nm ty e f = 
+-    let v, ve = mkCompGenLocal m nm ty
+-    mkCompGenLet m v e (f (v, ve))
++    let v, ve1 = mkCompGenLocal m nm ty
++    mkCompGenLet m v e (f (v, ve1))
+ 
+ let mkCompGenLetMutableIn m nm ty e f = 
+-    let v, ve = mkMutableCompGenLocal m nm ty
+-    mkCompGenLet m v e (f (v, ve))
++    let v, ve1 = mkMutableCompGenLocal m nm ty
++    mkCompGenLet m v e (f (v, ve1))
+ 
+ /// Take a node representing a coercion from one function type to another, e.g.
+ ///    A -> A * A -> int 
+@@ -8414,12 +8414,12 @@ let AdjustPossibleSubsumptionExpr g (expr: Expr) (suppliedArgs: Expr list) : (Ex
+                     //  for 
+                     //     let f a = 1
+                     //     let f (a, a) = 1
+-                    let v, ve = mkCompGenLocal appm nm argExprTy
++                    let v, ve1 = mkCompGenLocal appm nm argExprTy
+                     let binderBuilder = (fun tm -> mkCompGenLet appm v argExpr tm)
+                     let expr = 
+                         match actualTys, argTys with
+-                        | [actualTy], [argTy] -> mkCoerceIfNeeded g actualTy argTy ve 
+-                        | _ -> CoerceBoundTuple ve argTys actualTys
++                        | [actualTy], [argTy] -> mkCoerceIfNeeded g actualTy argTy ve1 
++                        | _ -> CoerceBoundTuple ve1 argTys actualTys
+ 
+                     binderBuilder, expr
+                 else                
+@@ -8451,9 +8451,9 @@ let AdjustPossibleSubsumptionExpr g (expr: Expr) (suppliedArgs: Expr list) : (Ex
+                             //  for 
+                             //     let f (x, y) = 1
+                             // Assign the argument to make sure it is only run once
+-                            let v, ve = mkCompGenLocal appm nm argExprTy
++                            let v, ve1 = mkCompGenLocal appm nm argExprTy
+                             let binderBuilder = (fun tm -> mkCompGenLet appm v argExpr tm)
+-                            let expr = CoerceBoundTuple ve argTys actualTys
++                            let expr = CoerceBoundTuple ve1 argTys actualTys
+                             binderBuilder, expr
+                         
+ 
+diff --git a/src/Compiler/pars.fsy b/src/Compiler/pars.fsy
+index 6eacd0b24..719757894 100644
+--- a/src/Compiler/pars.fsy
++++ b/src/Compiler/pars.fsy
+@@ -728,19 +728,19 @@ moduleSpfn:
+ valSpfn:
+   | opt_attributes opt_access VAL opt_attributes opt_inline opt_mutable opt_access nameop opt_explicitValTyparDecls COLON topTypeWithTypeConstraints optLiteralValueSpfn
+       { if Option.isSome $2 then errorR(Error(FSComp.SR.parsVisibilityDeclarationsShouldComePriorToIdentifier(), rhs parseState 2))
+-        let attr1, attr2, isInline, isMutable, vis2, id, doc, explicitValTyparDecls, (ty, arity), (mEquals, konst: SynExpr option) = ($1), ($4), (Option.isSome $5), (Option.isSome $6), ($7), ($8), grabXmlDoc(parseState, $1, 1), ($9), ($11), ($12)
++        let attr1, attr2, isInline, isMutable, vis2, id, doc, explicitValTyparDecls, (ty, arity), (mEquals, konst1: SynExpr option) = ($1), ($4), (Option.isSome $5), (Option.isSome $6), ($7), ($8), grabXmlDoc(parseState, $1, 1), ($9), ($11), ($12)
+         let vis2 = SynValSigAccess.Single(vis2)
+         if not (isNil attr2) then errorR(Deprecated(FSComp.SR.parsAttributesMustComeBeforeVal(), rhs parseState 4))
+         let m =
+             rhs2 parseState 1 11
+             |> unionRangeWithXmlDoc doc
+             |> fun m ->
+-                match konst with
++                match konst1 with
+                 | None -> m
+                 | Some e -> unionRanges m e.Range
+         let mVal = rhs parseState 3
+         let trivia: SynValSigTrivia = { LeadingKeyword = SynLeadingKeyword.Val mVal; InlineKeyword = $5; WithKeyword = None; EqualsRange = mEquals }
+-        let valSpfn = SynValSig((attr1@attr2), id, explicitValTyparDecls, ty, arity, isInline, isMutable, doc, vis2, konst, m, trivia)
++        let valSpfn = SynValSig((attr1@attr2), id, explicitValTyparDecls, ty, arity, isInline, isMutable, doc, vis2, konst1, m, trivia)
+         SynModuleSigDecl.Val(valSpfn, m)
+       }
+ 
+diff --git a/src/Compiler/lex.fsl b/src/Compiler/lex.fsl
+index 8e3030879..59e321cdd 100644
+--- a/src/Compiler/lex.fsl
++++ b/src/Compiler/lex.fsl
+@@ -164,7 +164,7 @@ let startString args (lexbuf: UnicodeLexing.Lexbuf) =
+     let buf = ByteBuffer.Create StringCapacity
+     let m = lexbuf.LexemeRange
+     let startp = lexbuf.StartPos
+-    let fin =
++    let fin1 =
+         LexerStringFinisher (fun buf kind context cont ->
+             // Adjust the start-of-token mark back to the true start of the token
+             lexbuf.StartPos <- startp
+@@ -215,7 +215,7 @@ let startString args (lexbuf: UnicodeLexing.Lexbuf) =
+                     else
+                         SynStringKind.Regular
+                 STRING (s, synStringKind, cont))
+-    buf,fin,m
++    buf,fin1,m
+ 
+ 
+ // Utility functions for processing XML documentation
+@@ -674,7 +674,7 @@ rule token (args: LexArgs) (skip: bool) = parse
+        else mlOnly m args skip lexbuf }
+ 
+  | '"'
+-     { let buf, fin, m = startString args lexbuf
++     { let buf, fin1, m = startString args lexbuf
+ 
+        // Single quote in triple quote ok, others disallowed
+        match args.stringNest with
+@@ -684,10 +684,10 @@ rule token (args: LexArgs) (skip: bool) = parse
+        | [] -> ()
+ 
+        if not skip then STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.SingleQuote, LexerStringKind.String, args.interpolationDelimiterLength, m))
+-       else singleQuoteString (buf, fin, m, LexerStringKind.String, args) skip lexbuf }
++       else singleQuoteString (buf, fin1, m, LexerStringKind.String, args) skip lexbuf }
+ 
+  | '$' '"' '"' '"'
+-     { let buf, fin, m = startString args lexbuf
++     { let buf, fin1, m = startString args lexbuf
+ 
+        // Single quote in triple quote ok, others disallowed
+        match args.stringNest with
+@@ -696,10 +696,10 @@ rule token (args: LexArgs) (skip: bool) = parse
+ 
+        args.interpolationDelimiterLength <- 1
+        if not skip then STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.TripleQuote, LexerStringKind.InterpolatedStringFirst, 1, m))
+-       else tripleQuoteString (buf, fin, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf }
++       else tripleQuoteString (buf, fin1, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf }
+ 
+  | ('$'+) '"' '"' '"'
+-     { let buf, fin, m = startString args lexbuf
++     { let buf, fin1, m = startString args lexbuf
+ 
+        if lexbuf.SupportsFeature LanguageFeature.ExtendedStringInterpolation then
+            // Single quote in triple quote ok, others disallowed
+@@ -711,18 +711,18 @@ rule token (args: LexArgs) (skip: bool) = parse
+            if not skip then
+                STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.ExtendedInterpolated, LexerStringKind.InterpolatedStringFirst, args.interpolationDelimiterLength, m))
+            else
+-               extendedInterpolatedString (buf, fin, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf
++               extendedInterpolatedString (buf, fin1, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf
+        else
+            let result =
+              if not skip then
+                  STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.TripleQuote, LexerStringKind.InterpolatedStringFirst, args.interpolationDelimiterLength, m))
+              else
+-                 tripleQuoteString (buf, fin, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf
++                 tripleQuoteString (buf, fin1, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf
+            fail args lexbuf (FSComp.SR.lexExtendedStringInterpolationNotSupported()) result
+      }
+ 
+  | '$' '"'
+-     { let buf,fin,m = startString args lexbuf
++     { let buf,fin1,m = startString args lexbuf
+ 
+        // Single quote in triple quote ok, others disallowed
+        match args.stringNest with
+@@ -733,10 +733,10 @@ rule token (args: LexArgs) (skip: bool) = parse
+        if not skip then
+            STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.SingleQuote, LexerStringKind.InterpolatedStringFirst, args.interpolationDelimiterLength, m))
+        else
+-           singleQuoteString (buf, fin, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf }
++           singleQuoteString (buf, fin1, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf }
+ 
+  | '"' '"' '"'
+-     { let buf, fin, m = startString args lexbuf
++     { let buf, fin1, m = startString args lexbuf
+ 
+        args.interpolationDelimiterLength <- 0
+ 
+@@ -748,10 +748,10 @@ rule token (args: LexArgs) (skip: bool) = parse
+        if not skip then
+            STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.TripleQuote, LexerStringKind.String, args.interpolationDelimiterLength, m))
+        else
+-           tripleQuoteString (buf, fin, m, LexerStringKind.String, args) skip lexbuf }
++           tripleQuoteString (buf, fin1, m, LexerStringKind.String, args) skip lexbuf }
+ 
+  | '@' '"'
+-     { let buf, fin, m = startString args lexbuf
++     { let buf, fin1, m = startString args lexbuf
+ 
+        // Single quote in triple quote ok, others disallowed
+        match args.stringNest with
+@@ -763,10 +763,10 @@ rule token (args: LexArgs) (skip: bool) = parse
+        if not skip then
+            STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.Verbatim, LexerStringKind.String, args.interpolationDelimiterLength, m))
+        else
+-           verbatimString (buf, fin, m, LexerStringKind.String, args) skip lexbuf }
++           verbatimString (buf, fin1, m, LexerStringKind.String, args) skip lexbuf }
+ 
+  | ("$@" | "@$") '"'
+-     { let buf, fin, m = startString args lexbuf
++     { let buf, fin1, m = startString args lexbuf
+ 
+        // Single quote in triple quote ok, others disallowed
+        match args.stringNest with
+@@ -777,7 +777,7 @@ rule token (args: LexArgs) (skip: bool) = parse
+        if not skip then
+            STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.Verbatim, LexerStringKind.InterpolatedStringFirst, args.interpolationDelimiterLength, m))
+        else
+-           verbatimString (buf, fin, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf }
++           verbatimString (buf, fin1, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf }
+ 
+  | truewhite+
+      { if skip then token args skip lexbuf
+@@ -952,15 +952,15 @@ rule token (args: LexArgs) (skip: bool) = parse
+            |> Option.iter (fun r ->
+                let n = r.StartColumn - lexbuf.StartPos.Column 
+                lexbuf.StartPos <- lexbuf.StartPos.ShiftColumnBy(n)) 
+-           let buf, fin, m = startString args lexbuf
++           let buf, fin1, m = startString args lexbuf
+            if not skip then
+                STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, style, LexerStringKind.InterpolatedStringPart, args.interpolationDelimiterLength, m))
+            else
+                match style with
+-               | LexerStringStyle.Verbatim -> verbatimString (buf, fin, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
+-               | LexerStringStyle.SingleQuote -> singleQuoteString (buf, fin, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
+-               | LexerStringStyle.TripleQuote -> tripleQuoteString (buf, fin, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
+-               | LexerStringStyle.ExtendedInterpolated -> extendedInterpolatedString (buf, fin, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
++               | LexerStringStyle.Verbatim -> verbatimString (buf, fin1, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
++               | LexerStringStyle.SingleQuote -> singleQuoteString (buf, fin1, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
++               | LexerStringStyle.TripleQuote -> tripleQuoteString (buf, fin1, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
++               | LexerStringStyle.ExtendedInterpolated -> extendedInterpolatedString (buf, fin1, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
+        | (counter, style, d, altR, m) :: rest ->
+            // Note, we do not update the 'm', any incomplete-interpolation error
+            // will be reported w.r.t. the first '{'
+@@ -1349,15 +1349,15 @@ and singleQuoteString (sargs: LexerStringArgs) (skip: bool) = parse
+           result() }
+ 
+  |  '"'
+-    { let (buf, fin, _m, kind, args) = sargs
++    { let (buf, fin1, _m, kind, args) = sargs
+       let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-      fin.Finish buf kind (LexerStringFinisherContext()) cont
++      fin1.Finish buf kind (LexerStringFinisherContext()) cont
+     }
+ 
+  |  '"''B'
+-    { let (buf, fin, _m, kind, args) = sargs
++    { let (buf, fin1, _m, kind, args) = sargs
+       let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-      fin.Finish buf { kind with IsByteString = true } (LexerStringFinisherContext()) cont
++      fin1.Finish buf { kind with IsByteString = true } (LexerStringFinisherContext()) cont
+     }
+ 
+  | ("{{" | "}}")
+@@ -1370,13 +1370,13 @@ and singleQuoteString (sargs: LexerStringArgs) (skip: bool) = parse
+           singleQuoteString sargs skip lexbuf }
+ 
+  | "{"
+-    { let (buf, fin, m, kind, args) = sargs
++    { let (buf, fin1, m, kind, args) = sargs
+       if kind.IsInterpolated then
+           // get a new range for where the fill starts
+           let m2 = lexbuf.LexemeRange
+           args.stringNest <- (1, LexerStringStyle.SingleQuote, args.interpolationDelimiterLength, None, m2) :: args.stringNest
+           let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-          fin.Finish buf kind LexerStringFinisherContext.InterpolatedPart cont
++          fin1.Finish buf kind LexerStringFinisherContext.InterpolatedPart cont
+       else
+           addUnicodeString buf (lexeme lexbuf)
+           if not skip then
+@@ -1456,15 +1456,15 @@ and verbatimString (sargs: LexerStringArgs) (skip: bool) = parse
+          verbatimString sargs skip lexbuf }
+ 
+  |  '"'
+-    { let (buf, fin, _m, kind, args) = sargs
++    { let (buf, fin1, _m, kind, args) = sargs
+       let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-      fin.Finish buf kind LexerStringFinisherContext.Verbatim cont
++      fin1.Finish buf kind LexerStringFinisherContext.Verbatim cont
+     }
+ 
+  |  '"''B'
+-    { let (buf, fin, _m, kind, args) = sargs
++    { let (buf, fin1, _m, kind, args) = sargs
+       let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-      fin.Finish buf { kind with IsByteString = true } LexerStringFinisherContext.Verbatim cont
++      fin1.Finish buf { kind with IsByteString = true } LexerStringFinisherContext.Verbatim cont
+     }
+ 
+  | newline
+@@ -1486,13 +1486,13 @@ and verbatimString (sargs: LexerStringArgs) (skip: bool) = parse
+           verbatimString sargs skip lexbuf }
+ 
+  | "{"
+-    { let (buf, fin, m, kind, args) = sargs
++    { let (buf, fin1, m, kind, args) = sargs
+       if kind.IsInterpolated then
+           // get a new range for where the fill starts
+           let m2 = lexbuf.LexemeRange
+           args.stringNest <- (1, LexerStringStyle.Verbatim, args.interpolationDelimiterLength, None, m2) :: args.stringNest
+           let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-          fin.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.Verbatim) cont
++          fin1.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.Verbatim) cont
+       else
+           addUnicodeString buf (lexeme lexbuf)
+           if not skip then
+@@ -1555,10 +1555,10 @@ and verbatimString (sargs: LexerStringArgs) (skip: bool) = parse
+ 
+ and tripleQuoteString (sargs: LexerStringArgs) (skip: bool) = parse
+  |  '"' '"' '"'
+-    { let (buf, fin, _m, kind, args) = sargs
++    { let (buf, fin1, _m, kind, args) = sargs
+       args.interpolationDelimiterLength <- 0
+       let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-      fin.Finish buf kind LexerStringFinisherContext.TripleQuote cont }
++      fin1.Finish buf kind LexerStringFinisherContext.TripleQuote cont }
+ 
+  | newline
+     { let (buf, _fin, m, kind, args) = sargs
+@@ -1605,13 +1605,13 @@ and tripleQuoteString (sargs: LexerStringArgs) (skip: bool) = parse
+           tripleQuoteString sargs skip lexbuf }
+ 
+  | "{"
+-    { let (buf, fin, m, kind, args) = sargs
++    { let (buf, fin1, m, kind, args) = sargs
+       if kind.IsInterpolated then
+           // get a new range for where the fill starts
+           let m2 = lexbuf.LexemeRange
+           args.stringNest <- (1, LexerStringStyle.TripleQuote, args.interpolationDelimiterLength, None, m2) :: args.stringNest
+           let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-          fin.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.TripleQuote) cont
++          fin1.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.TripleQuote) cont
+       else
+           addUnicodeString buf (lexeme lexbuf)
+           if not skip then
+@@ -1649,10 +1649,10 @@ and tripleQuoteString (sargs: LexerStringArgs) (skip: bool) = parse
+ 
+ and extendedInterpolatedString (sargs: LexerStringArgs) (skip: bool) = parse
+  |  '"' '"' '"'
+-    { let (buf, fin, _m, kind, args) = sargs
++    { let (buf, fin1, _m, kind, args) = sargs
+       args.interpolationDelimiterLength <- 0
+       let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-      fin.Finish buf kind LexerStringFinisherContext.TripleQuote cont }
++      fin1.Finish buf kind LexerStringFinisherContext.TripleQuote cont }
+ 
+  | newline
+     { let (buf, _fin, m, kind, args) = sargs
+@@ -1706,7 +1706,7 @@ and extendedInterpolatedString (sargs: LexerStringArgs) (skip: bool) = parse
+           result() }
+ 
+  | "{" +
+-    { let (buf, fin, m, kind, args) = sargs
++    { let (buf, fin1, m, kind, args) = sargs
+       let numBraces = String.length (lexeme lexbuf)
+       // Extended interpolated strings starts with at least 2 $
+       // Number of leading $s is the number of '{' needed to open interpolation expression (interpolationDelimiterLength)
+@@ -1718,7 +1718,7 @@ and extendedInterpolatedString (sargs: LexerStringArgs) (skip: bool) = parse
+           let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+           fail args lexbuf
+               (FSComp.SR.lexTooManyLBracesInTripleQuote())
+-              (fin.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.TripleQuote) cont)
++              (fin1.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.TripleQuote) cont)
+       elif numBraces < args.interpolationDelimiterLength then
+           // Less than interpolationDelimiterLength means we treat '{' as normal content
+           addUnicodeString buf (lexeme lexbuf)
+@@ -1737,7 +1737,7 @@ and extendedInterpolatedString (sargs: LexerStringArgs) (skip: bool) = parse
+           let m2 = lexbuf.LexemeRange
+           args.stringNest <- (1, LexerStringStyle.ExtendedInterpolated, args.interpolationDelimiterLength, None, m2) :: args.stringNest
+           let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-          fin.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.TripleQuote) cont
++          fin1.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.TripleQuote) cont
+     }
+ 
+  | "}" +
+diff --git a/src/Compiler/Utilities/ResizeArray.fs b/src/Compiler/Utilities/ResizeArray.fs
+index 2c9cd971c..ce506066c 100644
+--- a/src/Compiler/Utilities/ResizeArray.fs
++++ b/src/Compiler/Utilities/ResizeArray.fs
+@@ -287,18 +287,18 @@ module internal ResizeArray =
+ 
+         go 0
+ 
+-    let foldSub f acc (arr: ResizeArray<_>) start fin =
++    let foldSub f acc (arr: ResizeArray<_>) start fin1 =
+         let mutable res = acc
+ 
+-        for i = start to fin do
++        for i = start to fin1 do
+             res <- f res arr[i]
+ 
+         res
+ 
+-    let foldBackSub f (arr: ResizeArray<_>) start fin acc =
++    let foldBackSub f (arr: ResizeArray<_>) start fin1 acc =
+         let mutable res = acc
+ 
+-        for i = fin downto start do
++        for i = fin1 downto start do
+             res <- f arr[i] res
+ 
+         res
+@@ -377,23 +377,23 @@ module internal ResizeArray =
+ 
+         init len1 (fun i -> f.Invoke(i, arr1[i], arr2[i]))
+ 
+-    let scanBackSub f (arr: ResizeArray<'T>) start fin acc =
++    let scanBackSub f (arr: ResizeArray<'T>) start fin1 acc =
+         let f = FSharpFunc<_, _, _>.Adapt(f)
+         let mutable state = acc
+-        let res = create (2 + fin - start) acc
++        let res = create (2 + fin1 - start) acc
+ 
+-        for i = fin downto start do
++        for i = fin1 downto start do
+             state <- f.Invoke(arr[i], state)
+             res[i - start] <- state
+ 
+         res
+ 
+-    let scanSub f acc (arr: ResizeArray<'T>) start fin =
++    let scanSub f acc (arr: ResizeArray<'T>) start fin1 =
+         let f = FSharpFunc<_, _, _>.Adapt(f)
+         let mutable state = acc
+-        let res = create (fin - start + 2) acc
++        let res = create (fin1 - start + 2) acc
+ 
+-        for i = start to fin do
++        for i = start to fin1 do
+             state <- f.Invoke(state, arr[i])
+             res[i - start + 1] <- state
+ 
+diff --git a/src/Compiler/AbstractIL/il.fs b/src/Compiler/AbstractIL/il.fs
+index bee53be38..8add0fd97 100644
+--- a/src/Compiler/AbstractIL/il.fs
++++ b/src/Compiler/AbstractIL/il.fs
+@@ -4950,8 +4950,8 @@ let rec decodeCustomAttrElemType bytes sigptr x =
+     | x when x = et_STRING -> PrimaryAssemblyILGlobals.typ_String, sigptr
+     | x when x = et_OBJECT -> PrimaryAssemblyILGlobals.typ_Object, sigptr
+     | x when x = et_SZARRAY ->
+-        let et, sigptr = sigptr_get_u8 bytes sigptr
+-        let elemTy, sigptr = decodeCustomAttrElemType bytes sigptr et
++        let et1, sigptr = sigptr_get_u8 bytes sigptr
++        let elemTy, sigptr = decodeCustomAttrElemType bytes sigptr et1
+         mkILArr1DTy elemTy, sigptr
+     | x when x = 0x50uy -> PrimaryAssemblyILGlobals.typ_Type, sigptr
+     | _ -> failwithf "decodeCustomAttrElemType ilg: unrecognized custom element type: %A" x
+@@ -5328,12 +5328,12 @@ let decodeILAttribData (ca: ILAttribute) =
+                     with exn ->
+                         failwith (sprintf "decodeILAttribData: error parsing type in custom attribute blob: %s" exn.Message)
+             | ILType.Boxed tspec when tspec.Name = "System.Object" ->
+-                let et, sigptr = sigptr_get_u8 bytes sigptr
++                let et1, sigptr = sigptr_get_u8 bytes sigptr
+ 
+-                if et = 0xFFuy then
++                if et1 = 0xFFuy then
+                     ILAttribElem.Null, sigptr
+                 else
+-                    let ty, sigptr = decodeCustomAttrElemType bytes sigptr et
++                    let ty, sigptr = decodeCustomAttrElemType bytes sigptr et1
+                     parseVal ty sigptr
+             | ILType.Array(shape, elemTy) when shape = ILArrayShape.SingleDimensional ->
+                 let n, sigptr = sigptr_get_i32 bytes sigptr
+@@ -5372,10 +5372,10 @@ let decodeILAttribData (ca: ILAttribute) =
+             else
+                 let isPropByte, sigptr = sigptr_get_u8 bytes sigptr
+                 let isProp = (int isPropByte = 0x54)
+-                let et, sigptr = sigptr_get_u8 bytes sigptr
++                let et1, sigptr = sigptr_get_u8 bytes sigptr
+                 // We have a named value
+                 let ty, sigptr =
+-                    if ( (* 0x50 = (int et) || *) 0x55 = (int et)) then
++                    if ( (* 0x50 = (int et1) || *) 0x55 = (int et1)) then
+                         let qualified_tname, sigptr = sigptr_get_serstring bytes sigptr
+ 
+                         let unqualified_tname, rest =
+@@ -5399,7 +5399,7 @@ let decodeILAttribData (ca: ILAttribute) =
+                         let tspec = mkILNonGenericTySpec tref
+                         ILType.Value tspec, sigptr
+                     else
+-                        decodeCustomAttrElemType bytes sigptr et
++                        decodeCustomAttrElemType bytes sigptr et1
+ 
+                 let nm, sigptr = sigptr_get_serstring bytes sigptr
+                 let v, sigptr = parseVal ty sigptr
+diff --git a/src/Compiler/AbstractIL/ilread.fs b/src/Compiler/AbstractIL/ilread.fs
+index fcfc42515..e6fc2d8c1 100644
+--- a/src/Compiler/AbstractIL/ilread.fs
++++ b/src/Compiler/AbstractIL/ilread.fs
+@@ -981,11 +981,11 @@ let seekReadIndexedRows (numRows, rowReader, keyFunc, keyComparer, binaryChop, r
+         let mutable low = 0
+         let mutable high = numRows + 1
+ 
+-        (let mutable fin = false
++        (let mutable fin1 = false
+ 
+-         while not fin do
++         while not fin1 do
+              if high - low <= 1 then
+-                 fin <- true
++                 fin1 <- true
+              else
+                  let mid = (low + high) / 2
+                  let midrow = rowReader mid
+@@ -993,7 +993,7 @@ let seekReadIndexedRows (numRows, rowReader, keyFunc, keyComparer, binaryChop, r
+ 
+                  if c > 0 then low <- mid
+                  elif c < 0 then high <- mid
+-                 else fin <- true)
++                 else fin1 <- true)
+ 
+         let mutable res = []
+ 
+@@ -1001,37 +1001,37 @@ let seekReadIndexedRows (numRows, rowReader, keyFunc, keyComparer, binaryChop, r
+             // now read off rows, forward and backwards
+             let mid = (low + high) / 2
+             // read forward
+-            let mutable fin = false
++            let mutable fin1 = false
+             let mutable curr = mid
+ 
+-            while not fin do
++            while not fin1 do
+                 if curr > numRows then
+-                    fin <- true
++                    fin1 <- true
+                 else
+                     let currrow = rowReader curr
+ 
+                     if keyComparer (keyFunc currrow) = 0 then
+                         res <- rowConverter currrow :: res
+                     else
+-                        fin <- true
++                        fin1 <- true
+ 
+                     curr <- curr + 1
+ 
+             res <- List.rev res
+             // read backwards
+-            let mutable fin = false
++            let mutable fin1 = false
+             let mutable curr = mid - 1
+ 
+-            while not fin do
++            while not fin1 do
+                 if curr = 0 then
+-                    fin <- true
++                    fin1 <- true
+                 else
+                     let currrow = rowReader curr
+ 
+                     if keyComparer (keyFunc currrow) = 0 then
+                         res <- rowConverter currrow :: res
+                     else
+-                        fin <- true
++                        fin1 <- true
+ 
+                     curr <- curr - 1
+         // sanity check
+@@ -1204,11 +1204,11 @@ let seekReadIndexedRowsRange numRows binaryChop (reader: ISeekReadIndexedRowRead
+         let mutable low = 0
+         let mutable high = numRows + 1
+ 
+-        let mutable fin = false
++        let mutable fin1 = false
+ 
+-        while not fin do
++        while not fin1 do
+             if high - low <= 1 then
+-                fin <- true
++                fin1 <- true
+             else
+                 let mid = (low + high) / 2
+                 reader.GetRow(mid, row)
+@@ -1216,7 +1216,7 @@ let seekReadIndexedRowsRange numRows binaryChop (reader: ISeekReadIndexedRowRead
+ 
+                 if c > 0 then low <- mid
+                 elif c < 0 then high <- mid
+-                else fin <- true
++                else fin1 <- true
+ 
+         if high - low > 1 then
+             // now read off rows, forward and backwards
+@@ -1226,36 +1226,36 @@ let seekReadIndexedRowsRange numRows binaryChop (reader: ISeekReadIndexedRowRead
+             endRid <- mid
+ 
+             // read backwards
+-            let mutable fin = false
++            let mutable fin1 = false
+             let mutable curr = mid - 1
+ 
+-            while not fin do
++            while not fin1 do
+                 if curr = 0 then
+-                    fin <- true
++                    fin1 <- true
+                 else
+                     reader.GetRow(curr, row)
+ 
+                     if reader.CompareKey(reader.GetKey(row)) = 0 then
+                         startRid <- curr
+                     else
+-                        fin <- true
++                        fin1 <- true
+ 
+                 curr <- curr - 1
+ 
+             // read forward
+-            let mutable fin = false
++            let mutable fin1 = false
+             let mutable curr = mid + 1
+ 
+-            while not fin do
++            while not fin1 do
+                 if curr > numRows then
+-                    fin <- true
++                    fin1 <- true
+                 else
+                     reader.GetRow(curr, row)
+ 
+                     if reader.CompareKey(reader.GetKey(row)) = 0 then
+                         endRid <- curr
+                     else
+-                        fin <- true
++                        fin1 <- true
+ 
+                     curr <- curr + 1
+ 
+@@ -1271,15 +1271,15 @@ let seekReadIndexedRowsRange numRows binaryChop (reader: ISeekReadIndexedRowRead
+ 
+             rid <- rid + 1
+ 
+-        let mutable fin = false
++        let mutable fin1 = false
+ 
+-        while rid <= numRows && not fin do
++        while rid <= numRows && not fin1 do
+             reader.GetRow(rid, row)
+ 
+             if reader.CompareKey(reader.GetKey(row)) = 0 then
+                 endRid <- rid
+             else
+-                fin <- true
++                fin1 <- true
+ 
+             rid <- rid + 1
+ 
+@@ -4239,14 +4239,14 @@ let openMetadataReader
+                 let offset = seekReadInt32 mdv (pos + 0)
+                 let length = seekReadInt32 mdv (pos + 4)
+                 let mutable res = true
+-                let mutable fin = false
++                let mutable fin1 = false
+                 let mutable n = 0
+                 // read and compare the stream name byte by byte
+-                while not fin do
++                while not fin1 do
+                     let c = seekReadByteAsInt32 mdv (pos + 8 + n)
+ 
+                     if c = 0 then
+-                        fin <- true
++                        fin1 <- true
+                     elif n >= Array.length name || c <> name[n] then
+                         res <- false
+ 
+diff --git a/src/Compiler/SyntaxTree/LexHelpers.fs b/src/Compiler/SyntaxTree/LexHelpers.fs
+index a4c222720..840d804c3 100644
+--- a/src/Compiler/SyntaxTree/LexHelpers.fs
++++ b/src/Compiler/SyntaxTree/LexHelpers.fs
+@@ -152,7 +152,7 @@ type LexerStringFinisherContext =
+ type LexerStringFinisher =
+     | LexerStringFinisher of (ByteBuffer -> LexerStringKind -> LexerStringFinisherContext -> LexerContinuation -> token)
+ 
+-    member fin.Finish (buf: ByteBuffer) kind context cont =
+-        let (LexerStringFinisher f) = fin
++    member finish.Finish (buf: ByteBuffer) kind context cont =
++        let (LexerStringFinisher f) = finish
+         f buf kind context cont
+ 
+diff --git a/codegen/lex.fs b/codegen/lex.fs
+index 555eaf8aa..f7617d10d 100644
+--- a/codegen/lex.fs
++++ b/codegen/lex.fs
+@@ -172,7 +172,7 @@ let startString args (lexbuf: UnicodeLexing.Lexbuf) =
+     let buf = ByteBuffer.Create StringCapacity
+     let m = lexbuf.LexemeRange
+     let startp = lexbuf.StartPos
+-    let fin =
++    let fin1 =
+         LexerStringFinisher (fun buf kind context cont ->
+             // Adjust the start-of-token mark back to the true start of the token
+             lexbuf.StartPos <- startp
+@@ -223,7 +223,7 @@ let startString args (lexbuf: UnicodeLexing.Lexbuf) =
+                     else
+                         SynStringKind.Regular
+                 STRING (s, synStringKind, cont))
+-    buf,fin,m
++    buf,fin1,m
+ 
+ 
+ // Utility functions for processing XML documentation
+@@ -2380,7 +2380,7 @@ and token (args: LexArgs) (skip: bool) lexbuf =
+           )
+   | 49 -> ( 
+ //# 677 "src/Compiler/lex.fsl"
+-                      let buf, fin, m = startString args lexbuf
++                      let buf, fin1, m = startString args lexbuf
+                       // Single quote in triple quote ok, others disallowed
+                       match args.stringNest with
+                       | (_, LexerStringStyle.ExtendedInterpolated, _, _, _) :: _
+@@ -2388,24 +2388,24 @@ and token (args: LexArgs) (skip: bool) lexbuf =
+                       | _ :: _ -> errorR(Error(FSComp.SR.lexSingleQuoteInSingleQuote(), m))
+                       | [] -> ()
+                       if not skip then STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.SingleQuote, LexerStringKind.String, args.interpolationDelimiterLength, m))
+-                      else singleQuoteString (buf, fin, m, LexerStringKind.String, args) skip lexbuf 
++                      else singleQuoteString (buf, fin1, m, LexerStringKind.String, args) skip lexbuf 
+ //# 2392 "lex.fs"
+           )
+   | 50 -> ( 
+ //# 690 "src/Compiler/lex.fsl"
+-                      let buf, fin, m = startString args lexbuf
++                      let buf, fin1, m = startString args lexbuf
+                       // Single quote in triple quote ok, others disallowed
+                       match args.stringNest with
+                       | _ :: _ -> errorR(Error(FSComp.SR.lexTripleQuoteInTripleQuote(), m))
+                       | [] -> ()
+                       args.interpolationDelimiterLength <- 1
+                       if not skip then STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.TripleQuote, LexerStringKind.InterpolatedStringFirst, 1, m))
+-                      else tripleQuoteString (buf, fin, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf 
++                      else tripleQuoteString (buf, fin1, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf 
+ //# 2404 "lex.fs"
+           )
+   | 51 -> ( 
+ //# 702 "src/Compiler/lex.fsl"
+-                      let buf, fin, m = startString args lexbuf
++                      let buf, fin1, m = startString args lexbuf
+                       if lexbuf.SupportsFeature LanguageFeature.ExtendedStringInterpolation then
+                           // Single quote in triple quote ok, others disallowed
+                           match args.stringNest with
+@@ -2415,20 +2415,20 @@ and token (args: LexArgs) (skip: bool) lexbuf =
+                           if not skip then
+                               STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.ExtendedInterpolated, LexerStringKind.InterpolatedStringFirst, args.interpolationDelimiterLength, m))
+                           else
+-                              extendedInterpolatedString (buf, fin, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf
++                              extendedInterpolatedString (buf, fin1, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf
+                       else
+                           let result =
+                             if not skip then
+                                 STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.TripleQuote, LexerStringKind.InterpolatedStringFirst, args.interpolationDelimiterLength, m))
+                             else
+-                                tripleQuoteString (buf, fin, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf
++                                tripleQuoteString (buf, fin1, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf
+                           fail args lexbuf (FSComp.SR.lexExtendedStringInterpolationNotSupported()) result
+                     
+ //# 2427 "lex.fs"
+           )
+   | 52 -> ( 
+ //# 725 "src/Compiler/lex.fsl"
+-                      let buf,fin,m = startString args lexbuf
++                      let buf,fin1,m = startString args lexbuf
+                       // Single quote in triple quote ok, others disallowed
+                       match args.stringNest with
+                       | (_, style, _, _, _) :: _ when style = LexerStringStyle.ExtendedInterpolated || style = LexerStringStyle.TripleQuote -> ()
+@@ -2437,12 +2437,12 @@ and token (args: LexArgs) (skip: bool) lexbuf =
+                       if not skip then
+                           STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.SingleQuote, LexerStringKind.InterpolatedStringFirst, args.interpolationDelimiterLength, m))
+                       else
+-                          singleQuoteString (buf, fin, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf 
++                          singleQuoteString (buf, fin1, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf 
+ //# 2441 "lex.fs"
+           )
+   | 53 -> ( 
+ //# 739 "src/Compiler/lex.fsl"
+-                      let buf, fin, m = startString args lexbuf
++                      let buf, fin1, m = startString args lexbuf
+                       args.interpolationDelimiterLength <- 0
+                       // Single quote in triple quote ok, others disallowed
+                       match args.stringNest with
+@@ -2451,12 +2451,12 @@ and token (args: LexArgs) (skip: bool) lexbuf =
+                       if not skip then
+                           STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.TripleQuote, LexerStringKind.String, args.interpolationDelimiterLength, m))
+                       else
+-                          tripleQuoteString (buf, fin, m, LexerStringKind.String, args) skip lexbuf 
++                          tripleQuoteString (buf, fin1, m, LexerStringKind.String, args) skip lexbuf 
+ //# 2455 "lex.fs"
+           )
+   | 54 -> ( 
+ //# 754 "src/Compiler/lex.fsl"
+-                      let buf, fin, m = startString args lexbuf
++                      let buf, fin1, m = startString args lexbuf
+                       // Single quote in triple quote ok, others disallowed
+                       match args.stringNest with
+                       | (_, LexerStringStyle.ExtendedInterpolated, _, _, _) :: _
+@@ -2466,12 +2466,12 @@ and token (args: LexArgs) (skip: bool) lexbuf =
+                       if not skip then
+                           STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.Verbatim, LexerStringKind.String, args.interpolationDelimiterLength, m))
+                       else
+-                          verbatimString (buf, fin, m, LexerStringKind.String, args) skip lexbuf 
++                          verbatimString (buf, fin1, m, LexerStringKind.String, args) skip lexbuf 
+ //# 2470 "lex.fs"
+           )
+   | 55 -> ( 
+ //# 769 "src/Compiler/lex.fsl"
+-                      let buf, fin, m = startString args lexbuf
++                      let buf, fin1, m = startString args lexbuf
+                       // Single quote in triple quote ok, others disallowed
+                       match args.stringNest with
+                       | (_, style, _, _, _) :: _ when style = LexerStringStyle.ExtendedInterpolated || style = LexerStringStyle.TripleQuote -> ()
+@@ -2480,7 +2480,7 @@ and token (args: LexArgs) (skip: bool) lexbuf =
+                       if not skip then
+                           STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, LexerStringStyle.Verbatim, LexerStringKind.InterpolatedStringFirst, args.interpolationDelimiterLength, m))
+                       else
+-                          verbatimString (buf, fin, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf 
++                          verbatimString (buf, fin1, m, LexerStringKind.InterpolatedStringFirst, args) skip lexbuf 
+ //# 2484 "lex.fs"
+           )
+   | 56 -> ( 
+@@ -2867,15 +2867,15 @@ and token (args: LexArgs) (skip: bool) lexbuf =
+                           |> Option.iter (fun r ->
+                               let n = r.StartColumn - lexbuf.StartPos.Column 
+                               lexbuf.StartPos <- lexbuf.StartPos.ShiftColumnBy(n)) 
+-                          let buf, fin, m = startString args lexbuf
++                          let buf, fin1, m = startString args lexbuf
+                           if not skip then
+                               STRING_TEXT (LexCont.String(args.ifdefStack, args.stringNest, style, LexerStringKind.InterpolatedStringPart, args.interpolationDelimiterLength, m))
+                           else
+                               match style with
+-                              | LexerStringStyle.Verbatim -> verbatimString (buf, fin, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
+-                              | LexerStringStyle.SingleQuote -> singleQuoteString (buf, fin, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
+-                              | LexerStringStyle.TripleQuote -> tripleQuoteString (buf, fin, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
+-                              | LexerStringStyle.ExtendedInterpolated -> extendedInterpolatedString (buf, fin, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
++                              | LexerStringStyle.Verbatim -> verbatimString (buf, fin1, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
++                              | LexerStringStyle.SingleQuote -> singleQuoteString (buf, fin1, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
++                              | LexerStringStyle.TripleQuote -> tripleQuoteString (buf, fin1, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
++                              | LexerStringStyle.ExtendedInterpolated -> extendedInterpolatedString (buf, fin1, m, LexerStringKind.InterpolatedStringPart, args) skip lexbuf
+                       | (counter, style, d, altR, m) :: rest ->
+                           // Note, we do not update the 'm', any incomplete-interpolation error
+                           // will be reported w.r.t. the first '{'
+@@ -3287,17 +3287,17 @@ and singleQuoteString (sargs: LexerStringArgs) (skip: bool) lexbuf =
+           )
+   | 6 -> ( 
+ //# 1352 "src/Compiler/lex.fsl"
+-                     let (buf, fin, _m, kind, args) = sargs
++                     let (buf, fin1, _m, kind, args) = sargs
+                      let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-                     fin.Finish buf kind (LexerStringFinisherContext()) cont
++                     fin1.Finish buf kind (LexerStringFinisherContext()) cont
+                    
+ //# 3294 "lex.fs"
+           )
+   | 7 -> ( 
+ //# 1358 "src/Compiler/lex.fsl"
+-                     let (buf, fin, _m, kind, args) = sargs
++                     let (buf, fin1, _m, kind, args) = sargs
+                      let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-                     fin.Finish buf { kind with IsByteString = true } (LexerStringFinisherContext()) cont
++                     fin1.Finish buf { kind with IsByteString = true } (LexerStringFinisherContext()) cont
+                    
+ //# 3302 "lex.fs"
+           )
+@@ -3314,13 +3314,13 @@ and singleQuoteString (sargs: LexerStringArgs) (skip: bool) lexbuf =
+           )
+   | 9 -> ( 
+ //# 1373 "src/Compiler/lex.fsl"
+-                     let (buf, fin, m, kind, args) = sargs
++                     let (buf, fin1, m, kind, args) = sargs
+                      if kind.IsInterpolated then
+                          // get a new range for where the fill starts
+                          let m2 = lexbuf.LexemeRange
+                          args.stringNest <- (1, LexerStringStyle.SingleQuote, args.interpolationDelimiterLength, None, m2) :: args.stringNest
+                          let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-                         fin.Finish buf kind LexerStringFinisherContext.InterpolatedPart cont
++                         fin1.Finish buf kind LexerStringFinisherContext.InterpolatedPart cont
+                      else
+                          addUnicodeString buf (lexeme lexbuf)
+                          if not skip then
+@@ -3418,17 +3418,17 @@ and verbatimString (sargs: LexerStringArgs) (skip: bool) lexbuf =
+           )
+   | 1 -> ( 
+ //# 1459 "src/Compiler/lex.fsl"
+-                     let (buf, fin, _m, kind, args) = sargs
++                     let (buf, fin1, _m, kind, args) = sargs
+                      let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-                     fin.Finish buf kind LexerStringFinisherContext.Verbatim cont
++                     fin1.Finish buf kind LexerStringFinisherContext.Verbatim cont
+                    
+ //# 3425 "lex.fs"
+           )
+   | 2 -> ( 
+ //# 1465 "src/Compiler/lex.fsl"
+-                     let (buf, fin, _m, kind, args) = sargs
++                     let (buf, fin1, _m, kind, args) = sargs
+                      let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-                     fin.Finish buf { kind with IsByteString = true } LexerStringFinisherContext.Verbatim cont
++                     fin1.Finish buf { kind with IsByteString = true } LexerStringFinisherContext.Verbatim cont
+                    
+ //# 3433 "lex.fs"
+           )
+@@ -3456,13 +3456,13 @@ and verbatimString (sargs: LexerStringArgs) (skip: bool) lexbuf =
+           )
+   | 5 -> ( 
+ //# 1489 "src/Compiler/lex.fsl"
+-                     let (buf, fin, m, kind, args) = sargs
++                     let (buf, fin1, m, kind, args) = sargs
+                      if kind.IsInterpolated then
+                          // get a new range for where the fill starts
+                          let m2 = lexbuf.LexemeRange
+                          args.stringNest <- (1, LexerStringStyle.Verbatim, args.interpolationDelimiterLength, None, m2) :: args.stringNest
+                          let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-                         fin.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.Verbatim) cont
++                         fin1.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.Verbatim) cont
+                      else
+                          addUnicodeString buf (lexeme lexbuf)
+                          if not skip then
+@@ -3540,10 +3540,10 @@ and tripleQuoteString (sargs: LexerStringArgs) (skip: bool) lexbuf =
+   match _fslex_tables.Interpret(214,lexbuf) with
+   | 0 -> ( 
+ //# 1558 "src/Compiler/lex.fsl"
+-                     let (buf, fin, _m, kind, args) = sargs
++                     let (buf, fin1, _m, kind, args) = sargs
+                      args.interpolationDelimiterLength <- 0
+                      let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-                     fin.Finish buf kind LexerStringFinisherContext.TripleQuote cont 
++                     fin1.Finish buf kind LexerStringFinisherContext.TripleQuote cont 
+ //# 3547 "lex.fs"
+           )
+   | 1 -> ( 
+@@ -3600,13 +3600,13 @@ and tripleQuoteString (sargs: LexerStringArgs) (skip: bool) lexbuf =
+           )
+   | 6 -> ( 
+ //# 1608 "src/Compiler/lex.fsl"
+-                     let (buf, fin, m, kind, args) = sargs
++                     let (buf, fin1, m, kind, args) = sargs
+                      if kind.IsInterpolated then
+                          // get a new range for where the fill starts
+                          let m2 = lexbuf.LexemeRange
+                          args.stringNest <- (1, LexerStringStyle.TripleQuote, args.interpolationDelimiterLength, None, m2) :: args.stringNest
+                          let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-                         fin.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.TripleQuote) cont
++                         fin1.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.TripleQuote) cont
+                      else
+                          addUnicodeString buf (lexeme lexbuf)
+                          if not skip then
+@@ -3654,10 +3654,10 @@ and extendedInterpolatedString (sargs: LexerStringArgs) (skip: bool) lexbuf =
+   match _fslex_tables.Interpret(178,lexbuf) with
+   | 0 -> ( 
+ //# 1652 "src/Compiler/lex.fsl"
+-                     let (buf, fin, _m, kind, args) = sargs
++                     let (buf, fin1, _m, kind, args) = sargs
+                      args.interpolationDelimiterLength <- 0
+                      let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-                     fin.Finish buf kind LexerStringFinisherContext.TripleQuote cont 
++                     fin1.Finish buf kind LexerStringFinisherContext.TripleQuote cont 
+ //# 3661 "lex.fs"
+           )
+   | 1 -> ( 
+@@ -3715,7 +3715,7 @@ and extendedInterpolatedString (sargs: LexerStringArgs) (skip: bool) lexbuf =
+           )
+   | 4 -> ( 
+ //# 1709 "src/Compiler/lex.fsl"
+-                     let (buf, fin, m, kind, args) = sargs
++                     let (buf, fin1, m, kind, args) = sargs
+                      let numBraces = String.length (lexeme lexbuf)
+                      // Extended interpolated strings starts with at least 2 $
+                      // Number of leading $s is the number of '{' needed to open interpolation expression (interpolationDelimiterLength)
+@@ -3727,7 +3727,7 @@ and extendedInterpolatedString (sargs: LexerStringArgs) (skip: bool) lexbuf =
+                          let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+                          fail args lexbuf
+                              (FSComp.SR.lexTooManyLBracesInTripleQuote())
+-                             (fin.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.TripleQuote) cont)
++                             (fin1.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.TripleQuote) cont)
+                      elif numBraces < args.interpolationDelimiterLength then
+                          // Less than interpolationDelimiterLength means we treat '{' as normal content
+                          addUnicodeString buf (lexeme lexbuf)
+@@ -3746,7 +3746,7 @@ and extendedInterpolatedString (sargs: LexerStringArgs) (skip: bool) lexbuf =
+                          let m2 = lexbuf.LexemeRange
+                          args.stringNest <- (1, LexerStringStyle.ExtendedInterpolated, args.interpolationDelimiterLength, None, m2) :: args.stringNest
+                          let cont = LexCont.Token(args.ifdefStack, args.stringNest)
+-                         fin.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.TripleQuote) cont
++                         fin1.Finish buf kind (LexerStringFinisherContext.InterpolatedPart ||| LexerStringFinisherContext.TripleQuote) cont
+                    
+ //# 3751 "lex.fs"
+           )
+diff --git a/src/Compiler/TypedTree/TypedTreePickle.fs b/src/Compiler/TypedTree/TypedTreePickle.fs
+index ea2b31c10..e66b7ce26 100644
+--- a/src/Compiler/TypedTree/TypedTreePickle.fs
++++ b/src/Compiler/TypedTree/TypedTreePickle.fs
+@@ -1716,7 +1716,7 @@ let simple_instrs =
+ 
+ let encode_table = Dictionary<_, _>(300, HashIdentity.Structural)
+ let _ = List.iter (fun (icode, i) -> encode_table[i] <- icode) simple_instrs
+-let encode_instr si = encode_table[si]
++let encode_instr si1 = encode_table[si1]
+ let isNoArgInstr s = encode_table.ContainsKey s
+ 
+ let decoders =
+@@ -1768,7 +1768,7 @@ let decode_tab =
+ 
+ let p_ILInstr x st =
+     match x with
+-    | si when isNoArgInstr si -> p_byte (encode_instr si) st
++    | si when isNoArgInstr si1 -> p_byte (encode_instr si1) st
+     | I_call(Normalcall, mspec, None) ->
+         p_byte itag_call st
+         p_ILMethodSpec mspec st
+diff --git a/src/Compiler/Checking/Expressions/CheckExpressions.fs b/src/Compiler/Checking/Expressions/CheckExpressions.fs
+index c9de912a5..31bbbdc21 100644
+--- a/src/Compiler/Checking/Expressions/CheckExpressions.fs
++++ b/src/Compiler/Checking/Expressions/CheckExpressions.fs
+-- 
+2.37.1.windows.1
+
+

@@ -42,6 +42,12 @@ public class PatchGenerator
         return ApplyKeywords(current, patchTemplate);
     }
 
+    public string GenerateFableFcsFSharpPatch(string tfm, LanguageConfiguration current)
+    {
+        var patchTemplate = GetFableFcsFSharpPatchTemplate(tfm);
+        return ApplyKeywords(current, patchTemplate);
+    }
+
     public string GenerateFableFSharpBuildPatch(string tfm, LanguageConfiguration current)
     {
         var patchTemplate = GetFableFSharpBuildPatchTemplate(tfm);
@@ -175,6 +181,14 @@ public class PatchGenerator
     private string GetFableFSharpPatchTemplate(string tfm)
     {
         var resourceKey = $"FSharpKeywordTranslator.Core.patches.fsharp-compiler-{tfm}-simple.patch";
+        using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream(resourceKey) ?? throw new InvalidDataException($"The patch for Fable F# compiler is missing from the assembly. Resource key {resourceKey}");
+        using var stringReader = new StreamReader(patchStream);
+        return stringReader.ReadToEnd();
+    }
+
+    private string GetFableFcsFSharpPatchTemplate(string tfm)
+    {
+        var resourceKey = $"FSharpKeywordTranslator.Core.patches.fsharp-compiler-{tfm}-fcs.patch";
         using var patchStream = typeof(PatchGenerator).Assembly.GetManifestResourceStream(resourceKey) ?? throw new InvalidDataException($"The patch for Fable F# compiler is missing from the assembly. Resource key {resourceKey}");
         using var stringReader = new StreamReader(patchStream);
         return stringReader.ReadToEnd();
