@@ -6,19 +6,19 @@ Subject: [PATCH] Save work
 ---
  Directory.Build.props                         |  5 ++
  .../Microsoft.FSharp.Compiler.MSBuild.csproj  |  6 +-
- src/Compiler/FSharp.Compiler.Service.fsproj   |  6 +-
- src/Compiler/FSharp.Compiler.Service.nuspec   |  6 +-
- src/Compiler/SyntaxTree/LexHelpers.fs         | 64 +++++++++++++++++++
+ src/fcs-fable/src/Compiler/FSharp.Compiler.Service.fsproj   |  6 +-
+ src/fcs-fable/src/Compiler/FSharp.Compiler.Service.nuspec   |  6 +-
+ src/fcs-fable/src/Compiler/SyntaxTree/LexHelpers.fs         | 64 +++++++++++++++++++
  .../Microsoft.FSharp.Compiler.nuspec          |  4 +-
  .../HostedCompilerServer.fsproj               |  9 ++-
  .../Source.extension.vsixmanifest             |  2 +-
  .../FSharp.ProjectSystem.FSharp.fsproj        |  4 +-
  9 files changed, 91 insertions(+), 15 deletions(-)
 
-diff --git a/src/Compiler/SyntaxTree/LexHelpers.fs b/src/Compiler/SyntaxTree/LexHelpers.fs
+diff --git a/src/fcs-fable/src/Compiler/SyntaxTree/LexHelpers.fs b/src/fcs-fable/src/Compiler/SyntaxTree/LexHelpers.fs
 index 02d4da364..938eba25e 100644
---- a/src/Compiler/SyntaxTree/LexHelpers.fs
-+++ b/src/Compiler/SyntaxTree/LexHelpers.fs
+--- a/src/fcs-fable/src/Compiler/SyntaxTree/LexHelpers.fs
++++ b/src/fcs-fable/src/Compiler/SyntaxTree/LexHelpers.fs
 @@ -388,6 +388,{KEYWORDS_OVERRIDE_COUNT} @@ module Keywords =
              ALWAYS, "while", WHILE
              ALWAYS, "with", WITH
@@ -27,10 +27,10 @@ index 02d4da364..938eba25e 100644
              ALWAYS, "_", UNDERSCORE
              (*------- for prototyping and explaining offside rule *)
              FSHARP, "__token_OBLOCKSEP", OBLOCKSEP
-diff --git a/src/Compiler/Checking/CheckDeclarations.fs b/src/Compiler/Checking/CheckDeclarations.fs
+diff --git a/src/fcs-fable/src/Compiler/Checking/CheckDeclarations.fs b/src/fcs-fable/src/Compiler/Checking/CheckDeclarations.fs
 index 63f244fc2..536253ce6 100644
---- a/src/Compiler/Checking/CheckDeclarations.fs
-+++ b/src/Compiler/Checking/CheckDeclarations.fs
+--- a/src/fcs-fable/src/Compiler/Checking/CheckDeclarations.fs
++++ b/src/fcs-fable/src/Compiler/Checking/CheckDeclarations.fs
 @@ -426,10 +426,10 @@ module TcRecdUnionAndEnumDeclarations =
          | ParentNone -> vis 
          | Parent tcref -> combineAccess vis tcref.TypeReprAccessibility
@@ -73,10 +73,10 @@ index 63f244fc2..536253ce6 100644
              | _ -> error(Error(FSComp.SR.tcInvalidEnumerationLiteral(), valueRange))
  
      let TcEnumDecls (cenv: cenv) env tpenv parent thisTy enumCases =
-diff --git a/src/Compiler/Checking/Expressions/CheckExpressions.fs b/src/Compiler/Checking/Expressions/CheckExpressions.fs
+diff --git a/src/fcs-fable/src/Compiler/Checking/Expressions/CheckExpressions.fs b/src/fcs-fable/src/Compiler/Checking/Expressions/CheckExpressions.fs
 index c1cc0f1a4..2f996db97 100644
---- a/src/Compiler/Checking/Expressions/CheckExpressions.fs
-+++ b/src/Compiler/Checking/Expressions/CheckExpressions.fs
+--- a/src/fcs-fable/src/Compiler/Checking/Expressions/CheckExpressions.fs
++++ b/src/fcs-fable/src/Compiler/Checking/Expressions/CheckExpressions.fs
 @@ -1381,7 +1381,7 @@ let private HasMethodImplNoInliningAttribute g attrs =
              | Some (Attrib(_, _, [ AttribInt32Arg flags ], _, _, _, _)) -> (flags &&& 0x8) <> 0x0
              | _ -> false
@@ -186,10 +186,10 @@ index c1cc0f1a4..2f996db97 100644
                      zero)
                  zero)
  
-diff --git a/src/Compiler/Checking/Expressions/CheckExpressions.fsi b/src/Compiler/Checking/Expressions/CheckExpressions.fsi
+diff --git a/src/fcs-fable/src/Compiler/Checking/Expressions/CheckExpressions.fsi b/src/fcs-fable/src/Compiler/Checking/Expressions/CheckExpressions.fsi
 index b26381b6b..b2cea5090 100644
---- a/src/Compiler/Checking/Expressions/CheckExpressions.fsi
-+++ b/src/Compiler/Checking/Expressions/CheckExpressions.fsi
+--- a/src/fcs-fable/src/Compiler/Checking/Expressions/CheckExpressions.fsi
++++ b/src/fcs-fable/src/Compiler/Checking/Expressions/CheckExpressions.fsi
 @@ -516,7 +516,7 @@ val MakeAndPublishVal:
      vscheme: ValScheme *
      attrs: Attribs *
@@ -199,10 +199,10 @@ index b26381b6b..b2cea5090 100644
      isGeneratedEventVal: bool ->
          Val
  
-diff --git a/src/Compiler/Checking/MethodCalls.fs b/src/Compiler/Checking/MethodCalls.fs
+diff --git a/src/fcs-fable/src/Compiler/Checking/MethodCalls.fs b/src/fcs-fable/src/Compiler/Checking/MethodCalls.fs
 index d7e09b86a..b9ff0f4d0 100644
---- a/src/Compiler/Checking/MethodCalls.fs
-+++ b/src/Compiler/Checking/MethodCalls.fs
+--- a/src/fcs-fable/src/Compiler/Checking/MethodCalls.fs
++++ b/src/fcs-fable/src/Compiler/Checking/MethodCalls.fs
 @@ -1665,8 +1665,8 @@ let AdjustCallerArgs tcVal tcFieldInit eCallerMemberName (infoReader: InfoReader
              if calledMethInfo.IsExtensionMember && calledMethInfo.ObjArgNeedsAddress(amap, mMethExpr) then
                  error(Error(FSComp.SR.tcCannotPartiallyApplyExtensionMethodForByref(calledMethInfo.DisplayName), mMethExpr))
@@ -214,10 +214,10 @@ index d7e09b86a..b9ff0f4d0 100644
          | _ -> 
              emptyPreBinder, objArgs
  
-diff --git a/src/Compiler/Checking/PatternMatchCompilation.fs b/src/Compiler/Checking/PatternMatchCompilation.fs
+diff --git a/src/fcs-fable/src/Compiler/Checking/PatternMatchCompilation.fs b/src/fcs-fable/src/Compiler/Checking/PatternMatchCompilation.fs
 index 2d3963b94..c1ff8b87d 100644
---- a/src/Compiler/Checking/PatternMatchCompilation.fs
-+++ b/src/Compiler/Checking/PatternMatchCompilation.fs
+--- a/src/fcs-fable/src/Compiler/Checking/PatternMatchCompilation.fs
++++ b/src/fcs-fable/src/Compiler/Checking/PatternMatchCompilation.fs
 @@ -1403,11 +1403,11 @@ let CompilePatternBasic
  
          if isMemOfActives path actives then
@@ -241,10 +241,10 @@ index 2d3963b94..c1ff8b87d 100644
                              let subActives = BindProjectionPattern subActive (newActives, valMap)
                              mkFrontiers subActives i
                          | None ->
-diff --git a/src/Compiler/CodeGen/IlxGen.fs b/src/Compiler/CodeGen/IlxGen.fs
+diff --git a/src/fcs-fable/src/Compiler/CodeGen/IlxGen.fs b/src/fcs-fable/src/Compiler/CodeGen/IlxGen.fs
 index 704c43d4b..4ed2b5fd7 100644
---- a/src/Compiler/CodeGen/IlxGen.fs
-+++ b/src/Compiler/CodeGen/IlxGen.fs
+--- a/src/fcs-fable/src/Compiler/CodeGen/IlxGen.fs
++++ b/src/fcs-fable/src/Compiler/CodeGen/IlxGen.fs
 @@ -4685,8 +4685,8 @@ and eligibleForFilter (cenv: cenv) expr =
  
      and checkDecisionTree dtree =
@@ -265,10 +265,10 @@ index 704c43d4b..4ed2b5fd7 100644
                  | _ -> ilFieldDef
  
              let ilFieldDef =
-diff --git a/src/Compiler/Optimize/LowerSequences.fs b/src/Compiler/Optimize/LowerSequences.fs
+diff --git a/src/fcs-fable/src/Compiler/Optimize/LowerSequences.fs b/src/fcs-fable/src/Compiler/Optimize/LowerSequences.fs
 index 3a7d733ec..535a2d29d 100644
---- a/src/Compiler/Optimize/LowerSequences.fs
-+++ b/src/Compiler/Optimize/LowerSequences.fs
+--- a/src/fcs-fable/src/Compiler/Optimize/LowerSequences.fs
++++ b/src/fcs-fable/src/Compiler/Optimize/LowerSequences.fs
 @@ -522,8 +522,8 @@ let ConvertSequenceExprToObject g amap overallExpr =
                                 significantClose = false
                                 asyncVars = emptyFreeVars }
@@ -280,10 +280,10 @@ index 3a7d733ec..535a2d29d 100644
                  | _  -> None
  
  
-diff --git a/src/Compiler/Optimize/Optimizer.fs b/src/Compiler/Optimize/Optimizer.fs
+diff --git a/src/fcs-fable/src/Compiler/Optimize/Optimizer.fs b/src/fcs-fable/src/Compiler/Optimize/Optimizer.fs
 index ec6359a42..861a5b1ff 100644
---- a/src/Compiler/Optimize/Optimizer.fs
-+++ b/src/Compiler/Optimize/Optimizer.fs
+--- a/src/fcs-fable/src/Compiler/Optimize/Optimizer.fs
++++ b/src/fcs-fable/src/Compiler/Optimize/Optimizer.fs
 @@ -1874,8 +1874,8 @@ let MakeStructuralBindingTemp (v: Val) i (arg: Expr) argTy =
  
  let MakeMutableStructuralBindingForTupleElement (v: Val) i (arg: Expr) argTy =
@@ -295,10 +295,39 @@ index ec6359a42..861a5b1ff 100644
  
  let ExpandStructuralBindingRaw cenv expr =
      let g = cenv.g
-diff --git a/src/Compiler/Symbols/Exprs.fs b/src/Compiler/Symbols/Exprs.fs
+@@ -1941,23 +1941,23 @@ let ExpandStructuralBindingRaw cenv expr =
+ // and the tuple allocation can be eliminated.
+ // Most importantly, this successfully eliminates tuple allocations for implicitly returned
+ // formal arguments in method calls.
+-let rec RearrangeTupleBindings expr fin =
++let rec RearrangeTupleBindings expr fin1 =
+     match expr with
+     | Expr.Let (bind, body, m, _) ->
+-        match RearrangeTupleBindings body fin with
++        match RearrangeTupleBindings body fin1 with
+         | Some b -> Some (mkLetBind m bind b)
+         | None -> None
+ 
+     | Expr.Op (TOp.Tuple tupInfo, _, _, _) when not (evalTupInfoIsStruct tupInfo) ->
+-        Some (fin expr)
++        Some (fin1 expr)
+ 
+     | Expr.Sequential (e1, e2, kind, m) ->
+-        match RearrangeTupleBindings e2 fin with
++        match RearrangeTupleBindings e2 fin1 with
+         | Some b -> Some (Expr.Sequential (e1, b, kind, m))
+         | None -> None
+ 
+     | Expr.DebugPoint (dp, innerExpr) ->
+-        match RearrangeTupleBindings innerExpr fin with
++        match RearrangeTupleBindings innerExpr fin1 with
+         | Some innerExprR -> Some (Expr.DebugPoint (dp, innerExprR))
+         | None -> None
+ 
+diff --git a/src/fcs-fable/src/Compiler/Symbols/Exprs.fs b/src/fcs-fable/src/Compiler/Symbols/Exprs.fs
 index eabc11f34..66e1ccd03 100644
---- a/src/Compiler/Symbols/Exprs.fs
-+++ b/src/Compiler/Symbols/Exprs.fs
+--- a/src/fcs-fable/src/Compiler/Symbols/Exprs.fs
++++ b/src/fcs-fable/src/Compiler/Symbols/Exprs.fs
 @@ -542,8 +542,8 @@ module FSharpExprConvert =
          match expr with 
          
@@ -310,10 +339,10 @@ index eabc11f34..66e1ccd03 100644
  
          // These cases are the start of a "linear" sequence where we use tail recursion to allow use to 
          // deal with large expressions.
-diff --git a/src/Compiler/TypedTree/TypedTree.fs b/src/Compiler/TypedTree/TypedTree.fs
+diff --git a/src/fcs-fable/src/Compiler/TypedTree/TypedTree.fs b/src/fcs-fable/src/Compiler/TypedTree/TypedTree.fs
 index bb6b7d22f..b3567e46f 100644
---- a/src/Compiler/TypedTree/TypedTree.fs
-+++ b/src/Compiler/TypedTree/TypedTree.fs
+--- a/src/fcs-fable/src/Compiler/TypedTree/TypedTree.fs
++++ b/src/fcs-fable/src/Compiler/TypedTree/TypedTree.fs
 @@ -5996,14 +5996,14 @@ type Construct() =
                  | _ -> Some { Entity.NewEmptyEntityOptData() with entity_xmldoc = doc; entity_accessibility = access; entity_tycon_repr_accessibility = access; entity_exn_info = repr } } 
  
@@ -353,10 +382,10 @@ index bb6b7d22f..b3567e46f 100644
                      val_access = access
                      val_xmldoc = doc
                      val_member_info = specialRepr
-diff --git a/src/Compiler/TypedTree/TypedTree.fsi b/src/Compiler/TypedTree/TypedTree.fsi
+diff --git a/src/fcs-fable/src/Compiler/TypedTree/TypedTree.fsi b/src/fcs-fable/src/Compiler/TypedTree/TypedTree.fsi
 index f6a2664fe..cd61a3996 100644
---- a/src/Compiler/TypedTree/TypedTree.fsi
-+++ b/src/Compiler/TypedTree/TypedTree.fsi
+--- a/src/fcs-fable/src/Compiler/TypedTree/TypedTree.fsi
++++ b/src/fcs-fable/src/Compiler/TypedTree/TypedTree.fsi
 @@ -4387,7 +4387,7 @@ type Construct =
      /// Create a new TAST RecdField node for an F# class, struct or record field
      static member NewRecdField:
@@ -375,10 +404,10 @@ index f6a2664fe..cd61a3996 100644
          actualParent: ParentRef ->
              Val
  
-diff --git a/src/Compiler/TypedTree/TypedTreeOps.fs b/src/Compiler/TypedTree/TypedTreeOps.fs
+diff --git a/src/fcs-fable/src/Compiler/TypedTree/TypedTreeOps.fs b/src/fcs-fable/src/Compiler/TypedTree/TypedTreeOps.fs
 index 8d555ba3e..5432a1878 100644
---- a/src/Compiler/TypedTree/TypedTreeOps.fs
-+++ b/src/Compiler/TypedTree/TypedTreeOps.fs
+--- a/src/fcs-fable/src/Compiler/TypedTree/TypedTreeOps.fs
++++ b/src/fcs-fable/src/Compiler/TypedTree/TypedTreeOps.fs
 @@ -7934,8 +7934,8 @@ let isThrow x = Option.isSome (destThrow x)
  
  // reraise - parsed as library call - internally represented as op form.
@@ -435,10 +464,10 @@ index 8d555ba3e..5432a1878 100644
                              binderBuilder, expr
                          
  
-diff --git a/src/Compiler/pars.fsy b/src/Compiler/pars.fsy
+diff --git a/src/fcs-fable/src/Compiler/pars.fsy b/src/fcs-fable/src/Compiler/pars.fsy
 index 6eacd0b24..719757894 100644
---- a/src/Compiler/pars.fsy
-+++ b/src/Compiler/pars.fsy
+--- a/src/fcs-fable/src/Compiler/pars.fsy
++++ b/src/fcs-fable/src/Compiler/pars.fsy
 @@ -728,19 +728,19 @@ moduleSpfn:
  valSpfn:
    | opt_attributes opt_access VAL opt_attributes opt_inline opt_mutable opt_access nameop opt_explicitValTyparDecls COLON topTypeWithTypeConstraints optLiteralValueSpfn
@@ -462,10 +491,10 @@ index 6eacd0b24..719757894 100644
          SynModuleSigDecl.Val(valSpfn, m)
        }
  
-diff --git a/src/Compiler/lex.fsl b/src/Compiler/lex.fsl
+diff --git a/src/fcs-fable/src/Compiler/lex.fsl b/src/fcs-fable/src/Compiler/lex.fsl
 index 8e3030879..59e321cdd 100644
---- a/src/Compiler/lex.fsl
-+++ b/src/Compiler/lex.fsl
+--- a/src/fcs-fable/src/Compiler/lex.fsl
++++ b/src/fcs-fable/src/Compiler/lex.fsl
 @@ -164,7 +164,7 @@ let startString args (lexbuf: UnicodeLexing.Lexbuf) =
      let buf = ByteBuffer.Create StringCapacity
      let m = lexbuf.LexemeRange
@@ -751,10 +780,10 @@ index 8e3030879..59e321cdd 100644
      }
  
   | "}" +
-diff --git a/src/Compiler/Utilities/ResizeArray.fs b/src/Compiler/Utilities/ResizeArray.fs
+diff --git a/src/fcs-fable/src/Compiler/Utilities/ResizeArray.fs b/src/fcs-fable/src/Compiler/Utilities/ResizeArray.fs
 index 2c9cd971c..ce506066c 100644
---- a/src/Compiler/Utilities/ResizeArray.fs
-+++ b/src/Compiler/Utilities/ResizeArray.fs
+--- a/src/fcs-fable/src/Compiler/Utilities/ResizeArray.fs
++++ b/src/fcs-fable/src/Compiler/Utilities/ResizeArray.fs
 @@ -287,18 +287,18 @@ module internal ResizeArray =
  
          go 0
@@ -808,10 +837,10 @@ index 2c9cd971c..ce506066c 100644
              state <- f.Invoke(state, arr[i])
              res[i - start + 1] <- state
  
-diff --git a/src/Compiler/AbstractIL/il.fs b/src/Compiler/AbstractIL/il.fs
+diff --git a/src/fcs-fable/src/Compiler/AbstractIL/il.fs b/src/fcs-fable/src/Compiler/AbstractIL/il.fs
 index bee53be38..8add0fd97 100644
---- a/src/Compiler/AbstractIL/il.fs
-+++ b/src/Compiler/AbstractIL/il.fs
+--- a/src/fcs-fable/src/Compiler/AbstractIL/il.fs
++++ b/src/fcs-fable/src/Compiler/AbstractIL/il.fs
 @@ -4950,8 +4950,8 @@ let rec decodeCustomAttrElemType bytes sigptr x =
      | x when x = et_STRING -> PrimaryAssemblyILGlobals.typ_String, sigptr
      | x when x = et_OBJECT -> PrimaryAssemblyILGlobals.typ_Object, sigptr
@@ -861,10 +890,10 @@ index bee53be38..8add0fd97 100644
  
                  let nm, sigptr = sigptr_get_serstring bytes sigptr
                  let v, sigptr = parseVal ty sigptr
-diff --git a/src/Compiler/AbstractIL/ilread.fs b/src/Compiler/AbstractIL/ilread.fs
+diff --git a/src/fcs-fable/src/Compiler/AbstractIL/ilread.fs b/src/fcs-fable/src/Compiler/AbstractIL/ilread.fs
 index fcfc42515..e6fc2d8c1 100644
---- a/src/Compiler/AbstractIL/ilread.fs
-+++ b/src/Compiler/AbstractIL/ilread.fs
+--- a/src/fcs-fable/src/Compiler/AbstractIL/ilread.fs
++++ b/src/fcs-fable/src/Compiler/AbstractIL/ilread.fs
 @@ -981,11 +981,11 @@ let seekReadIndexedRows (numRows, rowReader, keyFunc, keyComparer, binaryChop, r
          let mutable low = 0
          let mutable high = numRows + 1
@@ -1041,10 +1070,10 @@ index fcfc42515..e6fc2d8c1 100644
                      elif n >= Array.length name || c <> name[n] then
                          res <- false
  
-diff --git a/src/Compiler/SyntaxTree/LexHelpers.fs b/src/Compiler/SyntaxTree/LexHelpers.fs
+diff --git a/src/fcs-fable/src/Compiler/SyntaxTree/LexHelpers.fs b/src/fcs-fable/src/Compiler/SyntaxTree/LexHelpers.fs
 index a4c222720..840d804c3 100644
---- a/src/Compiler/SyntaxTree/LexHelpers.fs
-+++ b/src/Compiler/SyntaxTree/LexHelpers.fs
+--- a/src/fcs-fable/src/Compiler/SyntaxTree/LexHelpers.fs
++++ b/src/fcs-fable/src/Compiler/SyntaxTree/LexHelpers.fs
 @@ -152,7 +152,7 @@ type LexerStringFinisherContext =
  type LexerStringFinisher =
      | LexerStringFinisher of (ByteBuffer -> LexerStringKind -> LexerStringFinisherContext -> LexerContinuation -> token)
@@ -1055,10 +1084,10 @@ index a4c222720..840d804c3 100644
 +        let (LexerStringFinisher f) = finish
          f buf kind context cont
  
-diff --git a/codegen/lex.fs b/codegen/lex.fs
+diff --git a/src/fcs-fable/codegen/lex.fs b/src/fcs-fable/codegen/lex.fs
 index 555eaf8aa..f7617d10d 100644
---- a/codegen/lex.fs
-+++ b/codegen/lex.fs
+--- a/src/fcs-fable/codegen/lex.fs
++++ b/src/fcs-fable/codegen/lex.fs
 @@ -172,7 +172,7 @@ let startString args (lexbuf: UnicodeLexing.Lexbuf) =
      let buf = ByteBuffer.Create StringCapacity
      let m = lexbuf.LexemeRange
@@ -1359,10 +1388,10 @@ index 555eaf8aa..f7617d10d 100644
                     
  //# 3751 "lex.fs"
            )
-diff --git a/src/Compiler/TypedTree/TypedTreePickle.fs b/src/Compiler/TypedTree/TypedTreePickle.fs
+diff --git a/src/fcs-fable/src/Compiler/TypedTree/TypedTreePickle.fs b/src/fcs-fable/src/Compiler/TypedTree/TypedTreePickle.fs
 index ea2b31c10..e66b7ce26 100644
---- a/src/Compiler/TypedTree/TypedTreePickle.fs
-+++ b/src/Compiler/TypedTree/TypedTreePickle.fs
+--- a/src/fcs-fable/src/Compiler/TypedTree/TypedTreePickle.fs
++++ b/src/fcs-fable/src/Compiler/TypedTree/TypedTreePickle.fs
 @@ -1716,7 +1716,7 @@ let simple_instrs =
  
  let encode_table = Dictionary<_, _>(300, HashIdentity.Structural)
@@ -1381,6 +1410,91 @@ index ea2b31c10..e66b7ce26 100644
      | I_call(Normalcall, mspec, None) ->
          p_byte itag_call st
          p_ILMethodSpec mspec st
+diff --git a/src/fcs-fable/src/Compiler/Driver/GraphChecking/FileContentMapping.fs b/src/fcs-fable/src/Compiler/Driver/GraphChecking/FileContentMapping.fs
+index efa1b935f..ba3d1b0e8 100644
+--- a/src/fcs-fable/src/Compiler/Driver/GraphChecking/FileContentMapping.fs
++++ b/src/fcs-fable/src/Compiler/Driver/GraphChecking/FileContentMapping.fs
+@@ -388,8 +388,8 @@ let visitSynExpr (e: SynExpr) : FileContentEntry list =
+         | SynExpr.Record(baseInfo = baseInfo; copyInfo = copyInfo; recordFields = recordFields) ->
+             let fieldNodes =
+                 [
+-                    for SynExprRecordField(fieldName = (si, _); expr = expr) in recordFields do
+-                        yield! visitSynLongIdent si
++                    for SynExprRecordField(fieldName = (si1, _); expr = expr) in recordFields do
++                        yield! visitSynLongIdent si1
+                         yield! collectFromOption visitSynExpr expr
+                 ]
+ 
+diff --git a/src/Fable.Transforms/Beam/Replacements.fs b/src/Fable.Transforms/Beam/Replacements.fs
+index dc3f13724..38581cece 100644
+--- a/src/Fable.Transforms/Beam/Replacements.fs
++++ b/src/Fable.Transforms/Beam/Replacements.fs
+@@ -1658,7 +1658,7 @@ let private listModule
+     | "Sort", [ list ] ->
+         match
+             (match list.Type with
+-             | List et -> unionTagOrderExpr com et
++             | List et1 -> unionTagOrderExpr com et1
+              | _ -> None)
+         with
+         | Some tagOrder ->
+@@ -1673,7 +1673,7 @@ let private listModule
+     | "SortDescending", [ list ] ->
+         match
+             (match list.Type with
+-             | List et -> unionTagOrderExpr com et
++             | List et1 -> unionTagOrderExpr com et1
+              | _ -> None)
+         with
+         | Some tagOrder ->
+@@ -2470,7 +2470,7 @@ let private arrayModule
+     | "Sort", [ arr ] ->
+         let elemTagOrder =
+             match arr.Type with
+-            | Array(et, _) -> unionTagOrderExpr com et
++            | Array(et1, _) -> unionTagOrderExpr com et1
+             | _ -> None
+ 
+         let arr = derefArr r arr
+@@ -2488,7 +2488,7 @@ let private arrayModule
+     | "SortDescending", [ arr ] ->
+         let elemTagOrder =
+             match arr.Type with
+-            | Array(et, _) -> unionTagOrderExpr com et
++            | Array(et1, _) -> unionTagOrderExpr com et1
+             | _ -> None
+ 
+         let arr = derefArr r arr
+diff --git a/src/Fable.Transforms/Python/Fable2Python.Transforms.fs b/src/Fable.Transforms/Python/Fable2Python.Transforms.fs
+index 42fee2549..3fffd89f9 100644
+--- a/src/Fable.Transforms/Python/Fable2Python.Transforms.fs
++++ b/src/Fable.Transforms/Python/Fable2Python.Transforms.fs
+@@ -1298,8 +1298,8 @@ let transformTryCatch com (ctx: Context) r returnStrategy (body, catch: (Fable.I
+ 
+     let finalizer, finalizerStmts =
+         finalizer
+-        |> Option.map (fun fin ->
+-            transformBlock com ctx None fin
++        |> Option.map (fun fin1 ->
++            transformBlock com ctx None fin1
+             |> List.partition (
+                 function
+                 | Statement.NonLocal _
+diff --git a/src/Fable.Transforms/Beam/Fable2Beam.fs b/src/Fable.Transforms/Beam/Fable2Beam.fs
+index 2f49d7df7..63537a89b 100644
+--- a/src/Fable.Transforms/Beam/Fable2Beam.fs
++++ b/src/Fable.Transforms/Beam/Fable2Beam.fs
+@@ -872,8 +872,8 @@ let rec transformExpr (com: IBeamCompiler) (ctx: Context) (expr: Expr) : Beam.Er
+ 
+         let afterExprs =
+             match finalizer with
+-            | Some fin ->
+-                let erlFin = transformExpr com ctx fin
++            | Some fin1 ->
++                let erlFin = transformExpr com ctx fin1
+ 
+                 match erlFin with
+                 | Beam.ErlExpr.Block es -> es
 -- 
 2.37.1.windows.1
 
