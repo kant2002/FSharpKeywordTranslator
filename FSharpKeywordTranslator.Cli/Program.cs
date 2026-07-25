@@ -1,7 +1,6 @@
 ﻿using FSharpKeywordTranslator;
 using FSharpKeywordTranslator.Core;
 using System.CommandLine;
-using System.CommandLine.Parsing;
 
 var langOption = new Option<string>(
     name: "--lang")
@@ -77,7 +76,6 @@ replColorizationCommand.SetAction((parseResult) =>
     ProduceFableReplColorizationPatch(
         parseResult.GetRequiredValue(langOption)));
 return rootCommand.Parse(args).Invoke();
-//return await rootCommand.InvokeAsync(args);
 
 static void ProduceFSharpLocalizationPatch(string tfm, string lang)
 {
