@@ -1,15 +1,21 @@
 ﻿using FSharpKeywordTranslator;
 using FSharpKeywordTranslator.Core;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 
 var langOption = new Option<string>(
-    name: "--lang",
-    description: "Language to produce patch for.");
+    name: "--lang")
+{
+    Description = "Language to produce patch for.",
+};
 
 var tfmOption = new Option<string>(
-    name: "--tfm",
-    description: "Target framework to produce patch for. Default net11",
-    getDefaultValue: () => "net11");
+    name: "--tfm")
+{
+    Description = "Target framework to produce patch for. Default net11",
+    DefaultValueFactory = (_) => "net11",
+
+};
 
 var rootCommand = new RootCommand("F# localization patch builder");
 var fsharpCommand = new Command("fsharp", "Produce patch for F# compiler.")
@@ -17,44 +23,61 @@ var fsharpCommand = new Command("fsharp", "Produce patch for F# compiler.")
     tfmOption,
     langOption
 };
-rootCommand.AddCommand(fsharpCommand);
-fsharpCommand.SetHandler(ProduceFSharpLocalizationPatch, tfmOption, langOption);
+rootCommand.Subcommands.Add(fsharpCommand);
+fsharpCommand.SetAction((parseResult) => 
+    ProduceFSharpLocalizationPatch(
+        parseResult.GetRequiredValue(tfmOption),
+        parseResult.GetRequiredValue(langOption)));
 var fableCommand = new Command("fable", "Produce patch for Fable F# fork.")
 {
     tfmOption,
     langOption
 };
-rootCommand.AddCommand(fableCommand);
-fableCommand.SetHandler(ProduceSimpleFSharpLocalizationPatch, tfmOption, langOption);
+rootCommand.Subcommands.Add(fableCommand);
+fableCommand.SetAction((parseResult) => 
+    ProduceSimpleFSharpLocalizationPatch(
+        parseResult.GetRequiredValue(tfmOption),
+        parseResult.GetRequiredValue(langOption)));
 var fableCommand2 = new Command("fable2", "Produce patch for Fable F# fork.")
 {
     tfmOption,
     langOption
 };
-rootCommand.AddCommand(fableCommand2);
-fableCommand2.SetHandler(ProduceFableFcsFSharpLocalizationPatch, tfmOption, langOption);
+rootCommand.Subcommands.Add(fableCommand2);
+fableCommand2.SetAction((parseResult) => 
+    ProduceFableFcsFSharpLocalizationPatch(
+        parseResult.GetRequiredValue(tfmOption),
+        parseResult.GetRequiredValue(langOption)));
 var fableBuildCommand = new Command("fable-build", "Produce patch for Fable F# fork build files.")
 {
     tfmOption,
     langOption
 };
-rootCommand.AddCommand(fableBuildCommand);
-fableBuildCommand.SetHandler(ProduceFableFSharpBuildLocalizationPatch, tfmOption, langOption);
+rootCommand.Subcommands.Add(fableBuildCommand);
+fableBuildCommand.SetAction((parseResult) => 
+    ProduceFableFSharpBuildLocalizationPatch(
+        parseResult.GetRequiredValue(tfmOption),
+        parseResult.GetRequiredValue(langOption)));
 var replCommand = new Command("repl", "Produce patch for Fable REPL.")
 {
     tfmOption,
     langOption
 };
-rootCommand.AddCommand(replCommand);
-replCommand.SetHandler(ProduceFableReplLocalizationPatch, tfmOption, langOption);
+rootCommand.Subcommands.Add(replCommand);
+replCommand.SetAction((parseResult) => 
+    ProduceFableReplLocalizationPatch(
+        parseResult.GetRequiredValue(tfmOption),
+        parseResult.GetRequiredValue(langOption)));
 var replColorizationCommand = new Command("repl-colorization", "Produce patch for Fable REPL colorization.")
 {
     langOption
 };
-rootCommand.AddCommand(replColorizationCommand);
-replColorizationCommand.SetHandler(ProduceFableReplColorizationPatch, langOption);
-
-return await rootCommand.InvokeAsync(args);
+rootCommand.Subcommands.Add(replColorizationCommand);
+replColorizationCommand.SetAction((parseResult) => 
+    ProduceFableReplColorizationPatch(
+        parseResult.GetRequiredValue(langOption)));
+return rootCommand.Parse(args).Invoke();
+//return await rootCommand.InvokeAsync(args);
 
 static void ProduceFSharpLocalizationPatch(string tfm, string lang)
 {
