@@ -5,9 +5,9 @@ public static class WellKnownConstants
     public static readonly LanguageName[] Languages = new LanguageName[]
     { 
         new("en","us","English"), 
-        new("uk","ua","Ukrainian") { ReplLink = "https://kant2002.github.io/fable-repl-ua/" },
+        new("uk","ua","Ukrainian") { ReplLink = "https://kant2002.github.io/fable-repl-uk/" },
         new("tr","tr","Turkish") { ReplLink = "https://kant2002.github.io/fable-repl-tr/" },
-        new("kk","kz","Kazakh") { ReplLink = "https://kant2002.github.io/fable-repl-kz/" },
+        new("kk","kz","Kazakh") { ReplLink = "https://kant2002.github.io/fable-repl-kk/" },
         new("es","es","Spanish"),
         new("de","de","German"),
         new("it","it","Italian"),
@@ -17,6 +17,7 @@ public static class WellKnownConstants
         new("eo","eo","Esperanto") { ReplLink = "https://kant2002.github.io/fable-repl-eo/" },
         new("ko","ko","Korean"),
         new("fr","fr","French"),
+        new("ja","ja","Japanese"),
         new("ru","ru","Russian") { ReplLink = "https://kant2002.github.io/fable-repl-ru/" },
     };
 }
