@@ -16,6 +16,12 @@ var tfmOption = new Option<string>(
 
 };
 
+var fileOption = new Option<FileInfo>(
+    name: "--file")
+{
+    Description = "File which should be translated.",
+};
+
 var rootCommand = new RootCommand("F# localization patch builder");
 var fsharpCommand = new Command("fsharp", "Produce patch for F# compiler.")
 {
@@ -75,6 +81,19 @@ rootCommand.Subcommands.Add(replColorizationCommand);
 replColorizationCommand.SetAction((parseResult) => 
     ProduceFableReplColorizationPatch(
         parseResult.GetRequiredValue(langOption)));
+
+var translateCommand = new Command("translate", "Translate F# code.")
+{
+    fileOption,
+    langOption
+};
+rootCommand.Subcommands.Add(translateCommand);
+translateCommand.SetAction((parseResult) =>
+    TranslateFSharpFile(
+        parseResult.GetRequiredValue(fileOption),
+        parseResult.GetRequiredValue(langOption)));
+
+
 return rootCommand.Parse(args).Invoke();
 
 static void ProduceFSharpLocalizationPatch(string tfm, string lang)
@@ -134,4 +153,11 @@ static void ProduceFableReplColorizationPatch(string lang)
     var configuration = l.GetLanguageConfiguration(lang);
     var patch = patchGenerator.GenerateFableReplColorizationPatch(configuration);
     Console.WriteLine(patch);
+}
+static void TranslateFSharpFile(FileInfo fileInfo, string language)
+{
+    var fileTranslator = new FileTranslator();
+    var l = new LanguageConfigurationManager();
+    var configuration = l.GetLanguageConfiguration(language);
+    fileTranslator.TranslateFSharpFile(fileInfo, configuration);
 }
