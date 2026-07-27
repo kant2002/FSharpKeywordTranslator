@@ -6,6 +6,7 @@
   <Folder Name="/Solution Items/">
     <File Path="fable.ps1" />
     <File Path="fsharp.ps1" />
+    <File Path="identifiers.fsx" />
     <File Path="README.md" />
     <File Path="translate.ps1" />
   </Folder>
