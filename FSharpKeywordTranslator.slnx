@@ -7,6 +7,7 @@
     <File Path="fable.ps1" />
     <File Path="fsharp.ps1" />
     <File Path="README.md" />
+    <File Path="translate.ps1" />
   </Folder>
   <Project Path="FSharpKeywordTranslator.Cli/FSharpKeywordTranslator.Cli.csproj" />
   <Project Path="FSharpKeywordTranslator.Core/FSharpKeywordTranslator.Core.csproj" />
