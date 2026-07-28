@@ -1,9 +1,9 @@
+#if USE_FCS
 //#r "nuget: FSharp.Core, Version=10.1.204"
-#r "nuget: FSharp.Compiler.Service, Version=43.12.101-preview7.26359.118"
-
-open FSharp.Compiler.CodeAnalysis
-open FSharp.Compiler.Text
-open FSharp.Compiler.Syntax
+//#r "nuget: FSharp.Compiler.Service, Version=43.12.101-preview7.26359.118"
+//open FSharp.Compiler.CodeAnalysis
+//open FSharp.Compiler.Text
+//open FSharp.Compiler.Syntax
 
 let parseToAST (inputCode: string) =
     let checker = FSharpChecker.Create()
@@ -21,6 +21,18 @@ let parseToAST (inputCode: string) =
         printfn "Errors: %A" parseResults.Diagnostics
         
     parseResults.ParseTree
+#else
+#r "nuget: Fantomas.FCS"
+
+open Fantomas.FCS.Text
+open Fantomas.FCS.Syntax
+
+let parseToAST (inputCode: string) =
+    let ast =
+        Fantomas.FCS.Parse.parseFile false (Fantomas.FCS.Text.SourceText.ofString inputCode) []
+        |> fst
+    ast
+#endif
 
 let collectLongId list (longId: LongIdent) =
     list @ (longId |> List.map (fun id -> id.idText))
@@ -89,7 +101,11 @@ let rec collectIdentifiersFromExpr list expr =
 
 let rec collectIdentifiersFromDecls list decl =
     match decl with
+#if USE_FCS
     | SynModuleDecl.Let(isRecursive, bindings, range, _) ->
+#else
+    | SynModuleDecl.Let(isRecursive, bindings, range) ->
+#endif
         bindings |> List.fold collectIdentifiersFromBindings list
     | SynModuleDecl.NestedModule (moduleInfo, isRecursive, decls, isContinuing, range, _) ->
         let list = 
@@ -118,7 +134,11 @@ let collectIdentifiers list (ast: ParsedInput) =
     match ast with
     | ParsedInput.ImplFile parsedInput ->
         match parsedInput with
+#if USE_FCS
         | ParsedImplFileInput(fileName, isScript, qualifiedNameOfFile, hashDirectives, contents, (isExe, isLastCompiland), trivia, identifiers) ->
+#else
+        | ParsedImplFileInput(fileName, isScript, qualifiedNameOfFile, _, hashDirectives, contents, (isExe, isLastCompiland), trivia, identifiers) ->
+#endif
             //printfn "File Name: %s" fileName
             //printfn "Is Script: %b" isScript
             //printfn "Qualified Name: %A" qualifiedNameOfFile
