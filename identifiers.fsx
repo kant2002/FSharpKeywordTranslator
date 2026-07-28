@@ -37,6 +37,11 @@ let parseToAST (inputCode: string) =
 let collectLongId list (longId: LongIdent) =
     list @ (longId |> List.map (fun id -> id.idText))
 
+let collectSynLongId list (longId: SynLongIdent) =
+    match longId with
+    | SynLongIdent(longId, _, _) ->
+        collectLongId list longId
+
 let collectIdentifiersFromBindings list binding =
     match binding with
     | SynBinding(access, kind, isInline, isMutable, attrs, xmlDoc, valData, headPat, returnInfo, expr, range, _, trivia) ->
@@ -49,11 +54,13 @@ let collectIdentifiersFromBindings list binding =
         //printfn "Val Data: %A" valData
         match headPat with
         | SynPat.LongIdent(longId, extraId, typarDecls, argPats, accessibility, _) ->
-            printfn "Long id: %A" longId
-            printfn "Extra id: %A" extraId
-            printfn "Type parameters: %A" typarDecls
-            printfn "Argument patterns: %A" argPats
-            printfn "Accessibility: %A" accessibility
+            //printfn "Long id: %A" longId
+            //printfn "Extra id: %A" extraId
+            //printfn "Type parameters: %A" typarDecls
+            //printfn "Argument patterns: %A" argPats
+            //printfn "Accessibility: %A" accessibility
+            let list = longId |> collectSynLongId list 
+            let list = extraId |> Option.map (fun id -> list @ [id.idText]) |> Option.defaultValue list
             list
         | SynPat.Named (ident, isThisVar, access, range) ->
             match ident with
@@ -78,6 +85,10 @@ let rec collectIdentifiersFromExpr list expr =
         list @ [ident.idText]
     | SynExpr.LongIdent(_, longId, _, _) ->
         collectLongId list longId.LongIdent
+    | SynExpr.LongIdentSet (longId, expr, _) ->
+        let list = longId |> collectSynLongId list
+        let list = expr |> collectIdentifiersFromExpr list
+        list
     | SynExpr.App (_, _, funcExpr, argExpr, _) ->
         let list = collectIdentifiersFromExpr list funcExpr
         collectIdentifiersFromExpr list argExpr
@@ -94,6 +105,8 @@ let rec collectIdentifiersFromExpr list expr =
             | SynInterpolatedStringPart.String (text, _) -> acc
             | SynInterpolatedStringPart.FillExpr (expr, _) -> collectIdentifiersFromExpr acc expr
         ) list
+    | SynExpr.Paren (expr, _, _, _) ->
+        collectIdentifiersFromExpr list expr
     | _ ->
         // Handle other expression types as needed
         printfn "Expression: %A" expr
@@ -164,9 +177,23 @@ let collectIdentifiers list (ast: ParsedInput) =
     | _ ->
         printfn "%A" ast
         list
-
 open System.IO
-let code = File.ReadAllText fsi.CommandLineArgs.[1]
-let ast = parseToAST code
+let collectIdentifiersFromFile list fileName =
+    let code = File.ReadAllText fileName
+    let ast = parseToAST code
+    collectIdentifiers list ast
 
-printfn "Identifiers: %A" (collectIdentifiers [] ast |> List.distinct)
+if fsi.CommandLineArgs.Length = 0 then
+    printfn "Usage: fsi identifiers.fsx <basePath/file>"
+else
+    let basePath = fsi.CommandLineArgs.[1]
+    let fileNames = 
+        if Directory.Exists(basePath) then
+            let sampleFiles = ["tour/primitives.fs"; "tour/functions.fs" ]
+            sampleFiles |> List.map (fun fileName -> Path.Combine(basePath, "samples", fileName))
+        else
+            [basePath]
+    let identifiers =
+        fileNames |> List.fold collectIdentifiersFromFile []
+
+    printfn "Identifiers: %A" (identifiers |> List.distinct)
