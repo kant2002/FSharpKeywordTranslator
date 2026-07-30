@@ -1,9 +1,8 @@
 #if USE_FCS
-//#r "nuget: FSharp.Core, Version=10.1.204"
-//#r "nuget: FSharp.Compiler.Service, Version=43.12.101-preview7.26359.118"
-//open FSharp.Compiler.CodeAnalysis
-//open FSharp.Compiler.Text
-//open FSharp.Compiler.Syntax
+#r "nuget: FSharp.Compiler.Service, Version=43.12.101-preview7.26359.118"
+open FSharp.Compiler.CodeAnalysis
+open FSharp.Compiler.Text
+open FSharp.Compiler.Syntax
 
 let parseToAST (inputCode: string) =
     let checker = FSharpChecker.Create()
@@ -185,7 +184,12 @@ let rec collectIdentifiersFromExpr list expr =
     | SynExpr.TypeApp (expr, _, typeArgs, _, _, _, _) ->
         let list = collectIdentifiersFromExpr list expr
         typeArgs |> List.fold collectType list
+#if USE_FCS
+    | SynExpr.LetOrUse synletUse ->
+        let (bindings, bodyExpr) = (synletUse.Bindings, synletUse.Body)
+#else
     | SynExpr.LetOrUse (_, _, bindings, bodyExpr, _, _) ->
+#endif
         let list = bindings |> List.fold collectIdentifiersFromBindings list
         collectIdentifiersFromExpr list bodyExpr
     | SynExpr.Match (_, expr, clauses, _, _) ->
@@ -251,7 +255,11 @@ let rec collectSynMemberDefn list memberDef =
     match memberDef with
     | SynMemberDefn.Member(binding, _) ->
         collectIdentifiersFromBindings list binding
+#if USE_FCS
+    | SynMemberDefn.LetBindings (bindings, _, _, _, _) ->
+#else
     | SynMemberDefn.LetBindings (bindings, _, _, _) ->
+#endif
         bindings |> List.fold collectIdentifiersFromBindings list
     | SynMemberDefn.ImplicitCtor (_, attrs, ctorArgs, selfIdentifier, _, _, _) ->
         let acc = collectSynAttributes list attrs
@@ -259,7 +267,11 @@ let rec collectSynMemberDefn list memberDef =
         match selfIdentifier with
         | Some ident -> acc @ [ident.idText]
         | None -> acc
+#if USE_FCS
+    | SynMemberDefn.ImplicitInherit (typeName, expr, identOpt, _, _) ->
+#else
     | SynMemberDefn.ImplicitInherit (typeName, expr, identOpt, _) ->
+#endif
         let acc = collectType list typeName
         let acc = collectIdentifiersFromExpr acc expr
         match identOpt with
@@ -285,8 +297,13 @@ let rec collectSynMemberDefn list memberDef =
         match membersOpt with
         | Some members -> members |> List.fold collectSynMemberDefn acc
         | None -> acc
+#if USE_FCS
+    | SynMemberDefn.Inherit (baseType, asIdent, _, _) ->
+        let list = match baseType with | Some baseType -> collectType list baseType | None -> list
+#else
     | SynMemberDefn.Inherit (baseType, asIdent, _) ->
         let list = collectType list baseType
+#endif
         match asIdent with
         | Some ident -> list @ [ident.idText]
         | None -> list
