@@ -117,16 +117,35 @@ index 02d4da364..938eba25e 100644
              ALWAYS, "_", UNDERSCORE
              (*------- for prototyping and explaining offside rule *)
              FSHARP, "__token_OBLOCKSEP", OBLOCKSEP
+diff --git a/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.fsproj b/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.fsproj
+index fddbf477e..ff3a2abd1 100644
+--- a/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.fsproj
++++ b/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.fsproj
+@@ -3,6 +3,7 @@
+     <PreRelease>true</PreRelease>
+     <OutputType>Exe</OutputType>
+     <TargetFramework>$(FSharpNetCoreProductTargetFramework)</TargetFramework>
++    <AssemblyName>AndriiKurdiumov.FSharp.Compiler.{LanguageName}</AssemblyName>
+     <NuspecFile>Microsoft.FSharp.Compiler.nuspec</NuspecFile>
+     <IsPackable>true</IsPackable>
+     <PackageDescription>.NET Core compatible version of the F# compiler fsc.exe.</PackageDescription>
 diff --git a/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec b/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec
 index fddbf477e..ff3a2abd1 100644
 --- a/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec
 +++ b/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec
-@@ -30,7 +30,8 @@
+@@ -27,10 +27,15 @@
+         -->
+         <!-- assemblies -->
+         <file src="fsc\$configuration$\$fSharpNetCoreProductTargetFramework$\fsc.dll"                      target="lib\$fSharpNetCoreProductTargetFramework$" />
++        <file src="fsc\$configuration$\$fSharpNetCoreProductTargetFramework$\default.win32manifest"        target="lib\$fSharpNetCoreProductTargetFramework$" />
++        <file src="fsc\$configuration$\$fSharpNetCoreProductTargetFramework$\fsc.runtimeconfig.json"       target="lib\$fSharpNetCoreProductTargetFramework$" />
++        <file src="fsc\$configuration$\$fSharpNetCoreProductTargetFramework$\Microsoft.Build.Utilities.Core.dll"       target="lib\$fSharpNetCoreProductTargetFramework$" />
          <file src="fsi\$configuration$\$fSharpNetCoreProductTargetFramework$\fsi.dll"                      target="lib\$fSharpNetCoreProductTargetFramework$" />
++        <file src="fsi\$configuration$\$fSharpNetCoreProductTargetFramework$\fsi.runtimeconfig.json"       target="lib\$fSharpNetCoreProductTargetFramework$" />
          <file src="FSharp.Core\$configuration$\netstandard2.0\FSharp.Core.dll"                             target="lib\$fSharpNetCoreProductTargetFramework$" />
          <file src="FSharp.Core\$configuration$\netstandard2.0\FSharp.Core.xml"                             target="lib\$fSharpNetCoreProductTargetFramework$" />
 -        <file src="FSharp.Compiler.Service\$configuration$\netstandard2.0\FSharp.Compiler.Service.dll"     target="lib\$fSharpNetCoreProductTargetFramework$" />
-+        <file src="FSharp.Compiler.Service\$configuration$\netstandard2.0\FSharp.Compiler.Service.{LanguageName}.dll"
++        <file src="FSharp.Compiler.Service\$configuration$\netstandard2.0\FSharp.Compiler.Service.Ukrainian.dll"
 +                                                                                                           target="lib\$fSharpNetCoreProductTargetFramework$" />
          <file src="FSharp.Build\$configuration$\netstandard2.0\FSharp.Build.dll"                           target="lib\$fSharpNetCoreProductTargetFramework$" />
          <file src="FSharp.DependencyManager.Nuget\$configuration$\netstandard2.0\FSharp.DependencyManager.Nuget.dll"
@@ -1777,4 +1796,3 @@ index a4c222720..840d804c3 100644
      static member Default =
 -- 
 2.37.1.windows.1
-
