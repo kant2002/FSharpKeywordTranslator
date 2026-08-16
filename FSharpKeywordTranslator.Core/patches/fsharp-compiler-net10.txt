@@ -1490,7 +1490,7 @@ index c051f4da6..7ae00a69d 100644
              | x when x = et_SZARRAY ->
 -                 let et,sigptr = sigptr_get_u8 bytes sigptr
 -                 let elemTy,sigptr = decodeCustomAttrElemType ilg bytes sigptr et
-+                 let et1et1,sigptr = sigptr_get_u8 bytes sigptr
++                 let et1,sigptr = sigptr_get_u8 bytes sigptr
 +                 let elemTy,sigptr = decodeCustomAttrElemType ilg bytes sigptr et1
                   mkILArr1DTy elemTy, sigptr
              | x when x = 0x50uy -> ilg.typ_Type, sigptr
@@ -1774,6 +1774,7 @@ index a4c222720..840d804c3 100644
 +        let (LexerStringFinisher f) = finish
          f buf kind context cont
  
+     static member Default =
 -- 
 2.37.1.windows.1
 
