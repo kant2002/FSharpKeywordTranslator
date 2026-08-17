@@ -31,9 +31,12 @@ try {
     mkdir "$OutputStorage\$Language\artifacts\bin\fsc\Release" -Force
     mkdir "$OutputStorage\$Language\artifacts\bin\fsi\Release" -Force
     mkdir "$OutputStorage\$Language\artifacts\VSSetup\Release" -Force
+    mkdir "$OutputStorage\$Language\artifacts\packages\Release" -Force
     Copy-Item "$FSharpRepo\artifacts\bin\fsc\Release\*" -Destination "$OutputStorage\$Language\artifacts\bin\fsc\Release" -Recurse -Force
     Copy-Item "$FSharpRepo\artifacts\bin\fsi\Release\*" -Destination "$OutputStorage\$Language\artifacts\bin\fsi\Release" -Recurse -Force
     Copy-Item "$FSharpRepo\artifacts\VSSetup\Release\*" -Destination "$OutputStorage\$Language\artifacts\VSSetup\Release" -Recurse -Force
+    Copy-Item "$FSharpRepo\artifacts\packages\Release\Dependency\Shipping\*" -Destination "$OutputStorage\$Language\artifacts\packages\Release" -Recurse -Force
+    Copy-Item "$FSharpRepo\artifacts\packages\Release\Shipping\*" -Destination "$OutputStorage\$Language\artifacts\packages\Release" -Recurse -Force
 } finally {
     popd
 }

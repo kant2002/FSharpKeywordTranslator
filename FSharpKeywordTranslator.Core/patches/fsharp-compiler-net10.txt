@@ -19,6 +19,17 @@ diff --git a/Directory.Build.props b/Directory.Build.props
 index 08a1434cd..6321409f6 100644
 --- a/Directory.Build.props
 +++ b/Directory.Build.props
+@@ -1,8 +1,8 @@
+ <Project>
+ 
+   <PropertyGroup>
+-    <PackageProjectUrl>https://github.com/dotnet/fsharp</PackageProjectUrl>
+-    <RepositoryUrl>https://github.com/dotnet/fsharp</RepositoryUrl>
++    <PackageProjectUrl>https://github.com/kant2002/fsharpkeywordtranslator</PackageProjectUrl>
++    <RepositoryUrl>https://github.com/kant2002/fsharpkeywordtranslator</RepositoryUrl>
+     <LangVersion Condition="'$(FSharpLangVersion)' != ''">$(FSharpLangVersion)</LangVersion>
+     <RepoRoot Condition="'$(RepoRoot)' == ''">$(MSBuildThisFileDirectory)</RepoRoot>
+     <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
 @@ -14,6 +14,11 @@
      <PublishWindowsPdb Condition="'$(DotNetBuild)' == 'true'">false</PublishWindowsPdb>
    </PropertyGroup>
@@ -121,14 +132,18 @@ diff --git a/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.fsproj b/sr
 index fddbf477e..ff3a2abd1 100644
 --- a/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.fsproj
 +++ b/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.fsproj
-@@ -3,6 +3,7 @@
+@@ -3,9 +3,10 @@
      <PreRelease>true</PreRelease>
      <OutputType>Exe</OutputType>
      <TargetFramework>$(FSharpNetCoreProductTargetFramework)</TargetFramework>
 +    <AssemblyName>AndriiKurdiumov.FSharp.Compiler.{LanguageName}</AssemblyName>
      <NuspecFile>Microsoft.FSharp.Compiler.nuspec</NuspecFile>
      <IsPackable>true</IsPackable>
-     <PackageDescription>.NET Core compatible version of the F# compiler fsc.exe.</PackageDescription>
+-    <PackageDescription>.NET Core compatible version of the F# compiler fsc.exe.</PackageDescription>
++    <PackageDescription>Пакет сервісив компілятора Ф# для F# $(FSLanguageVersion) виставляє додатковий функціонал для реалізації мовних прив'язок Ф#, додаткових інструментів на основі компілятора або інструментів рефакторінга. Пакет також включає інтерактивний сервіс Ф#, який можна використовувати для вбудовування сценаріїв Ф# у ваші програми. Містить код із F# Software Foundation.</PackageDescription>
+     <PackageReleaseNotes>/blob/main/docs/release-notes/.Language/$(FSLanguageVersion).md</PackageReleaseNotes>
+     <NoDefaultExcludes>true</NoDefaultExcludes>
+   </PropertyGroup>
 diff --git a/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec b/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec
 index fddbf477e..ff3a2abd1 100644
 --- a/src/Microsoft.FSharp.Compiler/Microsoft.FSharp.Compiler.nuspec
