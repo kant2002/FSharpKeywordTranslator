@@ -19,5 +19,6 @@ public static class WellKnownConstants
         new("fr","fr","French") { ReplLink = "https://kant2002.github.io/fable-repl-fr/" },
         new("ja","ja","Japanese") { ReplLink = "https://kant2002.github.io/fable-repl-ja/" },
         new("ru","ru","Russian") { ReplLink = "https://kant2002.github.io/fable-repl-ru/" },
+        new("ta","in","Tamil"),
     };
 }
